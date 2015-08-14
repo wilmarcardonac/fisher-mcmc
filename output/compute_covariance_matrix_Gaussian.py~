@@ -1,0 +1,9 @@
+import numpy as np
+
+data = np.loadtxt('mcmc_output.dat')
+
+Cov = np.cov(data[:,2:],rowvar=0)
+
+np.savetxt('covariance_matrix.dat',Cov,fmt='%.10E')
+
+exit()

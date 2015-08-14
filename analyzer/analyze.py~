@@ -1,0 +1,10 @@
+#import pylab as py
+#import numpy as np
+#import math
+from getdist import loadMCSamples 
+
+samples = loadMCSamples('../output/mcmc_final_output')
+
+print 'Happy '
+
+exit()
