@@ -5,8 +5,8 @@ FITSDIR = #/home/wilmar/usr/local/lib/lib
 LIBFITS = #cfitsio
 INCDIR	= #/home/wilmar/additional-software/Healpix_3.00/includef90
 IDIR	= #/home/wilmar/additional-software/Healpix_3.00/include
-LIBDIR	= /home/cardonac/projects/number-counts-convergence/Fisher-matrix-analysis/lapack-3.5.0	
-LDIR	= /home/cardonac/projects/number-counts-convergence/Fisher-matrix-analysis/ranlib/lib
+LIBDIR	= ./lapack-3.5.0	
+LDIR	= ./ranlib/lib
 F_FL   	= -O3 -I$(INCDIR) -I$(IDIR) -DGFORTRAN -fno-second-underscore -fopenmp -fPIC -g
 LIB_FL 	= -L$(LIBDIR) -llapack -lblas -L$(LDIR) -lranlib -lrnglib # -lhpxgif -l$(LIBFITS) -Wl,-R$(FITSDIR)
 #####################

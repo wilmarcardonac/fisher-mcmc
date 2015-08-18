@@ -1,4 +1,4 @@
-q_linstep=1.
-l_switch_limber_for_cl_density_over_z=10000.
-selection_sampling_bessel=.3
-k_max_tau0_over_l_max= 2.31
+q_linstep=0.3
+l_switch_limber_for_cl_density_over_z=20000.
+selection_sampling_bessel=3.
+k_max_tau0_over_l_max= 100.
