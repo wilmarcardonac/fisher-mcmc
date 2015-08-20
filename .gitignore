@@ -1,10 +1,10 @@
-data/
+data/*.dat
 output/*.txt
-output/*pdf
+output/*.pdf
 *.mod
 *.o
 *.zip
 *.tgz
 *.py
 *.out
-ini_files/
+ini_files/*.ini
