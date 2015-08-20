@@ -52,7 +52,7 @@ start_from_fiducial = .false.                    ! starting MCMC analysis from f
 
 testing_Gaussian_likelihood = .false.           ! If testing Gaussian likelihood
 
-compute_data_fisher_analysis = .false. 
+compute_data_fisher_analysis = .true. 
 
 If (testing_Gaussian_likelihood) then
 
@@ -138,6 +138,10 @@ param_MG_beta2(0:n_points-1), stat = status2)
 !##################################################################
 
 call fill_parameters_array(p)
+
+call run_class('MG_beta2',MG_beta2,lensing,.true.)
+
+stop
 
 If (compute_data_fisher_analysis) then
 

@@ -1,0 +1,9 @@
+data/
+output/
+*.mod
+*.o
+*.zip
+*.tgz
+*.py
+*.out
+ini_files/
