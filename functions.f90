@@ -876,7 +876,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     write(10,'(a17)') 'bessel file = yes'
 
-    write(10,'(a12,i4)') 'l_max_lss = ', lmax
+    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
 
     write(10,'(a8,i1)') 'l_min = ', lmin
 
@@ -980,7 +980,7 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     write(10,'(a17)') 'bessel file = yes'
 
-    write(10,'(a12,i4)') 'l_max_lss = ', lmax
+    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
 
     write(10,'(a8,i1)') 'l_min = ', lmin
 

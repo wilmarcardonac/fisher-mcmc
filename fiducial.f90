@@ -47,6 +47,7 @@ Integer*4,parameter :: nbins = 10
 Real*8,parameter :: zmin = 0.1d0
 Real*8,parameter :: zmax = 2.0d0
 Real*8,parameter :: dz = 1.0d-3
+Integer*4,parameter :: lmax_class = 2000
 Integer*4,parameter :: lmax = 2000
 Integer*4,parameter :: lmin = 2
 Real*8,parameter :: gal_per_sqarcmn = 30.d0

@@ -37,6 +37,7 @@ Real*8 :: random_uniform    ! Random uniform deviate between o and 1
 Integer*4 :: number_accepted_points,number_rejected_points ! MCMC parameters 
 Integer*4 :: weight    ! It counts the number of steps taken before moving to a new point in MCMC 
 logical :: compute_data_fisher_analysis    !    Fisher matrix analysis parameter
+logical :: do_only_mcmc_analysis    !    Do only MCMC analysis ?  
     
 !##########################################################
 !##########################################################
@@ -52,7 +53,9 @@ start_from_fiducial = .false.                    ! starting MCMC analysis from f
 
 testing_Gaussian_likelihood = .false.           ! If testing Gaussian likelihood
 
-compute_data_fisher_analysis = .true. 
+compute_data_fisher_analysis = .false. 
+
+do_only_mcmc_analysis = .true.
 
 If (testing_Gaussian_likelihood) then
 
@@ -64,7 +67,7 @@ Else
 
 End If
 
-using_inverse_fisher_matrix = .true.           ! True if one wants to use inverse of Fisher matrix as a covariance matrix 
+using_inverse_fisher_matrix = .false.           ! True if one wants to use inverse of Fisher matrix as a covariance matrix 
 
 number_rejected_points = 0
 
@@ -139,10 +142,6 @@ param_MG_beta2(0:n_points-1), stat = status2)
 
 call fill_parameters_array(p)
 
-call run_class('MG_beta2',MG_beta2,lensing,.true.)
-
-stop
-
 If (compute_data_fisher_analysis) then
 
     write(15,*) 'Computing data for Fisher matrix analysis '
@@ -150,6 +149,16 @@ If (compute_data_fisher_analysis) then
     call compute_data_for_fisher_analysis(p)
 
     write(15,*) 'Data for Fisher matrix analysis have been computed '
+
+Else if (do_only_mcmc_analysis) then
+
+    write(15,*) 'Computing data for MCMC  analysis '
+
+    call run_class('omega_b',omega_b,.true.,.true.)
+
+    call run_class('omega_b',omega_b,.true.,.false.)
+
+    write(15,*) 'Data for MCMC analysis have been computed '
 
 Else
 
@@ -202,119 +211,124 @@ write(15,*) '-ln(L/L_{max}) at the fiducial point without lensing is ', -euclid_
 
 write(15,*), '-ln(L/L_{max}) at the fiducial point with lensing is ', -euclid_galaxy_cl_likelihood(Cl_fid)
 
-!############################
-! Computing covariance matrix 
-!############################
+If (.not.do_only_mcmc_analysis) then
 
-allocate (cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),stat = status4)
+    !############################
+    ! Computing covariance matrix 
+    !############################
 
-call compute_covariance_matrix()
+    allocate (cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),stat = status4)
 
-allocate (cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
-inv_cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
-cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),inv_cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),stat = status6)
+    call compute_covariance_matrix()
 
-!###################################################
-! Writing covariance matrix in terms of superindices
-!###################################################
+    allocate (cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
+    inv_cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
+    cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),inv_cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),stat = status6)
 
-call write_cov_two_indices()
+    !###################################################
+    ! Writing covariance matrix in terms of superindices
+    !###################################################
 
-call write_cov_two_indices_oa()
+    call write_cov_two_indices()
 
-!call write_covariance_matrix(2)
+    call write_cov_two_indices_oa()
 
-!call write_covariance_matrix(200)
+    !call write_covariance_matrix(2)
 
-!call write_covariance_matrix(2000)
+    !call write_covariance_matrix(200)
 
-deallocate (cov)
+    !call write_covariance_matrix(2000)
 
-!#######################################
-! Computing inverse of covariance matrix
-!#######################################
+    deallocate (cov)
 
-call inverting_matrix()
+    !#######################################
+    ! Computing inverse of covariance matrix
+    !#######################################
 
-call inverting_matrix_oa()
+    call inverting_matrix()
 
-!call write_inverse_covariance_matrix(2)
+    call inverting_matrix_oa()
 
-!call write_inverse_covariance_matrix(200)
+    !call write_inverse_covariance_matrix(2)
 
-!call write_inverse_covariance_matrix(2000)
+    !call write_inverse_covariance_matrix(200)
 
-deallocate (cov_l_IP,cov_l_IP_oa)
+    !call write_inverse_covariance_matrix(2000)
 
-!##############################################################
-! Writing inverse covariance matrix in terms of indices i,j,p,q
-!##############################################################
+    deallocate (cov_l_IP,cov_l_IP_oa)
 
-allocate (inv_cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),inv_cov_oa(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins))
+    !##############################################################
+    ! Writing inverse covariance matrix in terms of indices i,j,p,q
+    !##############################################################
 
-call write_inv_cov_four_indices()
+    allocate (inv_cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),inv_cov_oa(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins))
 
-call write_inv_cov_four_indices_oa() 
+    call write_inv_cov_four_indices()
 
-deallocate (inv_cov_l_IP,inv_cov_l_IP_oa)
+    call write_inv_cov_four_indices_oa() 
 
-!######################################################################
-! Computing derivatives of Cl's w.r.t different cosmological parameters
-!######################################################################
+    deallocate (inv_cov_l_IP,inv_cov_l_IP_oa)
 
-allocate (Cl_1(lmin:lmax,0:nbins,0:nbins),Cl_2(lmin:lmax,0:nbins,0:nbins),Cl_3(lmin:lmax,0:nbins,0:nbins),&
-Cl_4(lmin:lmax,0:nbins,0:nbins),dCl(lmin:lmax,0:nbins,0:nbins),Cl_5(lmin:lmax,0:nbins,0:nbins),&
-Cl_6(lmin:lmax,0:nbins,0:nbins),Cl_7(lmin:lmax,0:nbins,0:nbins),Cl_8(lmin:lmax,0:nbins,0:nbins),&
-dCl_nl(lmin:lmax,0:nbins,0:nbins),stat = status5)
+    !######################################################################
+    ! Computing derivatives of Cl's w.r.t different cosmological parameters
+    !######################################################################
 
-call compute_derivatives()
+    allocate (Cl_1(lmin:lmax,0:nbins,0:nbins),Cl_2(lmin:lmax,0:nbins,0:nbins),Cl_3(lmin:lmax,0:nbins,0:nbins),&
+    Cl_4(lmin:lmax,0:nbins,0:nbins),dCl(lmin:lmax,0:nbins,0:nbins),Cl_5(lmin:lmax,0:nbins,0:nbins),&
+    Cl_6(lmin:lmax,0:nbins,0:nbins),Cl_7(lmin:lmax,0:nbins,0:nbins),Cl_8(lmin:lmax,0:nbins,0:nbins),&
+    dCl_nl(lmin:lmax,0:nbins,0:nbins),stat = status5)
 
-deallocate (Cl_1,Cl_2,Cl_3,Cl_4,Cl_5,Cl_6,Cl_7,Cl_8,dCl,dCl_nl)
+    call compute_derivatives()
 
-deallocate (param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, param_m_ncdm,param_MG_beta2)
+    deallocate (Cl_1,Cl_2,Cl_3,Cl_4,Cl_5,Cl_6,Cl_7,Cl_8,dCl,dCl_nl)
 
-!########################
-! Computing Fisher matrix
-!######################## 
+    deallocate (param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, param_m_ncdm,param_MG_beta2)
 
-allocate (d1(lmin:lmax,0:nbins,0:nbins),d2(lmin:lmax,0:nbins,0:nbins),d3(lmin:lmax,0:nbins,0:nbins),&
-d4(lmin:lmax,0:nbins,0:nbins),d5(lmin:lmax,0:nbins,0:nbins),d6(lmin:lmax,0:nbins,0:nbins),&
-F_ab(1:number_of_parameters,1:number_of_parameters),F_ab_nl(1:number_of_parameters,1:number_of_parameters),&
-inv_F_ab(1:number_of_parameters,1:number_of_parameters),B_beta(1:number_of_parameters),&
-b_lambda(1:number_of_parameters),d7(lmin:lmax,0:nbins,0:nbins),stat = status1)
+    !########################
+    ! Computing Fisher matrix
+    !######################## 
 
-call compute_fisher_matrix(.true.,.false.) ! first logical variable -> true if including lensing
+    allocate (d1(lmin:lmax,0:nbins,0:nbins),d2(lmin:lmax,0:nbins,0:nbins),d3(lmin:lmax,0:nbins,0:nbins),&
+    d4(lmin:lmax,0:nbins,0:nbins),d5(lmin:lmax,0:nbins,0:nbins),d6(lmin:lmax,0:nbins,0:nbins),&
+    F_ab(1:number_of_parameters,1:number_of_parameters),F_ab_nl(1:number_of_parameters,1:number_of_parameters),&
+    inv_F_ab(1:number_of_parameters,1:number_of_parameters),B_beta(1:number_of_parameters),&
+    b_lambda(1:number_of_parameters),d7(lmin:lmax,0:nbins,0:nbins),stat = status1)
+
+    call compute_fisher_matrix(.true.,.false.) ! first logical variable -> true if including lensing
                                            ! second logical variable -> true if including only auto-correlations
-call compute_inverse_fisher_matrix()
+    call compute_inverse_fisher_matrix()
 
-call compute_fisher_matrix(.false.,.false.)
+    call compute_fisher_matrix(.false.,.false.)
 
-call compute_fisher_matrix(.true.,.true.)
+    call compute_fisher_matrix(.true.,.true.)
 
-call compute_fisher_matrix(.false.,.true.)
+    call compute_fisher_matrix(.false.,.true.)
 
-!####################################
-! Computing B_beta and b_lambda_alpha
-!####################################
+    !####################################
+    ! Computing B_beta and b_lambda_alpha
+    !####################################
 
-call compute_B_beta()
+    call compute_B_beta()
 
-call compute_b_lambda_alpha()
+    call compute_b_lambda_alpha()
 
-!################################################
-! Computing ratio of likelihood along bias vector
-!################################################
+    !################################################
+    ! Computing ratio of likelihood along bias vector
+    !################################################
 
-allocate (Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
+    allocate (Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
 
-call compute_ratio_likelihood()
+    call compute_ratio_likelihood()
 
-deallocate(Cl_fid,Cl_fid_nl,Cl_current)
+    deallocate(Cl_fid,Cl_fid_nl,Cl_current)
 
-deallocate (d1,d2,d3,d4,d5,d6,d7,F_ab,F_ab_nl,inv_cov,inv_cov_oa,Cl_syst,B_beta,b_lambda)
+    deallocate (d1,d2,d3,d4,d5,d6,d7,F_ab,F_ab_nl,inv_cov,inv_cov_oa,Cl_syst,B_beta,b_lambda)
 
-write(15,*) 'FISHER matrix analysis has ended '
-stop
+    write(15,*) 'FISHER matrix analysis has ended '
+
+End If
+
+
 !########################################################################################
 !########################################################################################
 !                                  FISHER ANALYSIS ENDS HERE
