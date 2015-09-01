@@ -1094,6 +1094,28 @@ subroutine compute_data_for_fisher_analysis(p)
 
 end subroutine compute_data_for_fisher_analysis
 
+subroutine write_sh_file(name_ini_file)
+    Implicit none
+    character(len=*) :: name_ini_file
+
+    open(12,file='./class_montanari-lensing/'//trim(name_ini_file)//'.sh')
+
+    write(12,'(a9)') '#!/bin/sh'
+    write(12,'(a26)') '#SBATCH --cpus-per-task=12'
+    write(12,'(a24)') '#SBATCH --job-name=CLASS'
+    write(12,'(a18)') '#SBATCH --ntasks=1'
+    write(12,'(a25)') '#SBATCH --time=3-00:00:00'
+    write(12,'(a43)') '#SBATCH --mail-user=wilmar.cardona@unige.ch'
+    write(12,'(a23)') '#SBATCH --mail-type=ALL'
+    write(12,'(a23)') '#SBATCH --partition=dpt'
+    write(12,'(a25)') '#SBATCH --clusters=baobab'
+    write(12,'(a29)') '#SBATCH --output=slurm-%J.out'
+    write(12,*) 
+    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini ../cl_lss_nu_el.pre'
+
+    close(12)
+end subroutine write_sh_file
+
 subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     use arrays
     use fiducial
@@ -1133,8 +1155,12 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                 If (.not.exist) then
 
-                    call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-                    '../ini_files/Cl_fiducial_lensing.ini ../cl_lss_nu_el.pre')
+                    call write_sh_file('Cl_fiducial_lensing')
+
+                    call system('cd class_montanari-lensing ; sbatch Cl_fiducial_lensing.sh')
+
+!                    call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+!                    '../ini_files/Cl_fiducial_lensing.ini ../cl_lss_nu_el.pre')
 
                 End If
 
@@ -1144,8 +1170,13 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                 If (.not.exist) then
 
-                    call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-                    '../ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini ../cl_lss_nu_el.pre')
+                    call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
+
+                    call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+                    '_lensing.sh')
+
+!                    call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+!                    '../ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini ../cl_lss_nu_el.pre')
 
                 End If
 
@@ -1157,8 +1188,12 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
             If (.not.exist) then
 
-                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-                '../ini_files/El.ini ../cl_lss_nu_el.pre')
+                call write_sh_file('El')
+
+                call system('cd class_montanari-lensing ; sbatch El.sh')
+
+!                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+!                '../ini_files/El.ini ../cl_lss_nu_el.pre')
 
             End If
 
@@ -1172,8 +1207,12 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
             If (.not.exist) then
 
-                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-                '../ini_files/Cl_fiducial_no_lensing.ini ../cl_lss_nu_el.pre')
+                call write_sh_file('Cl_fiducial_no_lensing')
+
+                call system('cd class_montanari-lensing ; sbatch Cl_fiducial_no_lensing.sh')
+
+!                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+!                '../ini_files/Cl_fiducial_no_lensing.ini ../cl_lss_nu_el.pre')
 
             End If
 
@@ -1183,8 +1222,13 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
             If (.not.exist) then
 
-                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-                '../ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini ../cl_lss_nu_el.pre')
+                call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
+
+                call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+                '_no_lensing.sh')
+
+!                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+!                '../ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini ../cl_lss_nu_el.pre')
 
             End If
 

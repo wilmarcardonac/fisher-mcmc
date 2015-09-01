@@ -49,13 +49,13 @@ open(15,file='./output/execution_information.txt')
 
 weight = 1
 
-start_from_fiducial = .false.                    ! starting MCMC analysis from fiducial point if true
+start_from_fiducial = .false.                    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
 
-testing_Gaussian_likelihood = .false.           ! If testing Gaussian likelihood
+testing_Gaussian_likelihood = .false.            ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
 
-compute_data_fisher_analysis = .false. 
+compute_data_fisher_analysis = .true.           ! COMPUTE DATA FOR FISHER ANALYSIS IF SET IT TRUE
 
-do_only_mcmc_analysis = .true.
+do_only_mcmc_analysis = .true.                   ! DO ONLY MCMC ANALYSIS IF SET IT TRUE
 
 If (testing_Gaussian_likelihood) then
 
@@ -149,6 +149,8 @@ If (compute_data_fisher_analysis) then
     call compute_data_for_fisher_analysis(p)
 
     write(15,*) 'Data for Fisher matrix analysis have been computed '
+
+    stop
 
 Else if (do_only_mcmc_analysis) then
 
