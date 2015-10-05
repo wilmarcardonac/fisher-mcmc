@@ -1,373 +1,433 @@
 Program fisher 
-!#############################################
-!#############################################
-! Here we load all the modules we need
-!#############################################
-!#############################################
 
-use fiducial
-use arrays
-use functions 
+!####################
+! LOAD NEEDED MODULES
+!####################
 
-!################################
-!################################
-! We declare variables to be used
-!################################
-!################################
+    use fiducial
+    use arrays
+    use functions 
 
-Implicit none
-Integer*4,parameter :: p = (n_points-1)/2       ! index to count sigma values
-Integer*4 :: m,n,i,j,q    ! integers for small loops
-Integer*4 :: seed1,seed2                        ! seeds needed by random number generator 
-character(len=15) :: filetype                   ! auxiliary variable for fisher analysis
-character*16 :: ElCl                            ! allows to choose either error or Cl file 
-character*16 :: phrase                          ! phrase needed by number random generator  
-Real*8 :: old_loglikelihood,current_loglikelihood      ! likelihood values
-Real*4 :: genunf,gennor                                ! random uniform deviates 
-Real*4,dimension(number_of_parameters*(number_of_parameters+3)/2 + 1) :: parm ! array needed by random number generator
-Real*4,dimension(number_of_parameters) :: work,x_old,x_new  ! array needed by random number generator 
-logical :: lensing,cl_file_exist,ini_file_exist,start_from_fiducial,testing_Gaussian_likelihood  ! explanation below in assignments
-logical :: c1,c2,c4,c5,c6,c7,non_plausible_parameters ! control plausible values of cosmological parameters
-logical :: using_inverse_fisher_matrix                ! MCMC parameter
-Real*8,dimension(number_of_parameters,number_of_parameters) :: Covgauss ! Covariance matrix of Gaussian likelihood
-Real*8,dimension(number_of_parameters,number_of_parameters) :: Covguess ! Covariance matrix 
-Real*8 :: jumping_factor    ! jumping factor for MCMC (increase if  you want bigger step size, decrease otherwise)
-Real*4 :: average_acceptance_probability
-Real*8 :: random_uniform    ! Random uniform deviate between o and 1
-Integer*4 :: number_accepted_points,number_rejected_points ! MCMC parameters 
-Integer*4 :: weight    ! It counts the number of steps taken before moving to a new point in MCMC 
-logical :: compute_data_fisher_analysis    !    Fisher matrix analysis parameter
-logical :: do_only_mcmc_analysis    !    Do only MCMC analysis ?  
+!######################
+! VARIABLES DECLARATION
+!######################
+
+    Implicit none
+
+    Integer*4                              :: m,n,i,j,q    ! COUNTERS FOR LOOPS
+
+    !#################
+    ! FISHER VARIABLES
+    !#################
+
+    Integer*4,parameter                    :: p = (n_points-1)/2 ! COUNT SIGMA VALUES IN COSMOLOGICAL PARAMETERS
+
+    Real*4,dimension(number_of_parameters) :: work,x_old,x_new   ! ARRAYS NEEDED BY RANDOM NUMBER GENERATOR
+
+    Character(len=15)                      :: filetype     ! AUXILIARY VARIABLE 
+    Character*16                           :: ElCl         ! ALLOWS TO CHOOSE EITHER EL OR CL
+
+    !###############
+    ! MCMC VARIABLES
+    !###############
+
+    Integer*4                              :: seed1,seed2 ! SEEDS NEEDED BY RANDOM NUMBER GENERATOR
+    Integer*4                              :: number_accepted_points,number_rejected_points ! COUNT POINTS IN PARAMETER SPACE
+    Integer*4                              :: weight    ! COUNTS NUMBER OF TAKEN STEPS BEFORE MOVING TO A NEW POINT
+
+    Real*8                                 :: old_loglikelihood,current_loglikelihood      ! STORE LIKELIHOOD VALUES
+    Real*4                                 :: genunf,gennor                                ! RANDOM UNIFORM DEVIATES
+    Real*4,dimension(number_of_parameters*(number_of_parameters+3)/2 + 1) :: parm ! ARRAY NEEDED BY RANDOM NUMBER GENERATOR
+    Real*8,dimension(number_of_parameters,number_of_parameters)           :: Covgauss ! COVARIANCE MATRIX OF GAUSSIAN LIKELIHOOD
+    Real*8,dimension(number_of_parameters,number_of_parameters)           :: Covguess ! COVARIANCE MATRIX 
+    Real*8                                 :: jumping_factor    ! STORES JUMPING FACTOR (INCREASE IF BIGGER STEP SIZE WANTED, DECREASE OTHERWISE)
+    Real*4                                 :: average_acceptance_probability
+    Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
+
+    Logical                                :: cl_file_exist,ini_file_exist ! CHECK EXISTENCE OF FILES
+    Logical,parameter                      :: lensing = .false. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
+    Logical                                :: c1,c2,c4,c5,c6,c7,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
     
 !##########################################################
-!##########################################################
-! Assignments and initialization of random number generator 
-!##########################################################
+! ASSIGNMENTS AND INITIALIZATION OF RANDOM NUMBER GENERATOR
 !##########################################################
 
-open(15,file='./output/execution_information.txt')
+    open(15,file=Execution_information)
 
-weight = 1
+    If (do_mcmc_analysis) then
 
-start_from_fiducial = .false.                    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
+        weight = 1
 
-testing_Gaussian_likelihood = .false.            ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
+        number_rejected_points = 0
 
-compute_data_fisher_analysis = .true.           ! COMPUTE DATA FOR FISHER ANALYSIS IF SET IT TRUE
+        number_accepted_points = 0
 
-do_only_mcmc_analysis = .true.                   ! DO ONLY MCMC ANALYSIS IF SET IT TRUE
+        write(15,*) 'SETTING UP RANDOM NUMBER GENERATOR'
 
-If (testing_Gaussian_likelihood) then
+        call initialize() ! INITIALIZE RANDOM NUMBER GENERATORS 
 
-    jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))    ! Modify according to wanted initial acceptance probability
+        call phrtsd(phrase,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
 
-Else
+        call set_initial_seed(seed1,seed2) ! SET INITIAL SEEDS FOR RANDOM NUMBER GENERATOR 
 
-    jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-4
+        If (testing_Gaussian_likelihood) then
 
-End If
+            write(15,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX FOR GAUSSIAN LIKELIHOOD'
 
-using_inverse_fisher_matrix = .false.           ! True if one wants to use inverse of Fisher matrix as a covariance matrix 
+            jumping_factor = 2.38d0/sqrt(dble(number_of_parameters)) ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
 
-number_rejected_points = 0
+            ! SETTING COVARIANCE MATRIX
+            Do m=1,number_of_parameters  
 
-number_accepted_points = 0
+                Do n=1,number_of_parameters 
 
-lensing = .false.                               ! not considering lensing for MCMC runs if false
+                    If (m .eq. n) then      
 
-phrase = 'randomizer'                           ! random number generator initializer
+                        Covgauss(m,n) = 1.d0
 
-call initialize()                               ! initialize random number generators
+                    Else 
 
-call phrtsd(phrase,seed1,seed2)                 ! generate seeds for random numbers from phrase
+                        Covgauss(m,n) = 0.d0
 
-call set_initial_seed(seed1,seed2)              ! set initial seeds for random number generator 
+                    End If
 
-If (testing_Gaussian_likelihood) then
+                End Do
 
-    Do m=1,number_of_parameters                    ! Set covariance matrix when testing Gaussian 
-        Do n=1,number_of_parameters                !
-            If (m .eq. n) then                     ! likelihood 
-                Covgauss(m,n) = 1.d0
-            else 
-                Covgauss(m,n) = 0.d0
+            End Do
+            ! COVARIANCE MATRIX SET
+
+        Else if (.not.testing_Gaussian_likelihood) then 
+
+            write(15,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX'
+
+            jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
+
+            ! SETTING COVARIANCE MATRIX
+            If (.not. using_inverse_fisher_matrix) then        
+
+                write(15,*) 'NOT USING INVERSE OF FISHER MATRIX AS COVARIANCE MATRIX'
+
+                Covguess = 0.d0
+
+                Covguess(1,1) = sigma_omega_b**2 
+
+                Covguess(2,2) = sigma_omega_cdm**2
+
+                Covguess(3,3)= sigma_n_s**2
+
+                Covguess(4,4) = (sigma_A_s/A_s)**2
+
+                Covguess(5,5) = sigma_H0**2
+
+                Covguess(6,6) = sigma_m_ncdm**2
+
+                Covguess(7,7) = sigma_MG_beta2**2
+
             End If
-        End Do
-    End Do
+            ! COVARIANCE MATRIX SET
 
-Go to 1
+            ! COMPUTING FIDUCIAL SPECTRA CL AND EL (IF NEEDED)
+            write(15,*) 'SUBMITTING JOBS TO COMPUTE DATA FOR FIDUCIAL MODEL (CL AND EL) IF NEEDED'
+            write(15,*) 'IF NEW DATA WANTED, REMOVE CORRESPONDING FILES BEFORE RUNNING THE CODE'
 
-End If
+            call run_class('omega_b',omega_b,.true.,.true.)
 
-If (.not. using_inverse_fisher_matrix) then        ! Set covariance matrix
+            call run_class('omega_b',omega_b,.true.,.false.)
 
-    Covguess = 0.d0
+        End If
 
-    Covguess(1,1) = sigma_omega_b**2 
+    Else 
 
-    Covguess(2,2) = sigma_omega_cdm**2
+        write(15,*) 'NOT DOING MCMC ANALYSYS'
 
-    Covguess(3,3)= sigma_n_s**2
+    End If
 
-    Covguess(4,4) = (sigma_A_s/A_s)**2
+!#######################
+! FISHER MATRIX ANALYSIS
+!#######################
 
-    Covguess(5,5) = sigma_H0**2
+    If (do_fisher_analysis) then
 
-    Covguess(6,6) = sigma_m_ncdm**2
+        write(15,*) 'STARTING FISHER MATRIX ANALYSIS'
 
-    Covguess(7,7) = sigma_MG_beta2**2
+        ! ALLOCATING MEMORY FOR GRID OF MODELS
+        allocate (param_omega_b(0:n_points-1), param_omega_cdm(0:n_points-1), param_n_s(0:n_points-1),&
+        param_A_s(0:n_points-1), param_H0(0:n_points-1), param_m_ncdm(0:n_points-1),&
+        param_MG_beta2(0:n_points-1), stat = status1)
 
-End If
+        If (status1 .eq. 0) then 
 
-!######################################################################################
-!######################################################################################
-!                          FISHER MATRIX ANALYSIS STARTS HERE
-!######################################################################################
-!######################################################################################
+            write(15,*) 'MEMORY FOR GRID OF MODELS IN FISHER ANALYSIS ALLOCATED SUCCESSFULLY'
 
-write(15,*) 'FISHER matrix analysis has started '
+        Else 
 
-!######################################################################################
-! Allocate memory for grid of models to be computed, covariance matrix, and Cl's arrays 
-!###################################################################################### 
+            write(15,*) 'MEMORY FOR GRID OF MODELS IN FISHER ANALYSIS WAS NOT ALLOCATED PROPERLY'
 
-allocate (param_omega_b(0:n_points-1), param_omega_cdm(0:n_points-1), param_n_s(0:n_points-1), stat = status1)
-allocate (param_A_s(0:n_points-1), param_H0(0:n_points-1), param_m_ncdm(0:n_points-1),&
-param_MG_beta2(0:n_points-1), stat = status2)
+            stop
 
-!##################################################################
-! Filling arrays of cosmological parameters, creating ini files and
-! computing data (if required)
-!##################################################################
+        End If
 
-call fill_parameters_array(p)
+        call fill_parameters_array(p) ! FILL ARRAYS OF COSMOLOGICAL PARAMETERS AND WRITE INI FILES (IF NEEDED)
 
-If (compute_data_fisher_analysis) then
+        If (compute_data_fisher_analysis) then
 
-    write(15,*) 'Computing data for Fisher matrix analysis '
+            write(15,*) 'SUBMITTING JOBS TO COMPUTE DATA NEEDED FOR FISHER MATRIX ANALYSIS '
 
-    call compute_data_for_fisher_analysis(p)
+            call compute_data_for_fisher_analysis(p)
 
-    write(15,*) 'Data for Fisher matrix analysis have been computed '
+            stop
 
-    stop
+        Else
 
-Else if (do_only_mcmc_analysis) then
+            write(15,*) 'USING EXISTING DATA. IF NEW DATA WANTED, CLEAN UP "DATA" FOLDER'
 
-    write(15,*) 'Computing data for MCMC  analysis '
+        End If
 
-    call run_class('omega_b',omega_b,.true.,.true.)
+        ! ALLOCATING MEMORY FOR EL, FIDUCIAL CL (LENSING), FIDUCIAL CL (NOT LENSING), OBSERVED CL, SHOT NOISE, SYSTEMATIC CL
+        allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),&
+        Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),Cl_syst(lmin:lmax,0:nbins,0:nbins),stat = status3)
 
-    call run_class('omega_b',omega_b,.true.,.false.)
+        If (status3 .eq. 0) then 
 
-    write(15,*) 'Data for MCMC analysis have been computed '
+            write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST ALLOCATED SUCCESSFULLY'
 
-Else
+        Else 
 
-    write(15,*) 'Using existing data for Fisher matrix analysis '
+            write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST WAS NOT ALLOCATED PROPERLY'
 
-End If
+            stop
 
-!###############################################
-! Changing file names to match Francesco's files
-!###############################################
+        End If
 
-!call change_filename_format()
+        write(15,*) 'READING DATA CL_FID, EL, AND CL_FID_NL IN FORTRAN ARRAYS '
 
-!################################################
-! Reading fiducial data files into fortran arrays
-!################################################
+        call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
-allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),&
-Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),Cl_syst(lmin:lmax,0:nbins,0:nbins),stat = status3)
+        call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
 
-write(15,*) 'Reading data of fiducial model with/without lensing and error data '
+        call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
 
-call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
+        write(15,*) ' COMPUTING AND WRITING OUT SYSTEMATIC ERROR '
 
-call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
-
-call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
-
-!###########################
-! Computing systematic error
-!###########################
-
-call compute_systematic_error()
+        call compute_systematic_error()
  
-call write_Cl_syst(Cl_syst,11)
+        call write_Cl_syst(Cl_syst,11)
+        
+        write(15,*) 'COMPUTING SHOT NOISE '
 
-!#####################
-! Computing shot noise
-!#####################
+        call compute_shot_noise()
 
-call compute_shot_noise()
+        write(15,*) 'COMPUTING OBSERVED CL'
 
-!########################
-! Computing observed Cl's
-!########################
+        call compute_observed_Cl()
 
-call compute_observed_Cl()
+        write(15,*) '-ln(L/L_{max}) AT THE FIDUCIAL POINT (NOT INCLUDING LENSING) IS : ', -euclid_galaxy_cl_likelihood(Cl_fid_nl)
 
-write(15,*) '-ln(L/L_{max}) at the fiducial point without lensing is ', -euclid_galaxy_cl_likelihood(Cl_fid_nl)
+        write(15,*), '-ln(L/L_{max}) AT THE FIDUCIAL POINT (INCLUDING LENSING) IS : ', -euclid_galaxy_cl_likelihood(Cl_fid)
 
-write(15,*), '-ln(L/L_{max}) at the fiducial point with lensing is ', -euclid_galaxy_cl_likelihood(Cl_fid)
+        ! ALLOCATING MEMORY FOR COVARIANCE MATRIX
+        allocate (cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),stat = status4)
 
-If (.not.do_only_mcmc_analysis) then
+        If (status4 .eq. 0) then 
 
-    !############################
-    ! Computing covariance matrix 
-    !############################
+            write(15,*) 'MEMORY FOR COV ALLOCATED SUCCESSFULLY'
 
-    allocate (cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),stat = status4)
+        Else 
 
-    call compute_covariance_matrix()
+            write(15,*) 'MEMORY FOR COV WAS NOT ALLOCATED PROPERLY'
 
-    allocate (cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
-    inv_cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
-    cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),inv_cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),stat = status6)
+            stop
 
-    !###################################################
-    ! Writing covariance matrix in terms of superindices
-    !###################################################
+        End If
 
-    call write_cov_two_indices()
+        write(15,*) 'COMPUTING COVARIANCE MATRIX'
 
-    call write_cov_two_indices_oa()
+        call compute_covariance_matrix()
+        
+        ! ALLOCATING MEMORY FOR COVARIANCE MATRICES AND THEIR INVERSES 
+        allocate (cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
+        inv_cov_l_IP(lmin:lmax,1:nbins*(nbins+1)/2,1:nbins*(nbins+1)/2),&
+        cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),inv_cov_l_IP_oa(lmin:lmax,1:nbins,1:nbins),stat = status6)
 
-    !call write_covariance_matrix(2)
+        If (status6 .eq. 0) then 
 
-    !call write_covariance_matrix(200)
+            write(15,*) 'MEMORY FOR COV_L_IP, INV_COV_L_IP, COV_L_IP_OA, INV_COV_L_IP_OA ALLOCATED SUCCESSFULLY'
 
-    !call write_covariance_matrix(2000)
+        Else 
 
-    deallocate (cov)
+            write(15,*) 'MEMORY FOR COV_L_IP, INV_COV_L_IP, COV_L_IP_OA, INV_COV_L_IP_OA WAS NOT ALLOCATED PROPERLY'
 
-    !#######################################
-    ! Computing inverse of covariance matrix
-    !#######################################
+            stop
 
-    call inverting_matrix()
+        End If
 
-    call inverting_matrix_oa()
+        write(15,*) 'COMPUTING COVARIANCE MATRIX IN TERMS OF SUPERINDICES'
 
-    !call write_inverse_covariance_matrix(2)
+        call write_cov_two_indices()
 
-    !call write_inverse_covariance_matrix(200)
+        call write_cov_two_indices_oa()
+        
+        ! DEALLOCATING MEMORY FOR COVARIANCE MATRIX 
+        deallocate (cov)
 
-    !call write_inverse_covariance_matrix(2000)
+        write(15,*) 'COMPUTING INVERSE OF COVARIANCE MATRICES'
 
-    deallocate (cov_l_IP,cov_l_IP_oa)
+        call inverting_matrix()
 
-    !##############################################################
-    ! Writing inverse covariance matrix in terms of indices i,j,p,q
-    !##############################################################
+        call inverting_matrix_oa()
 
-    allocate (inv_cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),inv_cov_oa(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins))
+        ! DEALLOCATING MEMORY FOR COVARIANCE MATRICES
+        deallocate (cov_l_IP,cov_l_IP_oa)
 
-    call write_inv_cov_four_indices()
+        ! ALLOCATING MEMORY FOR INVERSES OF COVARIANCE MATRICES
+        allocate (inv_cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),inv_cov_oa(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins))
 
-    call write_inv_cov_four_indices_oa() 
+        write(15,*) 'WRITING INVERSE OF COVARIANCE MATRICES IN TERMS OF INDICES I, J, P, AND Q'
 
-    deallocate (inv_cov_l_IP,inv_cov_l_IP_oa)
+        call write_inv_cov_four_indices()
 
-    !######################################################################
-    ! Computing derivatives of Cl's w.r.t different cosmological parameters
-    !######################################################################
+        call write_inv_cov_four_indices_oa() 
+       
+        ! DEALLOCATING MEMORY OF INVERSES OF COVARIANCE MATRICES
+        deallocate (inv_cov_l_IP,inv_cov_l_IP_oa)
 
-    allocate (Cl_1(lmin:lmax,0:nbins,0:nbins),Cl_2(lmin:lmax,0:nbins,0:nbins),Cl_3(lmin:lmax,0:nbins,0:nbins),&
-    Cl_4(lmin:lmax,0:nbins,0:nbins),dCl(lmin:lmax,0:nbins,0:nbins),Cl_5(lmin:lmax,0:nbins,0:nbins),&
-    Cl_6(lmin:lmax,0:nbins,0:nbins),Cl_7(lmin:lmax,0:nbins,0:nbins),Cl_8(lmin:lmax,0:nbins,0:nbins),&
-    dCl_nl(lmin:lmax,0:nbins,0:nbins),stat = status5)
+        ! ALLOCATING MEMORY FOR DERIVATIVES OF CL'S
+        allocate (Cl_1(lmin:lmax,0:nbins,0:nbins),Cl_2(lmin:lmax,0:nbins,0:nbins),Cl_3(lmin:lmax,0:nbins,0:nbins),&
+        Cl_4(lmin:lmax,0:nbins,0:nbins),dCl(lmin:lmax,0:nbins,0:nbins),Cl_5(lmin:lmax,0:nbins,0:nbins),&
+        Cl_6(lmin:lmax,0:nbins,0:nbins),Cl_7(lmin:lmax,0:nbins,0:nbins),Cl_8(lmin:lmax,0:nbins,0:nbins),&
+        dCl_nl(lmin:lmax,0:nbins,0:nbins),stat = status5)
 
-    call compute_derivatives()
+        If (status5 .eq. 0) then 
 
-    deallocate (Cl_1,Cl_2,Cl_3,Cl_4,Cl_5,Cl_6,Cl_7,Cl_8,dCl,dCl_nl)
+            write(15,*) 'MEMORY FOR DERIVATIVES OF CL ALLOCATED SUCCESSFULLY'
 
-    deallocate (param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, param_m_ncdm,param_MG_beta2)
+        Else 
 
-    !########################
-    ! Computing Fisher matrix
-    !######################## 
+            write(15,*) 'MEMORY FOR DERIVATIVES OF CL WAS NOT ALLOCATED PROPERLY'
 
-    allocate (d1(lmin:lmax,0:nbins,0:nbins),d2(lmin:lmax,0:nbins,0:nbins),d3(lmin:lmax,0:nbins,0:nbins),&
-    d4(lmin:lmax,0:nbins,0:nbins),d5(lmin:lmax,0:nbins,0:nbins),d6(lmin:lmax,0:nbins,0:nbins),&
-    F_ab(1:number_of_parameters,1:number_of_parameters),F_ab_nl(1:number_of_parameters,1:number_of_parameters),&
-    inv_F_ab(1:number_of_parameters,1:number_of_parameters),B_beta(1:number_of_parameters),&
-    b_lambda(1:number_of_parameters),d7(lmin:lmax,0:nbins,0:nbins),stat = status1)
+            stop
 
-    call compute_fisher_matrix(.true.,.false.) ! first logical variable -> true if including lensing
-                                           ! second logical variable -> true if including only auto-correlations
-    call compute_inverse_fisher_matrix()
+        End If
 
-    call compute_fisher_matrix(.false.,.false.)
+        write(15,*) 'COMPUTING DERIVATIVES OF CL'
 
-    call compute_fisher_matrix(.true.,.true.)
+        call compute_derivatives()
 
-    call compute_fisher_matrix(.false.,.true.)
+        ! DEALLOCATING MEMORY FOR DERIVATIVES OF CL'S
+        deallocate (Cl_1,Cl_2,Cl_3,Cl_4,Cl_5,Cl_6,Cl_7,Cl_8,dCl,dCl_nl)
 
-    !####################################
-    ! Computing B_beta and b_lambda_alpha
-    !####################################
+        ! DEALLOCATING MEMORY FOR GRID OF MODELS 
+        deallocate (param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, param_m_ncdm,param_MG_beta2)
 
-    call compute_B_beta()
+        ! ALLOCATING MEMORY FOR DERIVATIVES, FISHER MATRIX (INCLUDING LENSING), FISHER MATRIX (NOT INCLUDING LENSING),
+        ! INVERSE OF FISHER MATRIX (INCLUDING LENSING), INVERSE OF FISHER MATRIX (NOT INCLUDING LENSING), B_/beta VECTOR,
+        ! b_/lambda
+        allocate (d1(lmin:lmax,0:nbins,0:nbins),d2(lmin:lmax,0:nbins,0:nbins),d3(lmin:lmax,0:nbins,0:nbins),&
+        d4(lmin:lmax,0:nbins,0:nbins),d5(lmin:lmax,0:nbins,0:nbins),d6(lmin:lmax,0:nbins,0:nbins),&
+        F_ab(1:number_of_parameters,1:number_of_parameters),F_ab_nl(1:number_of_parameters,1:number_of_parameters),&
+        inv_F_ab(1:number_of_parameters,1:number_of_parameters),B_beta(1:number_of_parameters),&
+        b_lambda(1:number_of_parameters),d7(lmin:lmax,0:nbins,0:nbins),stat = status1)
 
-    call compute_b_lambda_alpha()
+        If (status1 .eq. 0) then 
 
-    !################################################
-    ! Computing ratio of likelihood along bias vector
-    !################################################
+            write(15,*) 'MEMORY FOR FISHER MATRIX COMPUTATION ALLOCATED SUCCESSFULLY'
 
-    allocate (Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
+        Else 
 
-    call compute_ratio_likelihood()
+            write(15,*) 'MEMORY FOR FISHER MATRIX COMPUTATION WAS NOT ALLOCATED PROPERLY'
 
-    deallocate(Cl_fid,Cl_fid_nl,Cl_current)
+            stop
 
-    deallocate (d1,d2,d3,d4,d5,d6,d7,F_ab,F_ab_nl,inv_cov,inv_cov_oa,Cl_syst,B_beta,b_lambda)
+        End If
 
-    write(15,*) 'FISHER matrix analysis has ended '
+        write(15,*) 'COMPUTING FISHER MATRIX AND ITS INVERSE (INCLUDING AND NOT INCLUDING LENSING)'
 
-End If
+        call compute_fisher_matrix(.true.,.false.) ! FIRST LOGICAL VARIABLE : SET IT TRUE IF INCLUDING LENSING
+                                                   ! SECOND LOGICAL VARIABLE : SET IT TRUE IF INCLUDING ONLY AUTO-CORRELATIONS
+        call compute_inverse_fisher_matrix()
 
+        call compute_fisher_matrix(.false.,.false.)
 
-!########################################################################################
-!########################################################################################
-!                                  FISHER ANALYSIS ENDS HERE
-!########################################################################################
-!########################################################################################
+        call compute_fisher_matrix(.true.,.true.)
 
-!########################################################################################
-!########################################################################################
-!                   MARKOV CHAIN MONTE CARLO ANALYSIS STARTS HERE 
-! 
-! We will use the fiducial model computed above for the Fisher matrix analysis in order 
-! to compare results of the two methods afterwards. The observed Cl's include El files 
-! and shot noise, Nl.
-!########################################################################################
-!########################################################################################
+        call compute_fisher_matrix(.false.,.true.)
 
-write(15,*) 'Starting MCMC analysis '
+        write(15,*) 'COMPUTING BIAS VECTOR'
 
-!########################################################################################
-! Allocate memory for both old and current points in parameter space. Also for current Cl
-!########################################################################################
+        call compute_B_beta()
 
-1 If (testing_Gaussian_likelihood) then
-      write(15,*) 'Testing MCMC analysis with Gaussian likelihood'
-  End If
+        call compute_b_lambda_alpha()
 
-allocate (old_point(1:number_of_parameters),current_point(1:number_of_parameters),stat = status1)
+        write(15,*) 'COMPUTING RATIO OF LIKELIHOOD ALONG BIAS VECTOR'
 
-allocate (acceptance_probability(number_iterations),stat = status2)
+        ! ALLOCATING MEMORY FOR CL_CURRENT
+        allocate (Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
 
-allocate (Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
+        call compute_ratio_likelihood()
+        ! DEALLOCATING MEMORY FOR CL_FID, CL_FID_NL,CL_CURRENT
+        deallocate(Cl_fid,Cl_fid_nl,Cl_current)
+        ! DEALLOCATING MEMORY FOR DERIVATIVES, FISHER MATRICES, ITS INVERSES, AND BIAS VECTOR
+        deallocate (d1,d2,d3,d4,d5,d6,d7,F_ab,F_ab_nl,inv_cov,inv_cov_oa,Cl_syst,B_beta,b_lambda)
 
-! #####################################################################################################
-! First, we generate a random point in parameter space (same parameter space as in the Fisher analysis,
-! except for A_s because the version of CLASS we will use does not take ln(10^10 A_s) as an input). 
-! Random number generators work with single precision whereas our function use double; we change it.
-! #####################################################################################################
+        write(15,*) 'FISHER MATRIX ANALYSIS ENDED'
+
+        If (.not.do_mcmc_analysis) then
+
+            close(15)
+
+            stop
+        
+        End If
+
+    Else 
+
+        write(15,*) 'NOT DOING FISHER MATRIX ANALYSIS'
+
+        If (.not.do_mcmc_analysis) then
+
+            close(15)
+
+            stop
+        
+        End If
+
+    End If
+
+!##################################
+! MARKOV CHAIN MONTE CARLO ANALYSIS
+!##################################
+
+    If (do_mcmc_analysis) then
+
+        write(15,*) 'STARTING MCMC ANALYSIS'
+
+        If (testing_Gaussian_likelihood) then
+      
+            write(15,*) 'TESTING MCMC ANALYSIS WITH GAUSSIAN LIKELIHOOD'
+
+        End If
+
+        !ALLOCATING MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND CURRENT SPECTRA
+        allocate (old_point(1:number_of_parameters),current_point(1:number_of_parameters),&
+        acceptance_probability(number_iterations),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status1)
+
+        If (status1 .eq. 0) then 
+
+            write(15,*) 'MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND '
+            write(15,*) 'CURRENT SPECTRA ALLOCATED SUCCESSFULLY'
+        Else 
+
+            write(15,*) 'MEMORY FOR OLD_POINT, CURRENT_POINT, ACCEPTANCE_PROBABILITY, AND CL_CURRENT WAS NOT ALLOCATED PROPERLY'
+
+            stop
+
+        End If
+
+        ! ###################################################################################################
+        ! GENERATE A RANDOM POINT IN SAME PARAMETER SPACE AS IN FISHER MATRIX ANALYSIS EXCEPT FOR A_S BECAUSE 
+        ! THE VERSION OF CLASS DOES NOT TAKE LN()10^10 A_S) AS AN INPUT. RANDOM NUMBER GENERATOR WORKS WITH 
+        ! SINGLE PRECISION WHEREAS OUR FUNCTION USE DOUBLE PRECISION; CHANGES ARE MADE ACCORDINGLY.
+        ! ###################################################################################################
 
 If (testing_Gaussian_likelihood) then
     Go to 2
@@ -988,6 +1048,12 @@ dble(number_iterations - steps_taken_before_definite_run)
 close(13)
 
 close(14)
+
+    Else
+
+        write(15,*) 'NOT DOING MCMC ANALYSIS'
+
+    End If
 
 close(15)
 

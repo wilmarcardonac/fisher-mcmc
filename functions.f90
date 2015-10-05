@@ -186,7 +186,7 @@ subroutine compute_ratio_likelihood()
     logical,parameter :: lensing_flag = .false. 
     logical :: ini_file_exist,cl_file_exist
     Real*8 :: loglikelihood
-    Real*8,parameter :: step = 1.d-5
+    Real*8,parameter :: step = 1.d0
 
     fiducial_point(1) = omega_b 
     fiducial_point(2) = omega_cdm
@@ -201,11 +201,11 @@ subroutine compute_ratio_likelihood()
     write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl),omega_b,omega_cdm,n_s,A_s,&
     H0,m_ncdm,MG_beta2
 
-    Do p=1,5
+    Do p=1,2
 
         Do m=1,number_of_parameters
 
-            point_parameter_space(m) = fiducial_point(m) + step*dble(p)*sigma_omega_b*b_lambda(m)/sqrt(sum(b_lambda(:)**2))
+            point_parameter_space(m) = fiducial_point(m) + step*dble(p)*sigma_MG_beta2*b_lambda(m)/sqrt(sum(b_lambda(:)**2))
  
         End Do
      
@@ -284,8 +284,8 @@ subroutine compute_shot_noise()
     use arrays
     Implicit none
     Integer*4 :: m,n
-    Do m = 1,10
-        Do n = 1,10
+    Do m = 1,nbins
+        Do n = 1,nbins
             If (m .ne. n) then
                 Nl(m,n) = 0.d0
             else
@@ -642,23 +642,23 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
 
     write(10,'(a12)') 'output = nCl'
     
-    write(10,'(a20)') 'non linear = halofit'
+    !write(10,'(a20)') 'non linear = halofit'
  
     write(10,'(a25)') 'dNdz_selection = analytic'
 
     write(10,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 9(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5),',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
-    z_bin_centers(9),',',z_bin_centers(10)
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+!    z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 9(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5),',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
-    z_bin_widths(9),',',z_bin_widths(10)
+    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+!    z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 9(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5),',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-    z_bin_bias(9),',',z_bin_bias(10)
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
@@ -673,6 +673,8 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     write(10,'(a9,f2.0)') 's_bias = ', 0.
 
     write(10,'(a13)') 'format = camb'
+
+    write(10,'(a17)') 'gauge = newtonian'
 
     close(10)
 
@@ -820,11 +822,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     If (parameter_name .ne. param_name_MG_beta2) then
 
-        write(10,'(a21, es16.10)') 'anisotropic stress = ', MG_beta2
+        write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
 
     Else
 
-        write(10,'(a21, es16.10)') 'anisotropic stress = ', parameter_value
+        write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
  
     End If
 
@@ -850,7 +852,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     write(10,'(a12)') 'output = nCl'
     
-    write(10,'(a20)') 'non linear = halofit'
+!    write(10,'(a20)') 'non linear = halofit'
  
     write(10,'(a32)') 'dNdz_selection = analytic_euclid'
 
@@ -858,17 +860,17 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     write(10,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 9(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5),',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
-    z_bin_centers(9),',',z_bin_centers(10)
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    !z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 9(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5),',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
-    z_bin_widths(9),',',z_bin_widths(10)
+    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+!    z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 9(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5),',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-    z_bin_bias(9),',',z_bin_bias(10)
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
@@ -883,6 +885,8 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
     write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
     write(10,'(a14)') 'format = class'
+
+    write(10,'(a17)') 'gauge = newtonian'
 
     close(10)
 
@@ -938,7 +942,7 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
-    write(10,'(a21, es16.10)') 'anisotropic stress = ', param_MG_beta2
+    write(10,'(a11, es16.10)') 'MG_beta2 = ', param_MG_beta2
 
     ! Parameters for massive neutrinos                                                                                            
 
@@ -954,7 +958,7 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     write(10,'(a12)') 'output = nCl'
     
-    write(10,'(a20)') 'non linear = halofit'
+    !write(10,'(a20)') 'non linear = halofit'
  
     write(10,'(a32)') 'dNdz_selection = analytic_euclid'
 
@@ -962,17 +966,17 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     write(10,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 9(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5),',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
-    z_bin_centers(9),',',z_bin_centers(10)
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+!    z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 9(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5),',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
-    z_bin_widths(9),',',z_bin_widths(10)
+    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+ !   z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 9(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5),',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-    z_bin_bias(9),',',z_bin_bias(10)
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+  !  z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
@@ -987,6 +991,8 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
     write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
     write(10,'(a14)') 'format = class'
+
+    write(10,'(a17)') 'gauge = newtonian'
 
     close(10)
 
@@ -1011,43 +1017,46 @@ subroutine fill_parameters_array(p)
         param_MG_beta2(m+p) = MG_beta2 + m*sigma_MG_beta2
     End Do
 
-    ! Write ini files for Cl's with/without lensing
+    If (compute_data_fisher_analysis) then
+        ! Write ini files for Cl's with/without lensing
 
-    Do index=1,2
+        Do index=1,2
 
-        If (index .eq. 1) then
+            If (index .eq. 1) then
 
-            lensing_flag = .true.     
+                lensing_flag = .true.     
 
-        Else
+            Else
 
-            lensing_flag = .false.     
+                lensing_flag = .false.     
 
-        End If
+            End If
 
-        Do m=0,2*p
+            Do m=0,2*p
 
-            call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.)    
+                call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.)    
 
-            call write_ini_file_for_fisher('omega_cdm',param_omega_cdm(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('omega_cdm',param_omega_cdm(m),lensing_flag,.true.)
 
-            call write_ini_file_for_fisher('n_s',param_n_s(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('n_s',param_n_s(m),lensing_flag,.true.)
 
-            call write_ini_file_for_fisher('A_s',param_A_s(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('A_s',param_A_s(m),lensing_flag,.true.)
 
-            call write_ini_file_for_fisher('H0',param_H0(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('H0',param_H0(m),lensing_flag,.true.)
 
-            call write_ini_file_for_fisher('m_ncdm',param_m_ncdm(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('m_ncdm',param_m_ncdm(m),lensing_flag,.true.)
 
-            call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.)
+
+            End Do
 
         End Do
 
-    End Do
+        ! Write ini file for error file including lensing and only for fiducial model
 
-    ! Write ini file for error file including lensing and only for fiducial model
+        call write_ini_file_for_fisher('MG_beta2',MG_beta2,.true.,.false.)
 
-    call write_ini_file_for_fisher('MG_beta2',MG_beta2,.true.,.false.)
+    End If
 
 end subroutine fill_parameters_array
 
@@ -1104,7 +1113,7 @@ subroutine write_sh_file(name_ini_file)
     write(12,'(a26)') '#SBATCH --cpus-per-task=12'
     write(12,'(a24)') '#SBATCH --job-name=CLASS'
     write(12,'(a18)') '#SBATCH --ntasks=1'
-    write(12,'(a25)') '#SBATCH --time=3-00:00:00'
+    write(12,'(a25)') '#SBATCH --time=7-00:00:00'
     write(12,'(a43)') '#SBATCH --mail-user=wilmar.cardona@unige.ch'
     write(12,'(a23)') '#SBATCH --mail-type=ALL'
     write(12,'(a23)') '#SBATCH --partition=dpt'
@@ -1521,14 +1530,18 @@ subroutine read_data(Cl,u,param_name,param_value,lensing_flag,fiducial_flag,El_C
             read(u,*)
         else
             read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
-            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&
-            Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),Cl(m,2,10),&
-            Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),Cl(m,3,9),&
-            Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),Cl(m,4,9),&
-            Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),Cl(m,5,10),&
-            Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),Cl(m,7,8),&
-            Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),Cl(m,9,10),&
-            Cl(m,10,10)
+            Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
+            Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+
+!            read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
+!            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&
+!            Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),Cl(m,2,10),&
+!            Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),Cl(m,3,9),&
+!            Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),Cl(m,4,9),&
+!            Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),Cl(m,5,10),&
+!            Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),Cl(m,7,8),&
+!            Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),Cl(m,9,10),&
+!            Cl(m,10,10)
 
             Do p=1,nbins
                 Do i=1,nbins
@@ -1559,14 +1572,18 @@ subroutine read_Cl(Cl,u,lensing_flag)
             read(u,*)
         else
             read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
-            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&
-            Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),Cl(m,2,10),&
-            Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),Cl(m,3,9),&
-            Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),Cl(m,4,9),&
-            Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),Cl(m,5,10),&
-            Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),Cl(m,7,8),&
-            Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),Cl(m,9,10),&
-            Cl(m,10,10)
+            Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
+            Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+
+!            read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
+!            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&
+!            Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),Cl(m,2,10),&
+!            Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),Cl(m,3,9),&
+!            Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),Cl(m,4,9),&
+!            Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),Cl(m,5,10),&
+!            Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),Cl(m,7,8),&
+!            Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),Cl(m,9,10),&
+!            Cl(m,10,10)
 
             Do p=1,nbins
                 Do i=1,nbins
@@ -1598,14 +1615,18 @@ subroutine read_derivative(Cl,u,param_name,lensing_flag)
             read(u,*)
         else
             read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
-            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&
-            Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),Cl(m,2,10),&
-            Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),Cl(m,3,9),&
-            Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),Cl(m,4,9),&
-            Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),Cl(m,5,10),&
-            Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),Cl(m,7,8),&
-            Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),Cl(m,9,10),&
-            Cl(m,10,10)
+            Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
+            Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+ 
+!            read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
+!            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&
+!            Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),Cl(m,2,10),&
+!            Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),Cl(m,3,9),&
+!            Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),Cl(m,4,9),&
+!            Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),Cl(m,5,10),&
+!            Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),Cl(m,7,8),&
+!            Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),Cl(m,9,10),&
+!            Cl(m,10,10)
 
             Do p=1,nbins
                 Do i=1,nbins
@@ -1629,15 +1650,20 @@ subroutine write_Cl_syst(Cl,u)
         If (m .le. 1) then
             write(u,*) '#'
         else
-            write(u,*) m, Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),&
-            Cl(m,1,5),Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),&
-            Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),&
-            Cl(m,2,10),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),&
-            Cl(m,3,9),Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),&
-            Cl(m,4,9),Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),&
-            Cl(m,5,10),Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),&
-            Cl(m,7,8),Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),&
-            Cl(m,9,10),Cl(m,10,10)
+            write(u,*) m, Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
+            Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
+            Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+
+!            write(u,*) m, Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),&
+!            Cl(m,1,5),Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),&
+!            Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),&
+!            Cl(m,2,10),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),&
+!            Cl(m,3,9),Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),&
+!            Cl(m,4,9),Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),&
+!            Cl(m,5,10),Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),&
+!            Cl(m,7,8),Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),&
+!            Cl(m,9,10),Cl(m,10,10)
+
         End If    
     End Do
     close(u)
@@ -1661,15 +1687,20 @@ subroutine write_data(Cl,u,param_name,lensing_flag)
         If (m .le. 1) then
             write(u,*) '#'
         else
-            write(u,*) m, Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),&
-            Cl(m,1,5),Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),&
-            Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),&
-            Cl(m,2,10),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),&
-            Cl(m,3,9),Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),&
-            Cl(m,4,9),Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),&
-            Cl(m,5,10),Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),&
-            Cl(m,7,8),Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),&
-            Cl(m,9,10),Cl(m,10,10)
+            write(u,*) m, Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
+            Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),&
+            Cl(m,3,5),Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+ 
+!            write(u,*) m, Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),&
+!            Cl(m,1,5),Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),&
+!            Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,2,6),Cl(m,2,7),Cl(m,2,8),Cl(m,2,9),&
+!            Cl(m,2,10),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),Cl(m,3,6),Cl(m,3,7),Cl(m,3,8),&
+!            Cl(m,3,9),Cl(m,3,10),Cl(m,4,4),Cl(m,4,5),Cl(m,4,6),Cl(m,4,7),Cl(m,4,8),&
+!            Cl(m,4,9),Cl(m,4,10),Cl(m,5,5),Cl(m,5,6),Cl(m,5,7),Cl(m,5,8),Cl(m,5,9),&
+!            Cl(m,5,10),Cl(m,6,6),Cl(m,6,7),Cl(m,6,8),Cl(m,6,9),Cl(m,6,10),Cl(m,7,7),&
+!            Cl(m,7,8),Cl(m,7,9),Cl(m,7,10),Cl(m,8,8),Cl(m,8,9),Cl(m,8,10),Cl(m,9,9),&
+!            Cl(m,9,10),Cl(m,10,10)
+
         End If    
     End Do
     close(u)
