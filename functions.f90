@@ -4,6 +4,281 @@ module functions
      
 contains
 
+subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
+    use fiducial
+    Implicit none
+
+    Real*8:: bessel,q,kmaxtau0
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
+    logical :: Cl_flag,fid1,fid2,fid3,fiducial_flag
+    character(len=*),parameter :: fmt = '(i2.2)' 
+    character*16 :: string
+    Logical,parameter :: lensing_flag = .false.
+    Integer*4 :: index
+
+    fid1 = bessel .eq. selection_sampling_bessel_fid
+
+    fid2 =  q .eq. q_linstep_fid 
+
+    fid3 = kmaxtau0 .eq. k_max_tau0_over_l_max_fid 
+
+    fiducial_flag = (fid1 .and. fid2) .and. fid3 
+     
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+
+    write(string,fmt) index
+
+    If (lensing_flag) then
+
+        print *,'NOT LENSING IMPLEMENTED WHEN TESTING PRECISION PARAMETERS'
+
+        stop
+
+    Else 
+
+        If (fiducial_flag) then
+
+            If (Cl_flag) then
+
+                print *,'PRECISION PARAMETERS MUST BE DIFFERENT OF FIDUCIAL VALUES FOR CL'
+
+                stop
+
+            Else
+
+                open(10, file='./ini_files/El_nl.ini')
+
+                write(10,*) 'root = ../data/El_nl_'
+
+                write(10,'(a25)') 'number count error = 0.10'   
+
+            End If
+
+        Else
+
+            If (Cl_flag) then
+
+                open(10, file='./ini_files/Cl_'//trim(string)//'.ini')
+
+                write(10,*) 'root = ../data/Cl_'//trim(string)//'_'
+
+            Else
+               
+                print *,'NOT ERROR FILE WITHOUT FIDUCIAL PARAMETERS'
+
+                stop
+
+            End If
+
+
+        End If
+
+        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+
+    End if
+    
+    ! Background parameters and anisotropic stress
+
+    write(10,'(a6, es16.10)') 'A_s = ', A_s  
+
+    write(10,'(a6, es16.10)') 'n_s = ', n_s
+
+    write(10,'(a5, es16.10)') 'H0 = ', H0
+
+    write(10,'(a10, es16.10)') 'omega_b = ', omega_b
+
+    write(10,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
+
+    write(10,'(a11, es16.10)') 'tau_reio = ', tau
+
+    write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
+
+    ! Parameters for massive neutrinos                                                                                            
+
+    write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
+
+    write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
+
+    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
+
+    write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+
+    ! Number counts in the output                                                                                            
+
+    write(10,'(a12)') 'output = nCl'
+    
+!    write(10,'(a20)') 'non linear = halofit'
+ 
+    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+
+    write(10,'(a17)') 'dNdz_evolution = '
+
+    write(10,'(a20)') 'selection = gaussian'
+
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    !z_bin_centers(9),',',z_bin_centers(10)
+
+    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+!    z_bin_widths(9),',',z_bin_widths(10)
+
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
+
+    write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
+
+    write(10,'(a13)') 'headers = yes'
+
+    write(10,'(a17)') 'bessel file = yes'
+
+    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
+
+    write(10,'(a8,i1)') 'l_min = ', lmin
+
+    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+
+    write(10,'(a14)') 'format = class'
+
+    write(10,'(a17)') 'gauge = newtonian'
+
+    ! PRECISION PARAMETERS
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+
+    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+
+    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+
+    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+
+    close(10)
+
+end subroutine write_ini_file_for_testing_precision
+
+subroutine run_class_testing_precision(Cl_flag,index)
+    use fiducial
+    Implicit none
+
+    character*16 :: string
+    logical :: exist,Cl_flag
+    character(len=*),parameter :: fmt = '(i2.2)'
+    Logical,parameter :: lensing_flag = .false.
+    Integer*4 :: index
+    
+    write(string,fmt) index
+
+    If (.not.lensing_flag) then
+
+        If (Cl_flag) then
+
+                inquire(file='./data/Cl_'//trim(string)//'_cl.dat',exist=exist)
+
+                If (.not.exist) then
+
+                    call write_sh_file('Cl_'//trim(string)//'')
+
+                    call system('cd class_montanari-lensing ; sbatch Cl_'//trim(string)//'.sh')
+
+                End If
+
+        Else
+
+            inquire(file='./data/El_nl_cl.dat',exist=exist)
+
+            If (.not.exist) then
+
+                call write_sh_file('El_nl')
+
+                call system('cd class_montanari-lensing ; sbatch El_nl.sh')
+
+            End If
+
+        End if
+
+    Else 
+
+        print *, 'TESTING PRECISION HAS ONLY BEEN IMPLEMENTED WITHOUT LENSING'
+
+        stop
+
+    End if
+
+end subroutine run_class_testing_precision
+
+subroutine compute_data_for_testing_precision()
+
+    use fiducial
+    Implicit none
+
+    Integer*4,parameter :: number_of_q = 10
+    Integer*4,parameter :: number_of_kmax = 10
+    Integer*4,parameter :: number_of_bessel = 10
+    Integer*4           :: index
+    Real*8,parameter    :: step_q = 0.2d0
+    Real*8,parameter    :: step_kmax = 2.d0
+    Real*8,parameter    :: step_bessel = 0.3d0
+    Real*8              :: ssb,qls,kmt
+
+    call write_ini_file_for_testing_precision(.false.,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid,0)
+
+    call run_class_testing_precision(.false.,0)
+
+    Do index=1,number_of_q+number_of_kmax+number_of_bessel
+
+        If (index .le. number_of_q) then
+
+            qls = q_linstep_fid + dble(index)*step_q
+
+            call write_ini_file_for_testing_precision(.true.,selection_sampling_bessel_fid,qls,k_max_tau0_over_l_max_fid,index)
+
+            call run_class_testing_precision(.true.,index)
+
+        Else If ((index .gt. number_of_q) .and. (index .le. (number_of_q+number_of_kmax) )) then
+
+            kmt = k_max_tau0_over_l_max_fid - dble(index-number_of_q)*step_kmax
+
+            call write_ini_file_for_testing_precision(.true.,selection_sampling_bessel_fid,q_linstep_fid,kmt,index)
+
+            call run_class_testing_precision(.true.,index)
+
+        Else If ( (index .gt. (number_of_q+number_of_kmax)) .and. (index .le. (number_of_q+number_of_kmax+number_of_bessel) ) )then
+
+            ssb = selection_sampling_bessel_fid - dble(index-number_of_q-number_of_kmax)*step_bessel
+
+            call write_ini_file_for_testing_precision(.true.,ssb,q_linstep_fid,k_max_tau0_over_l_max_fid,index)
+
+            call run_class_testing_precision(.true.,index)
+
+        End If
+
+    End Do
+
+end subroutine compute_data_for_testing_precision
+
+subroutine testing_precision_cl()
+    use fiducial
+    Implicit none 
+
+    ! READ ERROR FILE
+
+    ! READ CL FIDUCIAL 
+
+    ! COMPUTE SHOT NOISE
+
+    ! COMPUTE OBSERVED CL 
+
+    ! LOOP TO :
+
+    ! READ CL 
+
+    ! COMPUTE DELTA CHI2 
+
+    ! SAVE DELTA CHI2 AND PRECISION PARAMETERS 
+
+end subroutine testing_precision_cl
+
 function log_Gaussian_likelihood(array)
     use fiducial
     Implicit none
@@ -154,7 +429,7 @@ function compute_determinant(A)
     Integer*4 :: INFO,index
     Real*8,dimension(max(1,nbins),nbins) :: A
     Integer*4,dimension(min(nbins,nbins)) :: IPIV
-    Real*8,dimension(max(1,max(1,nbins))) :: WORK
+    !Real*8,dimension(max(1,max(1,nbins))) :: WORK
 
     Real*8 :: det,sgn,compute_determinant
 
@@ -180,7 +455,7 @@ subroutine compute_ratio_likelihood()
     use fiducial
     use arrays
     Implicit none
-    Integer*4 :: index,m,i,p
+    Integer*4 :: m,p
     Real*8,dimension(number_of_parameters) :: point_parameter_space,fiducial_point
     character(len=*),parameter :: fmt = '(8es16.10)'
     logical,parameter :: lensing_flag = .false. 
@@ -229,7 +504,7 @@ subroutine compute_ratio_likelihood()
 
         call write_ini_file(point_parameter_space(1),point_parameter_space(2),point_parameter_space(3),&
         point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),point_parameter_space(7),&
-        tau,N_ur,N_ncdm,deg_ncdm,lensing_flag)
+        tau,N_ur,N_ncdm,deg_ncdm,lensing_flag,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
         inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
 
@@ -490,12 +765,13 @@ end function i_j_from_I_oa
 
 subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
                               param_m_ncdm, param_tau_reio, param_N_ur, param_N_ncdm, param_deg_ncdm, &
-                              param_MG_beta2,Cl_El_flag, len_flag,z_bin_centers,z_bin_widths,z_bin_bias)
+                              param_MG_beta2,Cl_El_flag, len_flag,z_bin_centers,z_bin_widths,z_bin_bias,&
+                              bessel,q,kmaxtau0)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
-    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2
+    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: f1,f2,f3,f4,f5,f6,f7,fiducial_model,len_flag,Cl_El_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
@@ -676,14 +952,24 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
 
     write(10,'(a17)') 'gauge = newtonian'
 
+    ! PRECISION PARAMETERS
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+
+    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+
+    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+
+    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+
     close(10)
 
 end subroutine ini_file_generator
 
-subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_flag, Cl_flag)
+subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_flag, Cl_flag,bessel,q,kmaxtau0)
     use fiducial
     Implicit none
-    Real*8:: parameter_value
+    Real*8:: parameter_value,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag
     character(len=*) :: parameter_name
@@ -888,6 +1174,16 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     write(10,'(a17)') 'gauge = newtonian'
 
+    ! PRECISION PARAMETERS
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+
+    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+
+    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+
+    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+
     close(10)
 
 end subroutine write_ini_file_for_fisher
@@ -896,12 +1192,12 @@ end subroutine write_ini_file_for_fisher
 
 subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
                           param_m_ncdm, param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
-                           param_deg_ncdm, len_flag)
+                           param_deg_ncdm, len_flag,bessel,q,kmaxtau0)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
-    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2
+    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
@@ -994,6 +1290,16 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     write(10,'(a17)') 'gauge = newtonian'
 
+    ! PRECISION PARAMETERS
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+
+    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+
+    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+
+    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+
     close(10)
 
 end subroutine write_ini_file
@@ -1034,19 +1340,26 @@ subroutine fill_parameters_array(p)
 
             Do m=0,2*p
 
-                call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.)    
+                call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 
-                call write_ini_file_for_fisher('omega_cdm',param_omega_cdm(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('omega_cdm',param_omega_cdm(m),lensing_flag,.true.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('n_s',param_n_s(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('n_s',param_n_s(m),lensing_flag,.true.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('A_s',param_A_s(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('A_s',param_A_s(m),lensing_flag,.true.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('H0',param_H0(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('H0',param_H0(m),lensing_flag,.true.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('m_ncdm',param_m_ncdm(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('m_ncdm',param_m_ncdm(m),lensing_flag,.true.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.)
+                call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
             End Do
 
@@ -1054,7 +1367,8 @@ subroutine fill_parameters_array(p)
 
         ! Write ini file for error file including lensing and only for fiducial model
 
-        call write_ini_file_for_fisher('MG_beta2',MG_beta2,.true.,.false.)
+        call write_ini_file_for_fisher('MG_beta2',MG_beta2,.true.,.false.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
     End If
 
@@ -1120,7 +1434,7 @@ subroutine write_sh_file(name_ini_file)
     write(12,'(a25)') '#SBATCH --clusters=baobab'
     write(12,'(a29)') '#SBATCH --output=slurm-%J.out'
     write(12,*) 
-    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini ../cl_lss_nu_el.pre'
+    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
 
     close(12)
 end subroutine write_sh_file
@@ -1133,7 +1447,6 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     character(len=*) :: parameter_name
     character*16 :: string_par_value
     logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag
-    Integer*4 m,p
     character(len=*),parameter :: fmt = '(es16.10)'
 
     fid1 = parameter_value .eq. omega_b
@@ -1257,13 +1570,13 @@ subroutine run_current_model(len_flag)
         inquire(file='./output/current_euclid_galaxy_lensing_cl.dat',exist=exist)
         If (.not.exist) then
             call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-            '../ini_files/current_euclid_galaxy_cl_lensing.ini ../cl_lss_nu_cl.pre')
+            '../ini_files/current_euclid_galaxy_cl_lensing.ini')
         End If
     else
         inquire(file='./output/current_euclid_galaxy_cl.dat',exist=exist)
         If (.not.exist) then
             call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-            '../ini_files/current_euclid_galaxy_cl_.ini ../cl_lss_nu_cl.pre')
+            '../ini_files/current_euclid_galaxy_cl_.ini')
         End If
     End if
 
@@ -1277,7 +1590,6 @@ subroutine compute_derivatives()
     Integer*4 :: m,p,l,i,j
     character(len=15),dimension(7) :: params
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm, string_MG_beta2,fmt1
-    logical :: lensing_flag
     Integer*4,dimension(8) :: indexp
     Real*8 :: h
     indexp(1) = 0
@@ -1747,7 +2059,7 @@ subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
     Real*8,dimension(int((zmax - zmin)/dz)) :: z_array
     Real*8,dimension(int(nbins+1)) :: z_bin_edges
     Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias
-    Integer*4 :: p,nb,nz
+    Integer*4 :: p,nb
     p = int((zmax - zmin)/dz)
     nb = nbins + 1
     
@@ -1905,7 +2217,7 @@ subroutine compute_inverse_fisher_matrix()
     use fiducial
     use arrays
     Implicit none
-    Integer*4 :: l,M,N,LDA,INFO,LWORK,i,j
+    Integer*4 :: M,N,LDA,INFO,LWORK,i,j
     Real*8,dimension(max(1,7),7) :: A
     Integer*4,dimension(min(7,7)) :: IPIV
     Real*8,dimension(max(1,max(1,7))) :: WORK

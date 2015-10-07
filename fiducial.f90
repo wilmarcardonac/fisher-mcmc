@@ -55,6 +55,10 @@ Module fiducial
     Real*8,parameter    :: Pi = 3.141592653589793d0
     Real*8,parameter    :: fsky = 1.5d4/4.1253d4
     Real*8,parameter    :: theoreticalerror = 0.d0 !5.d-2
+    Real*8,parameter    :: l_switch_limber_for_cl_density_over_z = 20000.d0
+    Real*8,parameter    :: selection_sampling_bessel_fid = 3.d0
+    Real*8,parameter    :: q_linstep_fid = 0.3d0
+    Real*8,parameter    :: k_max_tau0_over_l_max_fid = 20.d0
 
     !##################
     ! FISHER PARAMETERS
@@ -65,16 +69,18 @@ Module fiducial
 
     Logical,parameter   :: compute_data_fisher_analysis = .false.   ! COMPUTE DATA FOR FISHER ANALYSIS IF SET IT TRUE
     Logical,parameter   :: do_fisher_analysis = .true. ! DO FISHER MATRIX ANALYSIS IF SET IT TRUE
+    Logical,parameter   :: testing_precision = .true. ! PERFORM PRECISION TEST IF SET IT TRUE
+    Logical,parameter   :: compute_data_testing_precision = .true. ! COMPUTE DATA FOR PRECISION TEST IF SET IT TRUE
 
     !################
     ! MCMC PARAMETERS
     !################
 
-    Integer*4,parameter    :: number_iterations = 1d5        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+    Integer*4,parameter    :: number_iterations = 100000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
     Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS
-    Integer*4,parameter    :: jumping_factor_update = 1d2    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
-    Integer*4,parameter    :: covariance_matrix_update = 1d4 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
-    Integer*4,parameter    :: steps_taken_before_definite_run = 1d4 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
+    Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
+    Integer*4,parameter    :: covariance_matrix_update = 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
+    Integer*4,parameter    :: steps_taken_before_definite_run = 10000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
 
     Real*8,parameter       :: step_size_changes = 1.d-1      ! CHANGE IN STEP SIZE
 

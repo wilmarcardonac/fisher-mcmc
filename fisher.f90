@@ -14,7 +14,7 @@ Program fisher
 
     Implicit none
 
-    Integer*4                              :: m,n,i,j,q    ! COUNTERS FOR LOOPS
+    Integer*4                              :: m,n,i,q    ! COUNTERS FOR LOOPS
 
     !#################
     ! FISHER VARIABLES
@@ -36,7 +36,7 @@ Program fisher
     Integer*4                              :: weight    ! COUNTS NUMBER OF TAKEN STEPS BEFORE MOVING TO A NEW POINT
 
     Real*8                                 :: old_loglikelihood,current_loglikelihood      ! STORE LIKELIHOOD VALUES
-    Real*4                                 :: genunf,gennor                                ! RANDOM UNIFORM DEVIATES
+    Real*4                                 :: genunf                                ! RANDOM UNIFORM DEVIATES
     Real*4,dimension(number_of_parameters*(number_of_parameters+3)/2 + 1) :: parm ! ARRAY NEEDED BY RANDOM NUMBER GENERATOR
     Real*8,dimension(number_of_parameters,number_of_parameters)           :: Covgauss ! COVARIANCE MATRIX OF GAUSSIAN LIKELIHOOD
     Real*8,dimension(number_of_parameters,number_of_parameters)           :: Covguess ! COVARIANCE MATRIX 
@@ -149,6 +149,24 @@ Program fisher
     If (do_fisher_analysis) then
 
         write(15,*) 'STARTING FISHER MATRIX ANALYSIS'
+
+        If (testing_precision) then
+
+            If (compute_data_testing_precision) then
+               
+                 call compute_data_for_testing_precision()
+
+                 write(15,*) 'JOBS TO COMPUTE DATA FOR TESTING OPTIMAL PRECISION PARAMETERS HAVE BEEN SUBMITTED'
+
+                 stop
+
+            Else
+
+                write(15,*) 'USING EXISTING DATA FOR TESTING PRECISION'
+
+            End If
+
+        End If
 
         ! ALLOCATING MEMORY FOR GRID OF MODELS
         allocate (param_omega_b(0:n_points-1), param_omega_cdm(0:n_points-1), param_n_s(0:n_points-1),&
@@ -497,7 +515,8 @@ If (ini_file_exist) then
 End If
 
 call write_ini_file(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
-                    old_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing)
+                    old_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_fid,&
+                    q_linstep_fid,k_max_tau0_over_l_max_fid)
 
 !###############################################
 ! Run CLASS for current point in parameter space  
@@ -749,7 +768,8 @@ Do m=1,number_iterations
     !####################################################
 
     call write_ini_file(current_point(1),current_point(2),current_point(3),current_point(4),&
-    current_point(5),current_point(6),current_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing)
+    current_point(5),current_point(6),current_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+    selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
     !################################
     ! Call CLASS for current ini file 
@@ -814,7 +834,7 @@ Do m=1,number_iterations
 
         number_accepted_points = number_accepted_points + 1    ! Used to compute acceptance rate
 
-        acceptance_probability(m) = min(1.d0,dexp(current_loglikelihood - old_loglikelihood))    
+        acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
 
         If (m .le. steps_taken_before_definite_run) then
 
@@ -865,7 +885,7 @@ Do m=1,number_iterations
 
             number_accepted_points = number_accepted_points + 1    ! Used to compute acceptance rate
 
-            acceptance_probability(m) = min(1.d0,dexp(current_loglikelihood - old_loglikelihood))    
+            acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
 
             If (m .le. steps_taken_before_definite_run) then
 
@@ -915,7 +935,7 @@ Do m=1,number_iterations
 
             End If
 
-            acceptance_probability(m) = min(1.d0,dexp(current_loglikelihood - old_loglikelihood))    
+            acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
 
             weight = weight + 1
 
