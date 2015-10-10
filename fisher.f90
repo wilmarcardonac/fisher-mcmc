@@ -163,6 +163,10 @@ Program fisher
             Else
 
                 write(15,*) 'USING EXISTING DATA FOR TESTING PRECISION'
+                
+                call testing_precision_cl()
+
+                stop
 
             End If
 

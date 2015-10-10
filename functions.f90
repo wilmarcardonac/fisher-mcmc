@@ -213,41 +213,45 @@ subroutine compute_data_for_testing_precision()
     Implicit none
 
     Integer*4,parameter :: number_of_q = 10
-    Integer*4,parameter :: number_of_kmax = 10
-    Integer*4,parameter :: number_of_bessel = 10
+    Integer*4,parameter :: number_of_kmax = 0
+    Integer*4,parameter :: number_of_bessel = 0
     Integer*4           :: index
-    Real*8,parameter    :: step_q = 0.2d0
+    Real*8,parameter    :: step_q = 10.0d0
     Real*8,parameter    :: step_kmax = 2.d0
     Real*8,parameter    :: step_bessel = 0.3d0
     Real*8              :: ssb,qls,kmt
+    Real*8,parameter    :: kmt_fid = 2.d0 ! = k_max_tau0_over_l_max_fid
+    Real*8,parameter    :: ssb_fid = 1.2d0 ! = selection_sampling_bessel_fid
+    Real*8,parameter    :: qls_fid = 2.3d0 != q_linstep_fid
 
-    call write_ini_file_for_testing_precision(.false.,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid,0)
+    ! UNCOMMENT TO COMPUTE ERROR FILE
+!    call write_ini_file_for_testing_precision(.false.,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid,0)
 
-    call run_class_testing_precision(.false.,0)
+!    call run_class_testing_precision(.false.,0)
 
     Do index=1,number_of_q+number_of_kmax+number_of_bessel
 
         If (index .le. number_of_q) then
 
-            qls = q_linstep_fid + dble(index)*step_q
+            qls = qls_fid +  dble(index)*step_q
 
-            call write_ini_file_for_testing_precision(.true.,selection_sampling_bessel_fid,qls,k_max_tau0_over_l_max_fid,index)
+            call write_ini_file_for_testing_precision(.true.,ssb_fid,qls,kmt_fid,index)
 
             call run_class_testing_precision(.true.,index)
 
         Else If ((index .gt. number_of_q) .and. (index .le. (number_of_q+number_of_kmax) )) then
 
-            kmt = k_max_tau0_over_l_max_fid - dble(index-number_of_q)*step_kmax
+            kmt = kmt_fid - dble(index-number_of_q)*step_kmax
 
-            call write_ini_file_for_testing_precision(.true.,selection_sampling_bessel_fid,q_linstep_fid,kmt,index)
+            call write_ini_file_for_testing_precision(.true.,ssb_fid,qls_fid,kmt,index)
 
             call run_class_testing_precision(.true.,index)
 
         Else If ( (index .gt. (number_of_q+number_of_kmax)) .and. (index .le. (number_of_q+number_of_kmax+number_of_bessel) ) )then
 
-            ssb = selection_sampling_bessel_fid - dble(index-number_of_q-number_of_kmax)*step_bessel
+            ssb = ssb_fid - dble(index-number_of_q-number_of_kmax)*step_bessel
 
-            call write_ini_file_for_testing_precision(.true.,ssb,q_linstep_fid,k_max_tau0_over_l_max_fid,index)
+            call write_ini_file_for_testing_precision(.true.,ssb,qls_fid,kmt_fid,index)
 
             call run_class_testing_precision(.true.,index)
 
@@ -258,24 +262,90 @@ subroutine compute_data_for_testing_precision()
 end subroutine compute_data_for_testing_precision
 
 subroutine testing_precision_cl()
+
     use fiducial
+    use arrays
     Implicit none 
 
-    ! READ ERROR FILE
+    Character(len=15)                      :: filetype     ! AUXILIARY VARIABLE 
+    Character*16                           :: ElCl         ! ALLOWS TO CHOOSE EITHER EL OR CL
 
-    ! READ CL FIDUCIAL 
+    Integer*4,parameter :: number_of_q = 10
+    Integer*4,parameter :: number_of_kmax = 0
+    Integer*4,parameter :: number_of_bessel = 0
+    Integer*4           :: index
+    Real*8,parameter    :: step_q = 10.0d0
+    Real*8,parameter    :: step_kmax = 2.d0
+    Real*8,parameter    :: step_bessel = 0.3d0
+    Real*8              :: ssb,qls,kmt
+    Real*8,parameter    :: kmt_fid = 2.d0 ! = k_max_tau0_over_l_max_fid
+    Real*8,parameter    :: ssb_fid = 1.2d0 ! = selection_sampling_bessel_fid
+    Real*8,parameter    :: qls_fid = 2.3d0 != q_linstep_fid
 
-    ! COMPUTE SHOT NOISE
 
-    ! COMPUTE OBSERVED CL 
+    ! ALLOCATING MEMORY FOR EL, FIDUCIAL CL (LENSING), FIDUCIAL CL (NOT LENSING), OBSERVED CL, SHOT NOISE, SYSTEMATIC CL
+    allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),Cl_obs(lmin:lmax,0:nbins,0:nbins),&
+         Nl(1:nbins,1:nbins),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
 
-    ! LOOP TO :
+    If (status3 .eq. 0) then 
 
-    ! READ CL 
+       write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST ALLOCATED SUCCESSFULLY'
 
-    ! COMPUTE DELTA CHI2 
+    Else 
 
-    ! SAVE DELTA CHI2 AND PRECISION PARAMETERS 
+       write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST WAS NOT ALLOCATED PROPERLY'
+
+       stop
+
+    End If
+
+    call read_data(El,10,filetype,ElCl,.false.,.true.,.false.)
+
+    call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
+
+    call compute_shot_noise()
+
+    call compute_observed_Cl()
+
+    open(16,file='./output/testing_precision_cl.dat')
+    write(16,*) '# Delta \chi^2    q_linstep    k_max_tau0_over_l_max    selection_sampling_bessel '
+
+    Do index=1,number_of_q+number_of_kmax+number_of_bessel
+
+        If (index .le. number_of_q) then
+
+            qls = qls_fid + dble(index)*step_q
+
+            call read_cl(Cl_current,index,.false.)
+
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+                 qls,kmt_fid,ssb_fid
+    
+        Else If ((index .gt. number_of_q) .and. (index .lt. (number_of_q+number_of_kmax) )) then
+
+            kmt = kmt_fid - dble(index-number_of_q)*step_kmax
+
+            call read_cl(Cl_current,index,.false.)
+
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+                 qls_fid,kmt,ssb_fid
+    
+        Else If ( (index .gt. (number_of_q+number_of_kmax)) .and. (index .le. (number_of_q+number_of_kmax+number_of_bessel) ) )then
+
+            ssb = ssb_fid - dble(index-number_of_q-number_of_kmax)*step_bessel
+
+            call read_cl(Cl_current,index,.false.)
+
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+                 qls_fid,kmt_fid,ssb
+    
+        End If
+
+    End Do
+
+    deallocate(El,Cl_fid_nl,Cl_obs,Nl,Cl_current)
+
+    close(16)
 
 end subroutine testing_precision_cl
 
@@ -578,7 +648,11 @@ subroutine compute_observed_Cl()
     Do m=lmin,lmax
         Do p=1,nbins
             Do i=1,nbins
-                Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
+               If (testing_precision) then
+                  Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid_nl(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
+               Else
+                  Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
+               End If
             End Do
         End Do
     End Do 
@@ -1826,9 +1900,11 @@ subroutine read_data(Cl,u,param_name,param_value,lensing_flag,fiducial_flag,El_C
     logical :: lensing_flag,fiducial_flag,El_Cl_flag
 
     If ((fiducial_flag .and. lensing_flag) .and. El_Cl_flag) then 
-        open(u,file='./data/Cl_fiducial_lensing_cl.dat')
+       open(u,file='./data/Cl_fiducial_lensing_cl.dat')
     else if ((fiducial_flag .and. lensing_flag) .and. .not.El_Cl_flag) then
-        open(u,file='./data/El_cl.dat')
+       open(u,file='./data/El_cl.dat')
+    else if ((fiducial_flag .and. .not.lensing_flag) .and. .not.El_Cl_flag) then
+       open(u,file='./data/El_nl_cl.dat')
     else if ((fiducial_flag .and. .not.lensing_flag) .and. El_Cl_flag) then
         open(u,file='./data/Cl_fiducial_no_lensing_cl.dat')
     else if ((.not.fiducial_flag .and. lensing_flag) .and. El_Cl_flag) then
@@ -1873,12 +1949,23 @@ subroutine read_Cl(Cl,u,lensing_flag)
     Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Cl
     Integer*4 :: m,u,p,i
     logical :: lensing_flag
-    If (lensing_flag)  then 
-        open(u,file='./output/current_euclid_galaxy_lensing_cl.dat')
-    else 
-        open(u,file='./output/current_euclid_galaxy_cl.dat')
+    character(len=*),parameter :: fmt = '(i2.2)'
+    character*16 :: string
+
+    If (testing_precision) then
+
+       write(string,fmt) u
+       
+       open(u,file='./data/Cl_'//trim(string)//'_cl.dat')
+
+    Else
+       If (lensing_flag)  then 
+          open(u,file='./output/current_euclid_galaxy_lensing_cl.dat')
+       else 
+          open(u,file='./output/current_euclid_galaxy_cl.dat')
+       End If
     End If
-  
+
     Do m=-5,lmax
         If (m .le. 1) then
             read(u,*)

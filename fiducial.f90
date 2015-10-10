@@ -69,8 +69,8 @@ Module fiducial
 
     Logical,parameter   :: compute_data_fisher_analysis = .false.   ! COMPUTE DATA FOR FISHER ANALYSIS IF SET IT TRUE
     Logical,parameter   :: do_fisher_analysis = .true. ! DO FISHER MATRIX ANALYSIS IF SET IT TRUE
-    Logical,parameter   :: testing_precision = .true. ! PERFORM PRECISION TEST IF SET IT TRUE
-    Logical,parameter   :: compute_data_testing_precision = .true. ! COMPUTE DATA FOR PRECISION TEST IF SET IT TRUE
+    Logical,parameter   :: testing_precision = .false. ! PERFORM PRECISION TEST IF SET IT TRUE
+    Logical,parameter   :: compute_data_testing_precision = .false. ! COMPUTE DATA FOR PRECISION TEST IF SET IT TRUE
 
     !################
     ! MCMC PARAMETERS
