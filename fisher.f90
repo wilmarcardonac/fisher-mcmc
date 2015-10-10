@@ -411,6 +411,16 @@ Program fisher
 
             stop
         
+        Else
+
+           If (using_inverse_fisher_matrix) then
+
+              print *, 'FISHER MATRIX READ FROM FILE NOT IMPLEMENTED YET, RUN THE CODE WITH "do_fisher_analysis" SET IT TRUE'
+              
+              stop
+
+           End If
+           
         End If
 
     End If
@@ -421,674 +431,676 @@ Program fisher
 
     If (do_mcmc_analysis) then
 
-        write(15,*) 'STARTING MCMC ANALYSIS'
+       write(15,*) 'STARTING MCMC ANALYSIS'
 
-        If (testing_Gaussian_likelihood) then
-      
-            write(15,*) 'TESTING MCMC ANALYSIS WITH GAUSSIAN LIKELIHOOD'
+       !ALLOCATING MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND CURRENT SPECTRA
+       allocate (old_point(1:number_of_parameters),current_point(1:number_of_parameters),&
+            acceptance_probability(number_iterations),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status1)
 
-        End If
+       If (status1 .eq. 0) then 
 
-        !ALLOCATING MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND CURRENT SPECTRA
-        allocate (old_point(1:number_of_parameters),current_point(1:number_of_parameters),&
-        acceptance_probability(number_iterations),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status1)
+          write(15,*) 'MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND '
+          write(15,*) 'CURRENT SPECTRA ALLOCATED SUCCESSFULLY'
 
-        If (status1 .eq. 0) then 
+       Else 
 
-            write(15,*) 'MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND '
-            write(15,*) 'CURRENT SPECTRA ALLOCATED SUCCESSFULLY'
-        Else 
+          write(15,*) 'MEMORY FOR OLD_POINT, CURRENT_POINT, ACCEPTANCE_PROBABILITY, AND CL_CURRENT WAS NOT ALLOCATED PROPERLY'
 
-            write(15,*) 'MEMORY FOR OLD_POINT, CURRENT_POINT, ACCEPTANCE_PROBABILITY, AND CL_CURRENT WAS NOT ALLOCATED PROPERLY'
+          stop
 
-            stop
+       End If
 
-        End If
+       ! ###################################################################################################
+       ! GENERATE A RANDOM POINT IN SAME PARAMETER SPACE AS IN FISHER MATRIX ANALYSIS EXCEPT FOR A_S BECAUSE 
+       ! THE VERSION OF CLASS DOES NOT TAKE LN()10^10 A_S) AS AN INPUT. RANDOM NUMBER GENERATOR WORKS WITH 
+       ! SINGLE PRECISION WHEREAS OUR FUNCTION USE DOUBLE PRECISION; CHANGES ARE MADE ACCORDINGLY.
+       ! ###################################################################################################
 
-        ! ###################################################################################################
-        ! GENERATE A RANDOM POINT IN SAME PARAMETER SPACE AS IN FISHER MATRIX ANALYSIS EXCEPT FOR A_S BECAUSE 
-        ! THE VERSION OF CLASS DOES NOT TAKE LN()10^10 A_S) AS AN INPUT. RANDOM NUMBER GENERATOR WORKS WITH 
-        ! SINGLE PRECISION WHEREAS OUR FUNCTION USE DOUBLE PRECISION; CHANGES ARE MADE ACCORDINGLY.
-        ! ###################################################################################################
+       If (testing_Gaussian_likelihood) then
 
-If (testing_Gaussian_likelihood) then
-    Go to 2
-End If
+          write(15,*) 'TESTING MCMC ANALYSIS WITH GAUSSIAN LIKELIHOOD'
 
-If (start_from_fiducial) then
+          open(17,file='./output/mcmc_final_output.ranges')    !    File with hard bounds needed by Getdist
 
-    old_point(1) = omega_b
-    old_point(2) = omega_cdm
-    old_point(3) = n_s
-    old_point(4) = A_s
-    old_point(5) = H0
-    old_point(6) = m_ncdm
-    old_point(7) = MG_beta2
+          write(17,*) 'omega_b    N    N '
+
+          write(17,*) 'omega_cdm    N    N '
+
+          write(17,*) 'n_s    N    N '
+
+          write(17,*) 'A_s    N    N '
+
+          write(17,*) 'H0   N    N '
+
+          write(17,*) 'm_ncdm    N    N '
+
+          write(17,*) 'MG_beta2    N    N ' 
+
+          close(17)
+
+          Do i=1,number_of_parameters
+
+             x_old(i) = genunf(-1.,1.)
+
+             old_point(i) = dble(x_old(i))
+
+          End Do
+
+          old_loglikelihood = log_Gaussian_likelihood(old_point)
+
+       Else
+
+          open(16,file='./output/mcmc_final_output.paramnames')    !    File with names of parameters needed by Getdist
+
+          write(16,*) 'omega_b    \omega_b'
+
+          write(16,*) 'omega_cdm    \omega_{cdm}'
+
+          write(16,*) 'n_s    n_s'
+
+          write(16,*) 'A_s    A_s'
+
+          write(16,*) 'H0    H_0'
+
+          write(16,*) 'm_ncdm    m_{ncdm}'
+
+          write(16,*) 'MG_beta2    \beta_2'
+
+          close(16)
+
+          open(17,file='./output/mcmc_final_output.ranges')    !    File with hard bounds needed by Getdist
+
+          write(17,*) 'omega_b    0    N '
+
+          write(17,*) 'omega_cdm    0    N '
+
+          write(17,*) 'n_s    N    N '
+
+          write(17,*) 'A_s    0    3.e-9 '
+
+          write(17,*) 'H0   0    85 '
+
+          write(17,*) 'm_ncdm    0    N '
+
+          write(17,*) 'MG_beta2    0    N'
+
+          close(17)
+
+          If (start_from_fiducial) then
+
+             old_point(1) = omega_b
+
+             old_point(2) = omega_cdm
+
+             old_point(3) = n_s
+
+             old_point(4) = A_s
+
+             old_point(5) = H0
+
+             old_point(6) = m_ncdm
+
+             old_point(7) = MG_beta2
     
-    Do m=1,number_of_parameters
+             Do m=1,number_of_parameters
 
-        If (m .eq. 4) then
+                If (m .eq. 4) then
 
-            x_old(m) = real(log(1.d1**1.d1*old_point(m)))
-
-        else
-
-            x_old(m) = real(old_point(m))
-
-        End If
-
-    End Do
-
-Else
-
-    x_old(1) = genunf(real(omega_b-sigma_omega_b),real(omega_b+sigma_omega_b))         ! omega_b
-    x_old(2) = genunf(real(omega_cdm-sigma_omega_cdm),real(omega_cdm+sigma_omega_cdm)) ! omega_cdm
-    x_old(3) = genunf(real(n_s-sigma_n_s),real(n_s+sigma_n_s))                         ! n_s
-    x_old(4) = log((1.d1**10)*genunf(real(A_s-sigma_A_s),real(A_s+sigma_A_s)))         ! log(10^10*A_s)
-    x_old(5) = genunf(real(H0-sigma_H0),real(H0+sigma_H0))                             ! H0
-    x_old(6) = genunf(real(m_ncdm-sigma_m_ncdm),real(m_ncdm+sigma_m_ncdm))             ! m_ncdm
-    x_old(7) = genunf(real(MG_beta2-sigma_MG_beta2),real(MG_beta2+sigma_MG_beta2))     ! MG_beta2
-
-    Do m=1,number_of_parameters
-        If (m == 4) then
-            old_point(m) = exp(dble(x_old(m)))/(1.d1**1.d1)
-        else
-            old_point(m) = dble(x_old(m))
-        End If
-    End Do
-
-End If
-
-!#############################################################################
-! Second, we write ini file corresponding to current point in parameter space.  
-!#############################################################################
-
-inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
-inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
-
-If (cl_file_exist) then
-
-    call system('rm ./output/current_euclid_galaxy_cl.dat')
-
-End If 
-
-If (ini_file_exist) then
-
-    call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')
-
-End If
-
-call write_ini_file(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
-                    old_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_fid,&
-                    q_linstep_fid,k_max_tau0_over_l_max_fid)
-
-!###############################################
-! Run CLASS for current point in parameter space  
-!###############################################
-
-inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
-
-If (ini_file_exist) then
-
-    call run_current_model(lensing) ! Remember, lensing flag allows to run with/without lensing
- 
-End If
-
-!######################################################################################################
-! Check existence of data file for current model in parameter space. If data exists, fill array of Cl in
-! and compute likelihood (fill old_loglikelihood variable in)
-!######################################################################################################
-
-If (ini_file_exist) then
-
-    inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
-
-    If (cl_file_exist) then
-
-        call read_Cl(Cl_current,11,lensing)
-
-        old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
-
-        call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
-
-    Else
-
-        write(15,*) 'Something went wrong with CLASS for current model. Unlikely likelihood assigned'
-
-        old_loglikelihood = -1.d10
-
-    End If
-
-    call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! Remove ini file
-
-Else
-
-    write(15,*) 'Not ini file for current model. Something went wrong with subroutine "write_ini_file" '
-
-    write(15,*) 'Unlikely log likelihood assigned to current point '
-    
-    old_loglikelihood = -1.d10
-
-End if
-
-!#########################################
-! Open data file to store MCMC computation 
-!#########################################
-
-2 open(13,file='./output/mcmc_final_output.txt')
-
-open(14,file='./output/mcmc_output.txt')    !    Temporary file 
-
-write(13,*) '# Number of iterations in MCMC : ', number_iterations - steps_taken_before_definite_run
-
-If (start_from_fiducial .and. (.not.testing_Gaussian_likelihood)) then
-
-    write(13,*) '# Fiducial model is (parameters ordered as below) :', omega_b, omega_cdm, n_s, A_s, H0, m_ncdm, MG_beta2
-
-    write(13,*) '# ln(L/L_max) at the fiducial model :', old_loglikelihood
-
-End If
-
-write(13,*) '# Weight   -ln(L/L_{max})    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm    MG_beta2 ' 
-
-open(16,file='./output/mcmc_final_output.paramnames')    !    File with names of parameters needed by Getdist
-
-write(16,*) 'omega_b    \omega_b'
-
-write(16,*) 'omega_cdm    \omega_{cdm}'
-
-write(16,*) 'n_s    n_s'
-
-write(16,*) 'A_s    A_s'
-
-write(16,*) 'H0    H_0'
-
-write(16,*) 'm_ncdm    m_{ncdm}'
-
-write(16,*) 'MG_beta2    \beta_2'
-
-close(16)
-
-If (testing_Gaussian_likelihood) then 
-
-    open(17,file='./output/mcmc_final_output.ranges')    !    File with hard bounds needed by Getdist
-
-    write(17,*) 'omega_b    N    N '
-
-    write(17,*) 'omega_cdm    N    N '
-
-    write(17,*) 'n_s    N    N '
-
-    write(17,*) 'A_s    N    N '
-
-    write(17,*) 'H0   N    N '
-
-    write(17,*) 'm_ncdm    N    N '
-
-    write(17,*) 'MG_beta2    N    N ' 
-
-    close(17)
-
-Else
-
-    open(17,file='./output/mcmc_final_output.ranges')    !    File with hard bounds needed by Getdist
-
-    write(17,*) 'omega_b    0    N '
-
-    write(17,*) 'omega_cdm    0    N '
-
-    write(17,*) 'n_s    N    N '
-
-    write(17,*) 'A_s    0    3.e-9 '
-
-    write(17,*) 'H0   0    85 '
-
-    write(17,*) 'm_ncdm    0    N '
-
-    write(17,*) 'MG_beta2    0    N'
-
-    close(17)
-
-End If
-
-!############################################
-! Loop to explore parameter space starts here
-!############################################
-
-If (testing_Gaussian_likelihood) then        ! Used if testing Gaussian likelihood
-
-    Do i=1,number_of_parameters
-        x_old(i) = genunf(-1.,1.)
-    End Do
-
-    Do m=1,number_of_parameters
-    
-        If (m == 4) then
-            old_point(m) = dble(x_old(m)) !exp(dble(x_old(m)))/(1.d1**1.d1)
-        else
-            old_point(m) = dble(x_old(m))
-        End If
-
-    End Do
-
-    old_loglikelihood = log_Gaussian_likelihood(old_point)
-
-    !5 call read_bestfit_mcmc(old_point)
-
-End If
-
-Do m=1,number_iterations
-
-    !######################################################################################################
-    ! Generate new point in parameter space from a multivariate normal distribution and the covariance 
-    ! matrix computed out of the Fisher matrix  analysis above. We use RANLIB library. Be careful with 
-    ! x_old and old_point definitions 
-    !######################################################################################################
-
-    Do q=1,number_iterations 
-
-        If (testing_Gaussian_likelihood) then
-
-            call setgmn(x_old,real(jumping_factor*Covgauss),number_of_parameters,parm) ! used if testing Gaussian likelihood
- 
-            call genmn(parm,x_new,work)
-
-            exit
-
-        else
-
-            If (using_inverse_fisher_matrix) then
-
-                call setgmn(x_old,real(jumping_factor*inv_F_ab),number_of_parameters,parm) 
-
-                call genmn(parm,x_new,work)
-
-            else
-
-                call setgmn(x_old,real(jumping_factor*Covguess),number_of_parameters,parm) 
-
-                call genmn(parm,x_new,work)
-
-            End If 
-
-        End If
-
-        c1 = x_new(1) .lt. real(0.d0)
-        c2 = x_new(2) .lt. real(0.d0)
-        c4 = (x_new(4) .lt. real(0.d0)).or.(x_new(4) .gt. real(log(30.d0))) ! limit As<3.d-9 but using log(10^10As)
-        c5 = (x_new(5) .lt. real(0.d0)).or.(x_new(5).gt.real(85.d0))
-        c6 = x_new(6) .lt. real(0.d0)
-        c7 = x_new(7) .le. real(0.d0)
-        non_plausible_parameters = ((c1 .or. c2) .or. (c4 .or. c5)) .or. (c6 .or. c7) 
-
-        If (non_plausible_parameters .and. (q .ne. number_iterations)) then
-
-            call genmn(parm,x_new,work)
-
-        else if (q .eq. number_iterations) then
-
-            write(15,*) 'Loop to generate multivariate Gaussian deviate hit maximum number of iterations '
-
-            stop
-
-        else 
-
-            exit
-
-        End If
-
-    End Do
-    
-    Do n=1,number_of_parameters
-
-        If (n .eq. 4) then
-
-            If (testing_Gaussian_likelihood) then
-
-                current_point(n) = dble(x_new(n)) ! used if testing Gaussian likelihood
-
-            else
-
-                current_point(n) = dexp(dble(x_new(n)))/(1.d1**1.d1) ! Converting log(10**10A_s) to A_s 
-
-            End If
-
-        else
-
-            current_point(n) = dble(x_new(n))
-
-        End If
-
-    End Do
-
-    If (testing_Gaussian_likelihood) then
-
-        Go to 3        ! used if testing Gaussian likelihood
-
-    End If
-
-    !####################################################
-    ! Write ini file for current point in parameter space 
-    !####################################################
-
-    call write_ini_file(current_point(1),current_point(2),current_point(3),current_point(4),&
-    current_point(5),current_point(6),current_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
-    selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
-
-    !################################
-    ! Call CLASS for current ini file 
-    !################################
-
-    inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist)
-
-    If (ini_file_exist) then
-
-        call run_current_model(lensing) ! Look at lensing flag declaration above
-
-    End If    
-
-    !######################################################################################################
-    ! Check existence of data for current point in parameter space and fill array of Cl in if file exists
-    !######################################################################################################
-
-    If (ini_file_exist) then 
-
-        inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
-
-        If (cl_file_exist) then
-
-            call read_Cl(Cl_current,11,lensing)
-
-            current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
-
-            call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
-
-        Else
-
-            write(15,*) 'Cl file was not created, something went wrong with CLASS for current point'
-            write(15,*) 'Assigning unlikely value of log likelihood to current point'
-
-            current_loglikelihood = -1.d10
-
-        End if
-
-        call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! Remove ini file 
-
-    Else
-
-        write(15,*) 'Not ini file for current model. Something went wrong with subroutine "write_ini_file" '
-
-        write(15,*) 'Unlikely log likelihood assigned to current point '
-    
-        current_loglikelihood = -1.d10
-
-    End If
-
-    3 If (testing_Gaussian_likelihood) then 
-    
-          current_loglikelihood = log_Gaussian_likelihood(current_point) ! used if testing Gaussian likelihood
-
-      End If
-
-    !######################################################################################################
-    ! Decide whether or not the current_point in parameter space becomes old_point in parameter space 
-    !######################################################################################################
-
-    If (current_loglikelihood .ge. old_loglikelihood) then ! It accepts the current point
-
-        number_accepted_points = number_accepted_points + 1    ! Used to compute acceptance rate
-
-        acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
-
-        If (m .le. steps_taken_before_definite_run) then
-
-            write(14,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-            old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
-
-        else
-
-            write(13,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-            old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
-
-        End If
-
-        weight = 1    
-
-        old_loglikelihood = current_loglikelihood
-        
-        Do i=1,number_of_parameters 
-
-            old_point(i) = current_point(i)
-
-            If (i .eq. 4) then
-
-                If (testing_Gaussian_likelihood) then
-
-                    x_old(i) = real(old_point(i)) ! used if testing Gaussian likelihood
+                   x_old(m) = real(log(1.d1**1.d1*old_point(m)))
 
                 else
 
-                    x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! converting A_s to log(10**10*A_s)
+                   x_old(m) = real(old_point(m))
 
-                End If 
+                End If
 
-            else
+             End Do
 
-                x_old(i) = real(old_point(i))
+          Else
 
-            End If
+             x_old(1) = genunf(real(omega_b-sigma_omega_b),real(omega_b+sigma_omega_b))         ! omega_b
 
-        End Do
-   
-    else 
+             x_old(2) = genunf(real(omega_cdm-sigma_omega_cdm),real(omega_cdm+sigma_omega_cdm)) ! omega_cdm
 
-        random_uniform = dble(genunf(real(0.),real(1.)))
+             x_old(3) = genunf(real(n_s-sigma_n_s),real(n_s+sigma_n_s))                         ! n_s
+
+             x_old(4) = log((1.d1**10)*genunf(real(A_s-sigma_A_s),real(A_s+sigma_A_s)))         ! log(10^10*A_s)
+
+             x_old(5) = genunf(real(H0-sigma_H0),real(H0+sigma_H0))                             ! H0
+
+             x_old(6) = genunf(real(m_ncdm-sigma_m_ncdm),real(m_ncdm+sigma_m_ncdm))             ! m_ncdm
+
+             x_old(7) = genunf(real(MG_beta2-sigma_MG_beta2),real(MG_beta2+sigma_MG_beta2))     ! MG_beta2
+
+             Do m=1,number_of_parameters
+
+                If (m .eq. 4) then
+
+                   old_point(m) = exp(dble(x_old(m)))/(1.d1**1.d1)
+
+                Else
+                 
+                   old_point(m) = dble(x_old(m))
+                
+                End If
+            
+             End Do
+
+          End If
+
+          !#############################################################################
+          ! Second, we write ini file corresponding to current point in parameter space.  
+          !#############################################################################
+
+          inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist)
  
-        If ( random_uniform .le. dexp(current_loglikelihood-old_loglikelihood)) then 
-            ! It accetps the current point 
+          inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
 
-            number_accepted_points = number_accepted_points + 1    ! Used to compute acceptance rate
+          If (cl_file_exist) then
 
-            acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
+             call system('rm ./output/current_euclid_galaxy_cl.dat')
 
-            If (m .le. steps_taken_before_definite_run) then
+          End If
+
+          If (ini_file_exist) then
+
+             call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')
+
+          End If
+
+          call write_ini_file(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
+               old_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_fid,&
+               q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+          !###############################################
+          ! Run CLASS for current point in parameter space  
+          !###############################################
+
+          inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
+
+          If (ini_file_exist) then
+
+             call run_current_model(lensing) ! Remember, lensing flag allows to run with/without lensing
+ 
+          End If
+
+          !######################################################################################################
+          ! Check existence of data file for current model in parameter space. If data exists, fill array of Cl in
+          ! and compute likelihood (fill old_loglikelihood variable in)
+          !######################################################################################################
+
+          If (ini_file_exist) then
+
+             inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
+
+             If (cl_file_exist) then
+
+                call read_Cl(Cl_current,11,lensing)
+
+                old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
+
+                call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
+
+             Else
+
+                write(15,*) 'Something went wrong with CLASS for current model. Unlikely likelihood assigned'
+
+                old_loglikelihood = -1.d10
+
+             End If
+
+             call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! Remove ini file
+
+          Else
+
+             write(15,*) 'Not ini file for current model. Something went wrong with subroutine "write_ini_file" '
+
+             write(15,*) 'Unlikely log likelihood assigned to current point '
+    
+             old_loglikelihood = -1.d10
+
+          End if
+
+       End If
+
+       !#########################################
+       ! Open data file to store MCMC computation 
+       !#########################################
+
+       open(13,file='./output/mcmc_final_output.txt')
+
+       open(14,file='./output/mcmc_output.txt')    !    Temporary file 
+
+       write(13,*) '# Number of iterations in MCMC : ', number_iterations - steps_taken_before_definite_run
+
+       If (start_from_fiducial .and. (.not.testing_Gaussian_likelihood)) then
+
+          write(13,*) '# Fiducial model is (parameters ordered as below) :', omega_b, omega_cdm, n_s, A_s, H0, m_ncdm, MG_beta2
+
+          write(13,*) '# ln(L/L_max) at the fiducial model :', old_loglikelihood
+
+       End If
+
+       write(13,*) '# Weight   -ln(L/L_{max})    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm    MG_beta2 ' 
+
+       !############################################
+       ! Loop to explore parameter space starts here
+       !############################################
+
+       Do m=1,number_iterations
+
+          !######################################################################################################
+          ! Generate new point in parameter space from a multivariate normal distribution and the covariance 
+          ! matrix computed out of the Fisher matrix  analysis above. We use RANLIB library. Be careful with 
+          ! x_old and old_point definitions 
+          !######################################################################################################
+
+          Do q=1,number_iterations 
+
+             If (testing_Gaussian_likelihood) then
+
+                call setgmn(x_old,real(jumping_factor*Covgauss),number_of_parameters,parm) ! used if testing Gaussian likelihood
+ 
+                call genmn(parm,x_new,work)
+
+                exit
+
+             else
+
+                If (using_inverse_fisher_matrix) then
+
+                   call setgmn(x_old,real(jumping_factor*inv_F_ab),number_of_parameters,parm) 
+
+                   call genmn(parm,x_new,work)
+
+                else
+
+                   call setgmn(x_old,real(jumping_factor*Covguess),number_of_parameters,parm) 
+
+                   call genmn(parm,x_new,work)
+
+                End If
+
+             End If
+
+             c1 = x_new(1) .lt. real(0.d0)
+
+             c2 = x_new(2) .lt. real(0.d0)
+ 
+             c4 = (x_new(4) .lt. real(0.d0)).or.(x_new(4) .gt. real(log(30.d0))) ! limit As<3.d-9 but using log(10^10As)
+
+             c5 = (x_new(5) .lt. real(0.d0)).or.(x_new(5).gt.real(85.d0))
+
+             c6 = x_new(6) .lt. real(0.d0)
+
+             c7 = x_new(7) .le. real(0.d0)
+
+             non_plausible_parameters = ((c1 .or. c2) .or. (c4 .or. c5)) .or. (c6 .or. c7) 
+
+             If (non_plausible_parameters .and. (q .ne. number_iterations)) then
+
+                call genmn(parm,x_new,work)
+
+             else if (q .eq. number_iterations) then
+
+                write(15,*) 'Loop to generate multivariate Gaussian deviate hit maximum number of iterations '
+
+                stop
+
+             else 
+
+                exit
+
+             End If
+
+          End Do
+    
+          Do n=1,number_of_parameters
+
+             If (n .eq. 4) then
+
+                If (testing_Gaussian_likelihood) then
+
+                   current_point(n) = dble(x_new(n)) ! used if testing Gaussian likelihood
+
+                else
+
+                   current_point(n) = dexp(dble(x_new(n)))/(1.d1**1.d1) ! Converting log(10**10A_s) to A_s 
+
+                End If
+
+             else
+
+                current_point(n) = dble(x_new(n))
+
+             End If
+
+          End Do
+
+          If (testing_Gaussian_likelihood) then
+
+             current_loglikelihood = log_Gaussian_likelihood(current_point) ! used if testing Gaussian likelihood
+
+          Else
+
+             !####################################################
+             ! Write ini file for current point in parameter space 
+             !####################################################
+
+             call write_ini_file(current_point(1),current_point(2),current_point(3),current_point(4),&
+                  current_point(5),current_point(6),current_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+                  selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+             !################################
+             ! Call CLASS for current ini file 
+             !################################
+
+             inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist)
+             
+             If (ini_file_exist) then
+
+                call run_current_model(lensing) ! Look at lensing flag declaration above
+
+             End If
+
+             !######################################################################################################
+             ! Check existence of data for current point in parameter space and fill array of Cl in if file exists
+             !######################################################################################################
+
+             If (ini_file_exist) then 
+
+                inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
+
+                If (cl_file_exist) then
+
+                   call read_Cl(Cl_current,11,lensing)
+
+                   current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
+
+                   call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
+
+                Else
+
+                   write(15,*) 'Cl file was not created, something went wrong with CLASS for current point'
+                   write(15,*) 'Assigning unlikely value of log likelihood to current point'
+
+                   current_loglikelihood = -1.d10
+
+                End if
+
+                call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! Remove ini file 
+
+             Else
+
+                write(15,*) 'Not ini file for current model. Something went wrong with subroutine "write_ini_file" '
+
+                write(15,*) 'Unlikely log likelihood assigned to current point '
+    
+                current_loglikelihood = -1.d10
+
+             End If
+
+          End If
+
+          !######################################################################################################
+          ! Decide whether or not the current_point in parameter space becomes old_point in parameter space 
+          !######################################################################################################
+
+          If (current_loglikelihood .ge. old_loglikelihood) then ! It accepts the current point
+
+             number_accepted_points = number_accepted_points + 1    ! Used to compute acceptance rate
+
+             acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
+
+             If (m .le. steps_taken_before_definite_run) then
 
                 write(14,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-                old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
+                     old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
 
-            else
+             else
 
                 write(13,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-                old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
+                     old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
 
-            End If
+             End If
 
-            weight = 1
+             weight = 1    
 
-            old_loglikelihood = current_loglikelihood
-
-            Do i=1,number_of_parameters 
+             old_loglikelihood = current_loglikelihood
+        
+             Do i=1,number_of_parameters 
 
                 old_point(i) = current_point(i)
 
                 If (i .eq. 4) then
 
-                    If (testing_Gaussian_likelihood) then
+                   If (testing_Gaussian_likelihood) then
 
-                        x_old(i) = real(old_point(i)) ! used when testing Gaussian likelihood
+                      x_old(i) = real(old_point(i)) ! used if testing Gaussian likelihood
 
-                    Else
+                   else
 
-                        x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! converting A_s to log(10**10*A_s)
+                      x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! converting A_s to log(10**10*A_s)
 
-                    End If
-
-                else
-
-                    x_old(i) = real(old_point(i))
-
-                End If
-
-            End Do
-
-        else   ! The code rejects the current point 
-
-            If (m .gt. steps_taken_before_definite_run) then
-
-                number_rejected_points = number_rejected_points + 1            
-
-            End If
-
-            acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
-
-            weight = weight + 1
-
-            Do i=1,number_of_parameters 
-
-                If (i .eq. 4) then
-
-                    If (testing_Gaussian_likelihood) then
-
-                        x_old(i) = real(old_point(i)) ! Used if testing Gaussian likelihood
-
-                    Else
-
-                        x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! convert A_s to log(10**10*A_s)
-
-                    End If
+                   End If
 
                 else
 
-                    x_old(i) = real(old_point(i))
+                   x_old(i) = real(old_point(i))
 
                 End If
 
-            End Do
+             End Do
+   
+          else 
 
-        End If
+             random_uniform = dble(genunf(real(0.),real(1.)))
+ 
+             If ( random_uniform .le. dexp(current_loglikelihood-old_loglikelihood)) then 
+                ! It accetps the current point 
 
-    End If
+                number_accepted_points = number_accepted_points + 1    ! Used to compute acceptance rate
 
-    !###################################################################################################
-    ! Compute average acceptance probability and update covariance matrix and jumping factor (if needed)
-    !###################################################################################################
+                acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
 
-    If ((mod(m,jumping_factor_update) .eq. 0) .and. (m .le. steps_taken_before_definite_run) ) then
+                If (m .le. steps_taken_before_definite_run) then
+                   
+                   write(14,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
+                        old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
 
-        average_acceptance_probability = sum(acceptance_probability(m-jumping_factor_update+1:m))&
-        /real(jumping_factor_update)
+                else
 
-        write(15,*) 'Current average acceptance probability ',average_acceptance_probability
+                   write(13,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
+                        old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
+
+                End If
+
+                weight = 1
+
+                old_loglikelihood = current_loglikelihood
+
+                Do i=1,number_of_parameters 
+
+                   old_point(i) = current_point(i)
+
+                   If (i .eq. 4) then
+
+                      If (testing_Gaussian_likelihood) then
+
+                         x_old(i) = real(old_point(i)) ! used when testing Gaussian likelihood
+
+                      Else
+
+                         x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! converting A_s to log(10**10*A_s)
+
+                      End If
+
+                   else
+
+                      x_old(i) = real(old_point(i))
+
+                   End If
+
+                End Do
+
+             else   ! The code rejects the current point 
+
+                If (m .gt. steps_taken_before_definite_run) then
+
+                   number_rejected_points = number_rejected_points + 1            
+
+                End If
+
+                acceptance_probability(m) = min(1.d0,exp(current_loglikelihood - old_loglikelihood))    
+
+                weight = weight + 1
+
+                Do i=1,number_of_parameters 
+
+                   If (i .eq. 4) then
+
+                      If (testing_Gaussian_likelihood) then
+
+                         x_old(i) = real(old_point(i)) ! Used if testing Gaussian likelihood
+
+                      Else
+
+                         x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! convert A_s to log(10**10*A_s)
+
+                      End If
+
+                   else
+
+                      x_old(i) = real(old_point(i))
+
+                   End If
+
+                End Do
+
+             End If
+
+          End If
+
+          !###################################################################################################
+          ! Compute average acceptance probability and update covariance matrix and jumping factor (if needed)
+          !###################################################################################################
+
+          If ((mod(m,jumping_factor_update) .eq. 0) .and. (m .le. steps_taken_before_definite_run) ) then
+
+             average_acceptance_probability = sum(acceptance_probability(m-jumping_factor_update+1:m))&
+                  /real(jumping_factor_update)
+
+             write(15,*) 'Current average acceptance probability ',average_acceptance_probability
         
-        If (average_acceptance_probability .lt. 0.1) then 
+             If (average_acceptance_probability .lt. 0.1) then 
 
-            jumping_factor = jumping_factor*(1.d0 - step_size_changes)    !    Decreasing step size
+                jumping_factor = jumping_factor*(1.d0 - step_size_changes)    !    Decreasing step size
 
-        Else if (average_acceptance_probability .gt. 0.4) then
+             Else if (average_acceptance_probability .gt. 0.4) then
 
-            jumping_factor = jumping_factor*(1.d0 + step_size_changes)    !    Increasing step size 
+                jumping_factor = jumping_factor*(1.d0 + step_size_changes)    !    Increasing step size 
 
-        End If
+             End If
 
-        If (testing_Gaussian_likelihood) then
+             If (testing_Gaussian_likelihood) then
 
-            If ( mod(m,covariance_matrix_update) .eq. 0 ) then
+                If ( mod(m,covariance_matrix_update) .eq. 0 ) then
 
-                call system('cd output; python compute_covariance_matrix_Gaussian.py')
+                   call system('cd output; python compute_covariance_matrix_Gaussian.py')
      
-                close(14)
+                   close(14)
 
-                call system('rm ./output/mcmc_output.txt')
+                   call system('rm ./output/mcmc_output.txt')
 
-!                call read_covariance_matrix_mcmc(Covgauss)
+                   !                call read_covariance_matrix_mcmc(Covgauss)
 
-                write(15,*) 'Iteration ', m
+                   write(15,*) 'Iteration ', m
 
-                write(15,*) 'Current covariance matrix ', Covgauss
+                   write(15,*) 'Current covariance matrix ', Covgauss
 
-                open(14,file='./output/mcmc_output.txt')
+                   open(14,file='./output/mcmc_output.txt')
 
-            End If
+                End If
 
-        Else if (.not. using_inverse_fisher_matrix) then  
+             Else if (.not. using_inverse_fisher_matrix) then  
 
-            If ( mod(m,covariance_matrix_update) .eq. 0 ) then
+                If ( mod(m,covariance_matrix_update) .eq. 0 ) then
 
-                call system('cd output; python compute_covariance_matrix.py')
+                   call system('cd output; python compute_covariance_matrix.py')
      
-                close(14)
+                   close(14)
 
-                call system('rm ./output/mcmc_output.txt')
+                   call system('rm ./output/mcmc_output.txt')
 
-!                call read_covariance_matrix_mcmc(Covguess)
+                   !                call read_covariance_matrix_mcmc(Covguess)
 
-                write(15,*) 'Iteration ', m
+                   write(15,*) 'Iteration ', m
 
-                write(15,*) 'Current covariance matrix ', Covguess
+                   write(15,*) 'Current covariance matrix ', Covguess
 
-                open(14,file='./output/mcmc_output.txt')
+                   open(14,file='./output/mcmc_output.txt')
 
-            End If
+                End If
 
-        Else If (using_inverse_fisher_matrix) then
+             Else If (using_inverse_fisher_matrix) then
 
-            If ( mod(m,covariance_matrix_update) .eq. 0 ) then
+                If ( mod(m,covariance_matrix_update) .eq. 0 ) then
 
-                call system('cd output; python compute_covariance_matrix.py')
+                   call system('cd output; python compute_covariance_matrix.py')
      
-                close(14)
+                   close(14)
 
-                call system('rm ./output/mcmc_output.txt')
+                   call system('rm ./output/mcmc_output.txt')
 
-!                call read_covariance_matrix_mcmc(inv_F_ab)
+                   !                call read_covariance_matrix_mcmc(inv_F_ab)
 
-                write(15,*) 'Iteration ', m
+                   write(15,*) 'Iteration ', m
 
-                write(15,*) 'Current covariance matrix ', inv_F_ab
+                   write(15,*) 'Current covariance matrix ', inv_F_ab
 
-                open(14,file='./output/mcmc_output.txt')
+                   open(14,file='./output/mcmc_output.txt')
 
-            End If
+                End If
 
-        End If
+             End If
 
-    End If
+          End If
 
-    !#########################################
-    ! Loop to sample parameter space ends here
-    !#########################################
+          !#########################################
+          ! Loop to sample parameter space ends here
+          !#########################################
 
-End Do
+       End Do
 
-!############################################
-! Write last informations and close data file 
-!############################################
+       !############################################
+       ! Write last informations and close data file 
+       !############################################
 
-write(15,*) 'Number of rejected points: ', number_rejected_points
+       write(15,*) 'Number of rejected points: ', number_rejected_points
 
-write(15,*) 'Acceptance ratio ', dble(number_iterations - steps_taken_before_definite_run - number_rejected_points)/&
-dble(number_iterations - steps_taken_before_definite_run)
+       write(15,*) 'Acceptance ratio ', dble(number_iterations - steps_taken_before_definite_run - number_rejected_points)/&
+            dble(number_iterations - steps_taken_before_definite_run)
 
-close(13)
+       close(13)
 
-close(14)
+       close(14)
 
     Else
 
-        write(15,*) 'NOT DOING MCMC ANALYSIS'
+       write(15,*) 'NOT DOING MCMC ANALYSIS'
 
     End If
 
-close(15)
+    close(15)
 
-If (.not. testing_Gaussian_likelihood) then
+    If (.not. testing_Gaussian_likelihood) then
 
-    deallocate (old_point,current_point,inv_F_ab,Cl_current,Nl,El,Cl_obs,acceptance_probability)
+       deallocate (old_point,current_point,inv_F_ab,Cl_current,Nl,El,Cl_obs,acceptance_probability)
 
-End If
-!call system('cd output; python compute_covmatrix_bestfit.py')
+    End If
+    !call system('cd output; python compute_covmatrix_bestfit.py')
 
-End Program fisher
+  End Program fisher
 
 
 
