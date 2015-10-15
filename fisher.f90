@@ -380,12 +380,17 @@ Program fisher
 
         call compute_b_lambda_alpha()
 
-        write(15,*) 'COMPUTING RATIO OF LIKELIHOOD ALONG BIAS VECTOR'
-
         ! ALLOCATING MEMORY FOR CL_CURRENT
         allocate (Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
 
-        call compute_ratio_likelihood()
+        If (compute_likelihood_along_bias_vector) then
+
+           write(15,*) 'COMPUTING RATIO OF LIKELIHOOD ALONG BIAS VECTOR'
+
+           call compute_ratio_likelihood()
+
+        End If
+
         ! DEALLOCATING MEMORY FOR CL_FID, CL_FID_NL,CL_CURRENT
         deallocate(Cl_fid,Cl_fid_nl,Cl_current)
         ! DEALLOCATING MEMORY FOR DERIVATIVES, FISHER MATRICES, ITS INVERSES, AND BIAS VECTOR

@@ -71,16 +71,17 @@ Module fiducial
     Logical,parameter   :: do_fisher_analysis = .true. ! DO FISHER MATRIX ANALYSIS IF SET IT TRUE
     Logical,parameter   :: testing_precision = .false. ! PERFORM PRECISION TEST IF SET IT TRUE
     Logical,parameter   :: compute_data_testing_precision = .false. ! COMPUTE DATA FOR PRECISION TEST IF SET IT TRUE
+    Logical,parameter   :: compute_likelihood_along_bias_vector = .false.
 
     !################
     ! MCMC PARAMETERS
     !################
 
-    Integer*4,parameter    :: number_iterations = 10000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+    Integer*4,parameter    :: number_iterations = 12000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
     Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS
     Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
-    Integer*4,parameter    :: covariance_matrix_update = 1000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
-    Integer*4,parameter    :: steps_taken_before_definite_run = 10000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
+    Integer*4,parameter    :: covariance_matrix_update = 2000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
+    Integer*4,parameter    :: steps_taken_before_definite_run = 2000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
 
     Real*8,parameter       :: step_size_changes = 1.d-1      ! CHANGE IN STEP SIZE
 
