@@ -2,7 +2,7 @@ from getdist import loadMCSamples,plots
 
 number_of_parameters = 7
 
-samples = loadMCSamples('../output/mcmc_final_output',settings={'ignore_rows':2})
+samples = loadMCSamples('../output/mcmc_final_output',settings={'ignore_rows':1000})
 
 g = plots.getSinglePlotter()
 

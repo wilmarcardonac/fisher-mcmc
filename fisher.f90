@@ -592,10 +592,6 @@ Program fisher
 
              End Do
              
-             print *,'MUST CHECK THIS IMPLEMENTATION CAREFULLY LATER'
-
-             stop
-
           Else
 
              x_old(1) = genunf(real(omega_b-sigma_omega_b),real(omega_b+sigma_omega_b))         ! omega_b
@@ -1129,6 +1125,28 @@ Program fisher
        close(14)
 
        call system('cd output; python compute_covariance_matrix_final.py')
+
+       call system('cd analyzer; python analyze.py')
+
+       call read_bestfit_mcmc(bestfit)
+
+       call read_means_mcmc(means)
+
+       write(15,*) 'BESTFIT IS : '
+          
+       Do m=1,number_of_parameters
+
+          write(15,*) ''//trim(paramnames(m))//' = ', bestfit(m)
+
+       End Do
+
+       write(15,*) 'MEANS FOR THE SAMPLES ARE : '
+
+       Do m=1,number_of_parameters
+
+          write(15,*) ''//trim(paramnames(m))//' = ', means(m)
+
+       End Do
 
     Else
 
