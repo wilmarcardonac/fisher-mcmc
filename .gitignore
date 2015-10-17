@@ -5,6 +5,5 @@ output/*.pdf
 *.o
 *.zip
 *.tgz
-*.py
 *.out
 ini_files/*.ini

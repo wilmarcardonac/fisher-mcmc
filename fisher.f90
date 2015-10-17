@@ -43,11 +43,13 @@ Program fisher
     Real*8                                 :: jumping_factor    ! STORES JUMPING FACTOR (INCREASE IF BIGGER STEP SIZE WANTED, DECREASE OTHERWISE)
     Real*4                                 :: average_acceptance_probability
     Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
+    Real*8,dimension(number_of_parameters) :: bestfit,means                           ! SAVES BESTFIT AND MEANS OF PARAMETERS 
 
     Logical                                :: cl_file_exist,ini_file_exist ! CHECK EXISTENCE OF FILES
     Logical,parameter                      :: lensing = .false. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
-    Logical                                :: c1,c2,c4,c5,c6,c7,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
-    
+    Logical                                :: not_good_app,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
+    Logical,dimension(number_of_parameters) :: plausibility  
+
 !##########################################################
 ! ASSIGNMENTS AND INITIALIZATION OF RANDOM NUMBER GENERATOR
 !##########################################################
@@ -96,35 +98,52 @@ Program fisher
             End Do
             ! COVARIANCE MATRIX SET
 
-        Else if (.not.testing_Gaussian_likelihood) then 
+         Else  
+
+            Covguess = 0.d0
 
             write(15,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX'
 
-            jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
-
             ! SETTING COVARIANCE MATRIX
-            If (.not. using_inverse_fisher_matrix) then        
+            If (using_inverse_fisher_matrix) then
+               
+               write(15,*) 'USING INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX FOR MCMC ANALYSIS'
 
-                write(15,*) 'NOT USING INVERSE OF FISHER MATRIX AS COVARIANCE MATRIX'
+            Else
 
-                Covguess = 0.d0
+               If (read_covariance_matrix_from_file) then
 
-                Covguess(1,1) = sigma_omega_b**2 
+                  write(15,*) 'READING COVARIANCE MATRIX FOR MCMC ANALYSIS FROM FILE'
 
-                Covguess(2,2) = sigma_omega_cdm**2
+                  call read_covariance_matrix_mcmc(Covguess)
 
-                Covguess(3,3)= sigma_n_s**2
+               Else
 
-                Covguess(4,4) = (sigma_A_s/A_s)**2
+                  write(15,*) 'NOT USING INVERSE OF FISHER MATRIX AS COVARIANCE MATRIX'
 
-                Covguess(5,5) = sigma_H0**2
+                  Covguess(1,1) = sigma_omega_b**2 
 
-                Covguess(6,6) = sigma_m_ncdm**2
+                  Covguess(2,2) = sigma_omega_cdm**2
 
-                Covguess(7,7) = sigma_MG_beta2**2
+                  Covguess(3,3)= sigma_n_s**2
+
+                  Covguess(4,4) = (sigma_A_s/A_s)**2
+
+                  Covguess(5,5) = sigma_H0**2
+
+                  Covguess(6,6) = sigma_m_ncdm**2
+
+                  Covguess(7,7) = sigma_MG_beta2**2
+
+               End If
 
             End If
             ! COVARIANCE MATRIX SET
+
+            jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))!*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
+
+            ! COVARIANCE MATRIX ADJUSTED 
+            Covguess = jumping_factor*Covguess
 
             ! COMPUTING FIDUCIAL SPECTRA CL AND EL (IF NEEDED)
             write(15,*) 'SUBMITTING JOBS TO COMPUTE DATA FOR FIDUCIAL MODEL (CL AND EL) IF NEEDED'
@@ -134,7 +153,7 @@ Program fisher
 
             call run_class('omega_b',omega_b,.true.,.false.)
 
-        End If
+         End If
 
     Else 
 
@@ -497,37 +516,29 @@ Program fisher
 
           open(16,file='./output/mcmc_final_output.paramnames')    !    File with names of parameters needed by Getdist
 
-          write(16,*) 'omega_b    \omega_b'
+          Do i=1,number_of_parameters
 
-          write(16,*) 'omega_cdm    \omega_{cdm}'
+             write(16,*) ''//trim(paramnames(i))//'    '//trim(latexname(i))//''
 
-          write(16,*) 'n_s    n_s'
-
-          write(16,*) 'A_s    A_s'
-
-          write(16,*) 'H0    H_0'
-
-          write(16,*) 'm_ncdm    m_{ncdm}'
-
-          write(16,*) 'MG_beta2    \beta_2'
+          End Do
 
           close(16)
 
           open(17,file='./output/mcmc_final_output.ranges')    !    File with hard bounds needed by Getdist
 
-          write(17,*) 'omega_b    0    N '
+          write(17,*) ''//trim(paramnames(1))//'    0    N '
 
-          write(17,*) 'omega_cdm    0    N '
+          write(17,*) ''//trim(paramnames(2))//'    0    N '
 
-          write(17,*) 'n_s    N    N '
+          write(17,*) ''//trim(paramnames(3))//'    N    N '
 
-          write(17,*) 'A_s    0    3.e-9 '
+          write(17,*) ''//trim(paramnames(4))//'    0    3.e-9 '
 
-          write(17,*) 'H0   0    85 '
+          write(17,*) ''//trim(paramnames(5))//'    0    85 '
 
-          write(17,*) 'm_ncdm    0    N '
+          write(17,*) ''//trim(paramnames(6))//'    0    N '
 
-          write(17,*) 'MG_beta2    0    N'
+          write(17,*) ''//trim(paramnames(7))//'    0    N'
 
           close(17)
 
@@ -560,6 +571,30 @@ Program fisher
                 End If
 
              End Do
+
+          Else If (start_from_bestfit) then 
+
+             call read_bestfit_mcmc(bestfit)
+
+             Do m=1,number_of_parameters
+
+                old_point(m) = bestfit(m)
+
+                If (m .eq. 4) then
+
+                   x_old(m) = real(log(1.d1**1.d1*old_point(m)))
+
+                else
+
+                   x_old(m) = real(old_point(m))
+
+                End If
+
+             End Do
+             
+             print *,'MUST CHECK THIS IMPLEMENTATION CAREFULLY LATER'
+
+             stop
 
           Else
 
@@ -680,13 +715,13 @@ Program fisher
 
        If (start_from_fiducial .and. (.not.testing_Gaussian_likelihood)) then
 
-          write(13,*) '# Fiducial model is (parameters ordered as below) :', omega_b, omega_cdm, n_s, A_s, H0, m_ncdm, MG_beta2
+          write(13,*) '# Fiducial model is (parameters ordered as below) :', old_point
 
           write(13,*) '# ln(L/L_max) at the fiducial model :', old_loglikelihood
 
        End If
 
-       write(13,*) '# Weight   -ln(L/L_{max})    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm    MG_beta2 ' 
+       write(13,*) '# Weight   -ln(L/L_{max})    ', paramnames(1:number_of_parameters) 
 
        !############################################
        ! Loop to explore parameter space starts here
@@ -704,7 +739,7 @@ Program fisher
 
              If (testing_Gaussian_likelihood) then
 
-                call setgmn(x_old,real(jumping_factor*Covgauss),number_of_parameters,parm) ! used if testing Gaussian likelihood
+                call setgmn(x_old,real(Covgauss),number_of_parameters,parm) ! used if testing Gaussian likelihood
  
                 call genmn(parm,x_new,work)
 
@@ -714,13 +749,13 @@ Program fisher
 
                 If (using_inverse_fisher_matrix) then
 
-                   call setgmn(x_old,real(jumping_factor*inv_F_ab),number_of_parameters,parm) 
+                   call setgmn(x_old,real(inv_F_ab),number_of_parameters,parm) 
 
                    call genmn(parm,x_new,work)
 
                 else
 
-                   call setgmn(x_old,real(jumping_factor*Covguess),number_of_parameters,parm) 
+                   call setgmn(x_old,real(Covguess),number_of_parameters,parm) 
 
                    call genmn(parm,x_new,work)
 
@@ -728,35 +763,47 @@ Program fisher
 
              End If
 
-             c1 = x_new(1) .lt. real(0.d0)
+             plausibility(1) = x_new(1) .lt. real(0.d0)
 
-             c2 = x_new(2) .lt. real(0.d0)
+             plausibility(2) = x_new(2) .lt. real(0.d0)
  
-             c4 = (x_new(4) .lt. real(0.d0)).or.(x_new(4) .gt. real(log(30.d0))) ! limit As<3.d-9 but using log(10^10As)
+             plausibility(3) = .false.
 
-             c5 = (x_new(5) .lt. real(0.d0)).or.(x_new(5).gt.real(85.d0))
+             plausibility(4) = (x_new(4) .lt. real(0.d0)) .or. (x_new(4) .gt. real(log(30.d0))) ! limit As<3.d-9 but using log(10^10As)
 
-             c6 = x_new(6) .lt. real(0.d0)
+             plausibility(5) = (x_new(5) .lt. real(0.d0)).or.(x_new(5).gt.real(85.d0))
 
-             c7 = x_new(7) .le. real(0.d0)
+             plausibility(6) = x_new(6) .lt. real(0.d0)
 
-             non_plausible_parameters = ((c1 .or. c2) .or. (c4 .or. c5)) .or. (c6 .or. c7) 
+             plausibility(7) = x_new(7) .le. real(0.d0)
 
-             If (non_plausible_parameters .and. (q .ne. number_iterations)) then
+            Do n=1,number_of_parameters
 
-                call genmn(parm,x_new,work)
+                If (plausibility(n)) then
 
-             else if (q .eq. number_iterations) then
+                   x_new(n) = x_old(n)
 
-                write(15,*) 'Loop to generate multivariate Gaussian deviate hit maximum number of iterations '
+                   non_plausible_parameters = .false.
 
-                stop
+                End If
 
-             else 
+            End Do
 
-                exit
+            If (non_plausible_parameters .and. (q .ne. number_iterations)) then
 
-             End If
+               call genmn(parm,x_new,work)
+
+            else if (q .eq. number_iterations) then
+
+               write(15,*) 'Loop to generate multivariate Gaussian deviate hit maximum number of iterations '
+
+               stop
+
+            else 
+
+               exit
+
+            End If
 
           End Do
     
@@ -859,13 +906,11 @@ Program fisher
 
              If (m .le. steps_taken_before_definite_run) then
 
-                write(14,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-                     old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
+                write(14,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
              else
 
-                write(13,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-                     old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
+                write(13,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
              End If
 
@@ -910,13 +955,11 @@ Program fisher
 
                 If (m .le. steps_taken_before_definite_run) then
                    
-                   write(14,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-                        old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
+                   write(14,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
                 else
 
-                   write(13,*) weight,-old_loglikelihood,old_point(1),old_point(2),&
-                        old_point(3),old_point(4),old_point(5),old_point(6),old_point(7)
+                   write(13,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
                 End If
 
@@ -999,78 +1042,73 @@ Program fisher
         
              If (average_acceptance_probability .lt. 0.1) then 
 
-                jumping_factor = jumping_factor*(1.d0 - step_size_changes)    !    Decreasing step size
+                jumping_factor = (1.d0 - step_size_changes)    !    Decreasing step size
+
+                If (testing_Gaussian_likelihood) then
+
+                   Covgauss = jumping_factor*Covgauss
+
+                Else
+
+                   Covguess = jumping_factor*Covguess
+
+                End If
 
              Else if (average_acceptance_probability .gt. 0.4) then
 
-                jumping_factor = jumping_factor*(1.d0 + step_size_changes)    !    Increasing step size 
+                jumping_factor = (1.d0 + step_size_changes)    !    Increasing step size 
+
+                If (testing_Gaussian_likelihood) then
+
+                   Covgauss = jumping_factor*Covgauss
+
+                Else
+
+                   Covguess = jumping_factor*Covguess
+
+                End If
 
              End If
 
-             If (testing_Gaussian_likelihood) then
+             not_good_app = (average_acceptance_probability .lt. 0.1) .or. (average_acceptance_probability .gt. 0.4)
+             
+             If ( (mod(m,covariance_matrix_update) .eq. 0) .and. not_good_app ) then
 
-                If ( mod(m,covariance_matrix_update) .eq. 0 ) then
+                call stat('./output/mcmc_output.txt',buff,status1)
 
-                   call system('cd output; python compute_covariance_matrix_Gaussian.py')
+                If ((status1 .eq. 0) .and. (buff(8) .gt. 0)) then
+
+                   If (testing_Gaussian_likelihood) then
+
+                      call system('cd output; python compute_covariance_matrix_Gaussian.py')
      
-                   close(14)
+                      call read_covariance_matrix_mcmc(Covgauss)
 
-                   call system('rm ./output/mcmc_output.txt')
+                      close(14)
+                   
+                      call system('rm ./output/mcmc_output.txt')
 
-                   !                call read_covariance_matrix_mcmc(Covgauss)
+                      open(14,file='./output/mcmc_output.txt')
 
-                   write(15,*) 'Iteration ', m
+                   Else
 
-                   write(15,*) 'Current covariance matrix ', Covgauss
-
-                   open(14,file='./output/mcmc_output.txt')
-
-                End If
-
-             Else if (.not. using_inverse_fisher_matrix) then  
-
-                If ( mod(m,covariance_matrix_update) .eq. 0 ) then
-
-                   call system('cd output; python compute_covariance_matrix.py')
+                      call system('cd output; python compute_covariance_matrix.py')
      
-                   close(14)
+                      call read_covariance_matrix_mcmc(Covguess)
 
-                   call system('rm ./output/mcmc_output.txt')
+                      close(14)
 
-                   !                call read_covariance_matrix_mcmc(Covguess)
+                      call system('rm ./output/mcmc_output.txt')
 
-                   write(15,*) 'Iteration ', m
+                      open(14,file='./output/mcmc_output.txt')
 
-                   write(15,*) 'Current covariance matrix ', Covguess
-
-                   open(14,file='./output/mcmc_output.txt')
-
-                End If
-
-             Else If (using_inverse_fisher_matrix) then
-
-                If ( mod(m,covariance_matrix_update) .eq. 0 ) then
-
-                   call system('cd output; python compute_covariance_matrix.py')
-     
-                   close(14)
-
-                   call system('rm ./output/mcmc_output.txt')
-
-                   !                call read_covariance_matrix_mcmc(inv_F_ab)
-
-                   write(15,*) 'Iteration ', m
-
-                   write(15,*) 'Current covariance matrix ', inv_F_ab
-
-                   open(14,file='./output/mcmc_output.txt')
+                   End If
 
                 End If
 
              End If
 
           End If
-
           !#########################################
           ! Loop to sample parameter space ends here
           !#########################################
@@ -1089,6 +1127,8 @@ Program fisher
        close(13)
 
        close(14)
+
+       call system('cd output; python compute_covariance_matrix_final.py')
 
     Else
 

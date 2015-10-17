@@ -77,20 +77,28 @@ Module fiducial
     ! MCMC PARAMETERS
     !################
 
-    Integer*4,parameter    :: number_iterations = 12000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+    Integer*4,parameter    :: number_iterations = 10000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
     Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS
     Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
-    Integer*4,parameter    :: covariance_matrix_update = 2000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
-    Integer*4,parameter    :: steps_taken_before_definite_run = 2000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
+    Integer*4,parameter    :: covariance_matrix_update = 5000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
+    Integer*4,parameter    :: steps_taken_before_definite_run = 100000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
+    Integer*4,parameter    :: number_of_parallel_jobs = 100 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
 
-    Real*8,parameter       :: step_size_changes = 1.d-1      ! CHANGE IN STEP SIZE
+    Real*8,parameter       :: step_size_changes = 1.d-2      ! CHANGE IN STEP SIZE
 
     Character*16,parameter :: phrase = 'randomizer'       ! PHRASE NEEDED BY NUMBER RANDOM GENERATOR
+    Character(len=9),dimension(number_of_parameters), parameter :: paramnames = ['omega_b  ','omega_cdm','n_s      ',&
+         'A_s      ','H0       ','m_ncdm   ','MG_beta2 ']
+     Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
+          'A_s         ','H_0         ','m_{ncdm}    ','\beta_2     ']
 
     Logical,parameter      :: using_inverse_fisher_matrix = .true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
     Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
     Logical,parameter      :: start_from_fiducial = .true.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
+    Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
     Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
+    Logical,parameter      :: adjusting_covariance_matrix = .true.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
+    Logical,parameter      :: read_covariance_matrix_from_file = .false. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
 
     !###############
     ! PATHS TO FILES
