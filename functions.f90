@@ -1865,17 +1865,82 @@ subroutine compute_derivatives()
     End Do
 end subroutine compute_derivatives
 
-subroutine read_covariance_matrix_mcmc(matrix)
+subroutine read_covariance_matrix_mcmc(matrix1)
     use fiducial
     Implicit none
-    Real*8,dimension(number_of_parameters,number_of_parameters) :: matrix
-    Integer*4 :: index1
-    open(12,file='./output/covariance_matrix.txt')
+    Real*8,dimension(number_of_parameters,number_of_parameters) :: matrix,matrix1
+    Integer*4 :: index1,INFO
+    Integer*4,parameter :: LWORK = max(1,3*number_of_parameters-1)
+    Real*8,dimension(max(1,LWORK)) :: WORK
+    Real*8,dimension(number_of_parameters) :: W
+    Character*1,parameter :: JOBZ = 'N'
+    Character*1,parameter :: UPLO = 'U'
+    Logical :: pos_def,exist 
+ 
+    inquire(file='./output/covariance_matrix.txt',exist=exist)
+
+    If (exist) then
+
+       open(12,file='./output/covariance_matrix.txt')
+
+    Else
+
+       print *, 'NO COVARIANCE MATRIX FOUND IN OUTPUT FOLDER'
+
+       stop
+
+    End If
+
     Do index1=1,number_of_parameters
-        read(12,*) matrix(index1,1),matrix(index1,2),matrix(index1,3),matrix(index1,4),&
-        matrix(index1,5),matrix(index1,6),matrix(index1,7)
+
+        read(12,*) matrix(index1,1:number_of_parameters)
+
     End Do
+
     close(12)
+
+    call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
+
+    If (INFO .eq. 0) then
+ 
+        pos_def = .true.
+        
+        Do index1=1,number_of_parameters
+         
+            If (W(index1) .le. 0.d0) then
+
+                pos_def = .false.
+
+                exit
+
+            End If
+
+        End Do
+      
+        If (pos_def) then
+
+            open(12,file='./output/covariance_matrix.txt')
+
+            Do index1=1,number_of_parameters
+
+                read(12,*) matrix1(index1,1:number_of_parameters)
+
+            End Do
+
+            close(12)
+
+        Else
+
+            print *,'COVARIANCE MATRIX IS NOT POSITIVE DEFINITE, KEEPING CURRENT COVARIANCE MATRIX'
+            
+        End If
+
+    Else
+
+        print *,'EIGENVALUES WERE NOT COMPUTED'
+
+    End If
+
 end subroutine read_covariance_matrix_mcmc
 
 subroutine read_bestfit_mcmc(vector)
@@ -1883,12 +1948,30 @@ subroutine read_bestfit_mcmc(vector)
     Implicit none
     Real*8,dimension(number_of_parameters) :: vector
     Integer*4 :: index1
-    open(12,file='./output/bestfit.dat')
+    open(12,file='./output/bestfit.txt')
     Do index1=1,number_of_parameters
         read(12,*) vector(index1)
     End Do
     close(12)
 end subroutine read_bestfit_mcmc
+
+subroutine read_means_mcmc(vector)
+    use fiducial
+    Implicit none
+    Real*8,dimension(number_of_parameters) :: vector
+    Integer*4 :: index1
+
+    open(12,file='./output/means.txt')
+
+    Do index1=1,number_of_parameters
+
+        read(12,*) vector(index1)
+
+    End Do
+
+    close(12)
+
+end subroutine read_means_mcmc
 
 subroutine read_data(Cl,u,param_name,param_value,lensing_flag,fiducial_flag,El_Cl_flag)
     use fiducial
