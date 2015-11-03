@@ -77,7 +77,7 @@ Module fiducial
     ! MCMC PARAMETERS
     !################
 
-    Integer*4,parameter    :: number_iterations = 10000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+    Integer*4,parameter    :: number_iterations = 15001        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
     Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS
     Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
     Integer*4,parameter    :: covariance_matrix_update = 5000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)

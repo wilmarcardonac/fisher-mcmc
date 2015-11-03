@@ -2,7 +2,7 @@
 #SBATCH --cpus-per-task=12
 #SBATCH --job-name=fisher-MCMC
 #SBATCH --ntasks=1
-#SBATCH --time=01-00:00:00
+#SBATCH --time=07-00:00:00
 #SBATCH --mail-user=wilmar.cardona@unige.ch
 #SBATCH --mail-type=ALL
 #SBATCH --partition=dpt

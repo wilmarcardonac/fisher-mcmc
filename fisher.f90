@@ -711,9 +711,9 @@ Program fisher
 
        If (start_from_fiducial .and. (.not.testing_Gaussian_likelihood)) then
 
-          write(13,*) '# Fiducial model is (parameters ordered as below) :', old_point
+          write(15,*) '# Fiducial model is (parameters ordered as below) :', old_point
 
-          write(13,*) '# ln(L/L_max) at the fiducial model :', old_loglikelihood
+          write(15,*) '# ln(L/L_max) at the fiducial model :', old_loglikelihood
 
        End If
 
@@ -1124,9 +1124,21 @@ Program fisher
 
        close(14)
 
-       call system('cd output; python compute_covariance_matrix_final.py')
+       If (adjusting_covariance_matrix) then
 
-       call system('cd analyzer; python analyze.py')
+          call system('cd output; python compute_covariance_matrix.py')
+
+          call system('cd analyzer; python analyze_adjusting.py')
+
+       Else
+
+          call system('cd output; python compute_covariance_matrix_final.py')
+
+          call system('cd analyzer; python analyze.py')
+
+       End If
+
+
 
        call read_bestfit_mcmc(bestfit)
 

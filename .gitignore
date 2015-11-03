@@ -1,6 +1,11 @@
 data/*.dat
 output/*.txt
 output/*.pdf
+output/*.py_mcsamples
+output/*.ranges
+class_montanari-lensing/*.sh
+analyzer/*.txt
+analyzer/*.pdf
 *.mod
 *.o
 *.zip
