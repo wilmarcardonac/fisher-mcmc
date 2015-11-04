@@ -52,6 +52,7 @@ Program fisher
   Logical,dimension(number_of_parameters) :: plausibility  
 
   Character(len=10) :: string ! STORES STRINGS FOR INTEGERS
+  Character(len=16) :: phrase1
 
   !##########################################################
   ! ASSIGNMENTS AND INITIALIZATION OF RANDOM NUMBER GENERATOR
@@ -91,6 +92,8 @@ Program fisher
   
   If (do_mcmc_analysis) then
 
+     write(phrase1,'(i10.10)') job_number
+
      weight = 1
 
      number_rejected_points = 0
@@ -101,7 +104,8 @@ Program fisher
 
      call initialize() ! INITIALIZE RANDOM NUMBER GENERATORS 
 
-     call phrtsd(phrase,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
+!     call phrtsd(phrase,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
+     call phrtsd(phrase1,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
 
      call set_initial_seed(seed1,seed2) ! SET INITIAL SEEDS FOR RANDOM NUMBER GENERATOR 
 
