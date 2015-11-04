@@ -1948,7 +1948,7 @@ subroutine read_bestfit_mcmc(vector)
     Implicit none
     Real*8,dimension(number_of_parameters) :: vector
     Integer*4 :: index1
-    open(12,file='./output/bestfit.txt')
+    open(12,file='./output/chains/bestfit.txt')
     Do index1=1,number_of_parameters
         read(12,*) vector(index1)
     End Do
@@ -1961,7 +1961,7 @@ subroutine read_means_mcmc(vector)
     Real*8,dimension(number_of_parameters) :: vector
     Integer*4 :: index1
 
-    open(12,file='./output/means.txt')
+    open(12,file='./output/chains/means.txt')
 
     Do index1=1,number_of_parameters
 
@@ -2422,8 +2422,95 @@ subroutine compute_inverse_fisher_matrix()
     write(11,'(7es25.10)') inv_F_ab(5,1), inv_F_ab(5,2), inv_F_ab(5,3), inv_F_ab(5,4), inv_F_ab(5,5), inv_F_ab(5,6), inv_F_ab(5,7)
     write(11,'(7es25.10)') inv_F_ab(6,1), inv_F_ab(6,2), inv_F_ab(6,3), inv_F_ab(6,4), inv_F_ab(6,5), inv_F_ab(6,6), inv_F_ab(6,7)
     write(11,'(7es25.10)') inv_F_ab(7,1), inv_F_ab(7,2), inv_F_ab(7,3), inv_F_ab(7,4), inv_F_ab(7,5), inv_F_ab(7,6), inv_F_ab(7,7)
-   
+    close(11)
+
 end subroutine compute_inverse_fisher_matrix
+
+subroutine read_inverse_fisher_matrix(matrix1)
+    use fiducial
+    Implicit none
+    Real*8,dimension(number_of_parameters,number_of_parameters) :: matrix,matrix1
+    Integer*4 :: index1,INFO
+    Integer*4,parameter :: LWORK = max(1,3*number_of_parameters-1)
+    Real*8,dimension(max(1,LWORK)) :: WORK
+    Real*8,dimension(number_of_parameters) :: W
+    Character*1,parameter :: JOBZ = 'N'
+    Character*1,parameter :: UPLO = 'U'
+    Logical :: pos_def,exist 
+ 
+    inquire(file='./output/inverse_fisher_matrix.dat',exist=exist)
+
+    If (exist) then
+
+       open(12,file='./output/inverse_fisher_matrix.dat')
+
+    Else
+
+       print *, 'NO INVERSE OF FISHER MATRIX FOUND IN OUTPUT FOLDER'
+
+       stop
+
+    End If
+    
+    read(12,*)
+
+    read(12,*)
+
+    Do index1=1,number_of_parameters
+
+        read(12,'(7es25.10)') matrix(index1,1:number_of_parameters)
+
+    End Do
+
+    close(12)
+
+    call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
+
+    If (INFO .eq. 0) then
+ 
+        pos_def = .true.
+        
+        Do index1=1,number_of_parameters
+         
+            If (W(index1) .le. 0.d0) then
+
+                pos_def = .false.
+
+                exit
+
+            End If
+
+        End Do
+      
+        If (pos_def) then
+
+            open(12,file='./output/inverse_fisher_matrix.dat')
+
+            read(12,*)
+
+            read(12,*)
+
+            Do index1=1,number_of_parameters
+
+                read(12,'(7es25.10)') matrix1(index1,1:number_of_parameters)
+
+            End Do
+
+            close(12)
+
+        Else
+
+            print *,'INVERSE OF FISHER MATRIX IS NOT POSITIVE DEFINITE '
+            
+        End If
+
+    Else
+
+        print *,'EIGENVALUES WERE NOT COMPUTED FOR INVERSE OF FISHER MATRIX'
+
+    End If
+
+end subroutine read_inverse_fisher_matrix
 
 subroutine write_inverse_covariance_matrix(l)
     use fiducial

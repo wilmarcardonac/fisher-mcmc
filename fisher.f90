@@ -34,6 +34,7 @@ Program fisher
   Integer*4                              :: seed1,seed2 ! SEEDS NEEDED BY RANDOM NUMBER GENERATOR
   Integer*4                              :: number_accepted_points,number_rejected_points ! COUNT POINTS IN PARAMETER SPACE
   Integer*4                              :: weight    ! COUNTS NUMBER OF TAKEN STEPS BEFORE MOVING TO A NEW POINT
+  Integer*4                              :: job_number ! JOB IDENTIFIER WHEN RUNNING MULTIPLE CHAINS
 
   Real*8                                 :: old_loglikelihood,current_loglikelihood      ! STORE LIKELIHOOD VALUES
   Real*4                                 :: genunf                                ! RANDOM UNIFORM DEVIATES
@@ -45,17 +46,49 @@ Program fisher
   Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
   Real*8,dimension(number_of_parameters) :: bestfit,means                           ! SAVES BESTFIT AND MEANS OF PARAMETERS 
 
-  Logical                                :: cl_file_exist,ini_file_exist ! CHECK EXISTENCE OF FILES
+  Logical                                :: cl_file_exist,ini_file_exist,exe_file ! CHECK EXISTENCE OF FILES
   Logical,parameter                      :: lensing = .false. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
   Logical                                :: not_good_app,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
   Logical,dimension(number_of_parameters) :: plausibility  
+
+  Character(len=10) :: string ! STORES STRINGS FOR INTEGERS
 
   !##########################################################
   ! ASSIGNMENTS AND INITIALIZATION OF RANDOM NUMBER GENERATOR
   !##########################################################
 
-  open(15,file=Execution_information)
+  If (multiple_chains) then
 
+     Do m=1,number_of_parallel_jobs
+
+        job_number = m + 20
+
+        write(string,'(i2.2)') job_number 
+
+        inquire(file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt',exist=exe_file) 
+
+        If (exe_file) then
+
+           continue
+
+        Else
+
+           open(job_number,file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt')
+
+           exit
+           
+        End If
+
+     End Do
+
+  Else
+
+     job_number = 15
+
+     open(job_number,file=Execution_information)
+
+  End If
+  
   If (do_mcmc_analysis) then
 
      weight = 1
@@ -64,7 +97,7 @@ Program fisher
 
      number_accepted_points = 0
 
-     write(15,*) 'SETTING UP RANDOM NUMBER GENERATOR'
+     write(job_number,*) 'SETTING UP RANDOM NUMBER GENERATOR'
 
      call initialize() ! INITIALIZE RANDOM NUMBER GENERATORS 
 
@@ -74,7 +107,7 @@ Program fisher
 
      If (testing_Gaussian_likelihood) then
 
-        write(15,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX FOR GAUSSIAN LIKELIHOOD'
+        write(job_number,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX FOR GAUSSIAN LIKELIHOOD'
 
         jumping_factor = 2.38d0/sqrt(dble(number_of_parameters)) ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
 
@@ -102,24 +135,26 @@ Program fisher
 
         Covguess = 0.d0
 
-        write(15,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX'
+        write(job_number,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX'
 
         ! SETTING COVARIANCE MATRIX
         If (using_inverse_fisher_matrix) then
                
-           write(15,*) 'USING INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX FOR MCMC ANALYSIS'
+           write(job_number,*) 'USING INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX FOR MCMC ANALYSIS'
+
+           call read_inverse_fisher_matrix(Covguess)
 
         Else
 
            If (read_covariance_matrix_from_file) then
 
-              write(15,*) 'READING COVARIANCE MATRIX FOR MCMC ANALYSIS FROM FILE'
+              write(job_number,*) 'READING COVARIANCE MATRIX FOR MCMC ANALYSIS FROM FILE'
 
               call read_covariance_matrix_mcmc(Covguess)
 
            Else
 
-              write(15,*) 'NOT USING INVERSE OF FISHER MATRIX AS COVARIANCE MATRIX'
+              write(job_number,*) 'USING DIAGONAL MATRIX AS COVARIANCE MATRIX'
 
               Covguess(1,1) = sigma_omega_b**2 
 
@@ -140,14 +175,14 @@ Program fisher
         End If
         ! COVARIANCE MATRIX SET
 
-        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))!*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
+        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-2 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
 
         ! COVARIANCE MATRIX ADJUSTED 
         Covguess = jumping_factor*Covguess
 
         ! COMPUTING FIDUCIAL SPECTRA CL AND EL (IF NEEDED)
-        write(15,*) 'SUBMITTING JOBS TO COMPUTE DATA FOR FIDUCIAL MODEL (CL AND EL) IF NEEDED'
-        write(15,*) 'IF NEW DATA WANTED, REMOVE CORRESPONDING FILES BEFORE RUNNING THE CODE'
+        write(job_number,*) 'SUBMITTING JOBS TO COMPUTE DATA FOR FIDUCIAL MODEL (CL AND EL) IF NEEDED'
+        write(job_number,*) 'IF NEW DATA WANTED, REMOVE CORRESPONDING FILES BEFORE RUNNING THE CODE'
 
         call run_class('omega_b',omega_b,.true.,.true.)
 
@@ -157,7 +192,7 @@ Program fisher
 
   Else 
 
-     write(15,*) 'NOT DOING MCMC ANALYSYS'
+     write(job_number,*) 'NOT DOING MCMC ANALYSYS'
 
   End If
 
@@ -167,7 +202,7 @@ Program fisher
 
   If (do_fisher_analysis) then
 
-     write(15,*) 'STARTING FISHER MATRIX ANALYSIS'
+     write(job_number,*) 'STARTING FISHER MATRIX ANALYSIS'
 
      If (testing_precision) then
 
@@ -175,13 +210,13 @@ Program fisher
                
            call compute_data_for_testing_precision()
 
-           write(15,*) 'JOBS TO COMPUTE DATA FOR TESTING OPTIMAL PRECISION PARAMETERS HAVE BEEN SUBMITTED'
+           write(job_number,*) 'JOBS TO COMPUTE DATA FOR TESTING OPTIMAL PRECISION PARAMETERS HAVE BEEN SUBMITTED'
 
            stop
 
         Else
 
-           write(15,*) 'USING EXISTING DATA FOR TESTING PRECISION'
+           write(job_number,*) 'USING EXISTING DATA FOR TESTING PRECISION'
                 
            call testing_precision_cl()
 
@@ -202,11 +237,11 @@ Program fisher
 
      If (status1 .eq. 0) then 
 
-        write(15,*) 'MEMORY FOR GRID OF MODELS IN FISHER ANALYSIS ALLOCATED SUCCESSFULLY'
+        write(job_number,*) 'MEMORY FOR GRID OF MODELS IN FISHER ANALYSIS ALLOCATED SUCCESSFULLY'
 
      Else 
 
-        write(15,*) 'MEMORY FOR GRID OF MODELS IN FISHER ANALYSIS WAS NOT ALLOCATED PROPERLY'
+        write(job_number,*) 'MEMORY FOR GRID OF MODELS IN FISHER ANALYSIS WAS NOT ALLOCATED PROPERLY'
 
         stop
 
@@ -216,7 +251,7 @@ Program fisher
 
      If (compute_data_fisher_analysis) then
 
-        write(15,*) 'SUBMITTING JOBS TO COMPUTE DATA NEEDED FOR FISHER MATRIX ANALYSIS '
+        write(job_number,*) 'SUBMITTING JOBS TO COMPUTE DATA NEEDED FOR FISHER MATRIX ANALYSIS '
 
         call compute_data_for_fisher_analysis(p)
 
@@ -224,7 +259,7 @@ Program fisher
 
      Else
 
-        write(15,*) 'USING EXISTING DATA. IF NEW DATA WANTED, CLEAN UP "DATA" FOLDER'
+        write(job_number,*) 'USING EXISTING DATA. IF NEW DATA WANTED, CLEAN UP "DATA" FOLDER'
 
      End If
 
@@ -234,17 +269,17 @@ Program fisher
 
      If (status3 .eq. 0) then 
 
-        write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST ALLOCATED SUCCESSFULLY'
+        write(job_number,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST ALLOCATED SUCCESSFULLY'
 
      Else 
 
-        write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST WAS NOT ALLOCATED PROPERLY'
+        write(job_number,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST WAS NOT ALLOCATED PROPERLY'
 
         stop
 
      End If
 
-     write(15,*) 'READING DATA CL_FID, EL, AND CL_FID_NL IN FORTRAN ARRAYS '
+     write(job_number,*) 'READING DATA CL_FID, EL, AND CL_FID_NL IN FORTRAN ARRAYS '
 
      call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
@@ -252,40 +287,42 @@ Program fisher
 
      call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
 
-     write(15,*) ' COMPUTING AND WRITING OUT SYSTEMATIC ERROR '
+     write(job_number,*) ' COMPUTING AND WRITING OUT SYSTEMATIC ERROR '
 
      call compute_systematic_error()
  
      call write_Cl_syst(Cl_syst,11)
         
-     write(15,*) 'COMPUTING SHOT NOISE '
+     write(job_number,*) 'COMPUTING SHOT NOISE '
 
      call compute_shot_noise()
 
-     write(15,*) 'COMPUTING OBSERVED CL'
+     write(job_number,*) 'COMPUTING OBSERVED CL'
 
      call compute_observed_Cl()
 
-     write(15,*) '-ln(L/L_{max}) AT THE FIDUCIAL POINT (NOT INCLUDING LENSING) IS : ', -euclid_galaxy_cl_likelihood(Cl_fid_nl)
+     write(job_number,*) '-ln(L/L_{max}) AT THE FIDUCIAL POINT (NOT INCLUDING LENSING) IS : ',&
+          -euclid_galaxy_cl_likelihood(Cl_fid_nl)
 
-     write(15,*), '-ln(L/L_{max}) AT THE FIDUCIAL POINT (INCLUDING LENSING) IS : ', -euclid_galaxy_cl_likelihood(Cl_fid)
+     write(job_number,*), '-ln(L/L_{max}) AT THE FIDUCIAL POINT (INCLUDING LENSING) IS : ', &
+          -euclid_galaxy_cl_likelihood(Cl_fid)
 
      ! ALLOCATING MEMORY FOR COVARIANCE MATRIX
      allocate (cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),stat = status4)
 
      If (status4 .eq. 0) then 
 
-        write(15,*) 'MEMORY FOR COV ALLOCATED SUCCESSFULLY'
+        write(job_number,*) 'MEMORY FOR COV ALLOCATED SUCCESSFULLY'
 
      Else 
 
-        write(15,*) 'MEMORY FOR COV WAS NOT ALLOCATED PROPERLY'
+        write(job_number,*) 'MEMORY FOR COV WAS NOT ALLOCATED PROPERLY'
 
         stop
 
      End If
 
-     write(15,*) 'COMPUTING COVARIANCE MATRIX'
+     write(job_number,*) 'COMPUTING COVARIANCE MATRIX'
 
      call compute_covariance_matrix()
         
@@ -296,17 +333,17 @@ Program fisher
 
      If (status6 .eq. 0) then 
 
-        write(15,*) 'MEMORY FOR COV_L_IP, INV_COV_L_IP, COV_L_IP_OA, INV_COV_L_IP_OA ALLOCATED SUCCESSFULLY'
+        write(job_number,*) 'MEMORY FOR COV_L_IP, INV_COV_L_IP, COV_L_IP_OA, INV_COV_L_IP_OA ALLOCATED SUCCESSFULLY'
 
      Else 
 
-        write(15,*) 'MEMORY FOR COV_L_IP, INV_COV_L_IP, COV_L_IP_OA, INV_COV_L_IP_OA WAS NOT ALLOCATED PROPERLY'
+        write(job_number,*) 'MEMORY FOR COV_L_IP, INV_COV_L_IP, COV_L_IP_OA, INV_COV_L_IP_OA WAS NOT ALLOCATED PROPERLY'
 
         stop
 
      End If
 
-     write(15,*) 'COMPUTING COVARIANCE MATRIX IN TERMS OF SUPERINDICES'
+     write(job_number,*) 'COMPUTING COVARIANCE MATRIX IN TERMS OF SUPERINDICES'
 
      call write_cov_two_indices()
 
@@ -315,7 +352,7 @@ Program fisher
      ! DEALLOCATING MEMORY FOR COVARIANCE MATRIX 
      deallocate (cov)
 
-     write(15,*) 'COMPUTING INVERSE OF COVARIANCE MATRICES'
+     write(job_number,*) 'COMPUTING INVERSE OF COVARIANCE MATRICES'
 
      call inverting_matrix()
 
@@ -327,7 +364,7 @@ Program fisher
      ! ALLOCATING MEMORY FOR INVERSES OF COVARIANCE MATRICES
      allocate (inv_cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),inv_cov_oa(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins))
 
-     write(15,*) 'WRITING INVERSE OF COVARIANCE MATRICES IN TERMS OF INDICES I, J, P, AND Q'
+     write(job_number,*) 'WRITING INVERSE OF COVARIANCE MATRICES IN TERMS OF INDICES I, J, P, AND Q'
 
      call write_inv_cov_four_indices()
 
@@ -344,17 +381,17 @@ Program fisher
 
      If (status5 .eq. 0) then 
 
-        write(15,*) 'MEMORY FOR DERIVATIVES OF CL ALLOCATED SUCCESSFULLY'
+        write(job_number,*) 'MEMORY FOR DERIVATIVES OF CL ALLOCATED SUCCESSFULLY'
 
      Else 
 
-        write(15,*) 'MEMORY FOR DERIVATIVES OF CL WAS NOT ALLOCATED PROPERLY'
+        write(job_number,*) 'MEMORY FOR DERIVATIVES OF CL WAS NOT ALLOCATED PROPERLY'
 
         stop
 
      End If
 
-     write(15,*) 'COMPUTING DERIVATIVES OF CL'
+     write(job_number,*) 'COMPUTING DERIVATIVES OF CL'
 
      call compute_derivatives()
 
@@ -375,17 +412,17 @@ Program fisher
 
      If (status1 .eq. 0) then 
 
-        write(15,*) 'MEMORY FOR FISHER MATRIX COMPUTATION ALLOCATED SUCCESSFULLY'
+        write(job_number,*) 'MEMORY FOR FISHER MATRIX COMPUTATION ALLOCATED SUCCESSFULLY'
 
      Else 
 
-        write(15,*) 'MEMORY FOR FISHER MATRIX COMPUTATION WAS NOT ALLOCATED PROPERLY'
+        write(job_number,*) 'MEMORY FOR FISHER MATRIX COMPUTATION WAS NOT ALLOCATED PROPERLY'
 
         stop
 
      End If
 
-     write(15,*) 'COMPUTING FISHER MATRIX AND ITS INVERSE (INCLUDING AND NOT INCLUDING LENSING)'
+     write(job_number,*) 'COMPUTING FISHER MATRIX AND ITS INVERSE (INCLUDING AND NOT INCLUDING LENSING)'
 
      call compute_fisher_matrix(.true.,.false.) ! FIRST LOGICAL VARIABLE : SET IT TRUE IF INCLUDING LENSING
                                                    ! SECOND LOGICAL VARIABLE : SET IT TRUE IF INCLUDING ONLY AUTO-CORRELATIONS
@@ -397,8 +434,6 @@ Program fisher
 
      call compute_fisher_matrix(.false.,.true.)
 
-     write(15,*) 'COMPUTING BIAS VECTOR'
-
      call compute_B_beta()
 
      call compute_b_lambda_alpha()
@@ -408,9 +443,13 @@ Program fisher
 
      If (compute_likelihood_along_bias_vector) then
 
-        write(15,*) 'COMPUTING RATIO OF LIKELIHOOD ALONG BIAS VECTOR'
+        write(job_number,*) 'COMPUTING RATIO OF LIKELIHOOD ALONG BIAS VECTOR'
 
         call compute_ratio_likelihood()
+
+     Else 
+
+        continue
 
      End If
 
@@ -419,15 +458,17 @@ Program fisher
      ! DEALLOCATING MEMORY FOR DERIVATIVES, FISHER MATRICES, ITS INVERSES, AND BIAS VECTOR
      deallocate (d1,d2,d3,d4,d5,d6,d7,F_ab,F_ab_nl,inv_cov,inv_cov_oa,Cl_syst,B_beta,b_lambda)
 
-     write(15,*) 'FISHER MATRIX ANALYSIS ENDED'
+
 
      If (do_mcmc_analysis) then
+
+        write(job_number,*) 'FISHER MATRIX ANALYSIS ENDED'
 
         continue 
 
      Else
 
-        close(15)
+        write(job_number,*) 'FISHER MATRIX ANALYSIS ENDED'
 
         stop
         
@@ -435,21 +476,30 @@ Program fisher
 
   Else 
 
-     write(15,*) 'NOT DOING FISHER MATRIX ANALYSIS'
+     write(job_number,*) 'NOT DOING FISHER MATRIX ANALYSIS'
 
      If (do_mcmc_analysis) then
 
-        If (using_inverse_fisher_matrix) then
+        allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),&
+          Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),stat = status3)
 
-           print *, 'FISHER MATRIX READ FROM FILE NOT IMPLEMENTED YET, RUN THE CODE WITH "do_fisher_analysis" SET IT TRUE'
-              
-           stop
+        call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
-        End If
+        call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
+
+        call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
+
+        write(job_number,*) 'COMPUTING SHOT NOISE '
+
+        call compute_shot_noise()
+
+        write(job_number,*) 'COMPUTING OBSERVED CL'
+
+        call compute_observed_Cl()
+
+        call read_data(El,10,filetype,ElCl,lensing,.true.,.false.)
 
      Else
-
-        close(15)
 
         stop
                    
@@ -463,7 +513,7 @@ Program fisher
 
   If (do_mcmc_analysis) then
 
-     write(15,*) 'STARTING MCMC ANALYSIS'
+     write(job_number,*) 'STARTING MCMC ANALYSIS'
 
      !ALLOCATING MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND CURRENT SPECTRA
      allocate (old_point(1:number_of_parameters),current_point(1:number_of_parameters),&
@@ -471,12 +521,12 @@ Program fisher
 
      If (status1 .eq. 0) then 
 
-        write(15,*) 'MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND '
-        write(15,*) 'CURRENT SPECTRA ALLOCATED SUCCESSFULLY'
+        write(job_number,*) 'MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND '
+        write(job_number,*) 'CURRENT SPECTRA ALLOCATED SUCCESSFULLY'
 
      Else 
 
-        write(15,*) 'MEMORY FOR OLD_POINT, CURRENT_POINT, ACCEPTANCE_PROBABILITY, AND CL_CURRENT WAS NOT ALLOCATED PROPERLY'
+        write(job_number,*) 'MEMORY FOR OLD_POINT, CURRENT_POINT, ACCEPTANCE_PROBABILITY, AND CL_CURRENT WAS NOT ALLOCATED PROPERLY'
 
         stop
 
@@ -490,9 +540,9 @@ Program fisher
 
      If (testing_Gaussian_likelihood) then
 
-        write(15,*) 'TESTING MCMC ANALYSIS WITH GAUSSIAN LIKELIHOOD'
+        write(job_number,*) 'TESTING MCMC ANALYSIS WITH GAUSSIAN LIKELIHOOD'
 
-        open(17,file='./output/mcmc_final_output.ranges')    ! FILE WITH HARD BOUNDS NEEDED BY GETDIST 
+        open(17,file='./output/chains/mcmc_final_output.ranges')    ! FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
         write(17,*) 'omega_b    N    N '
 
@@ -522,7 +572,7 @@ Program fisher
 
      Else
 
-        open(16,file='./output/mcmc_final_output.paramnames')    !    FILE WITH NAMES OF PARAMETERS NEEDED BY GETDIST 
+        open(16,file='./output/chains/mcmc_final_output.paramnames')    !    FILE WITH NAMES OF PARAMETERS NEEDED BY GETDIST 
 
         Do i=1,number_of_parameters
 
@@ -532,9 +582,9 @@ Program fisher
 
         close(16)
 
-        open(17,file='./output/mcmc_final_output.ranges')    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
+        open(17,file='./output/chains/mcmc_final_output.ranges')    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
-        write(17,*) ''//trim(paramnames(1))//'    2.e-3    2.e-1 '
+        write(17,*) ''//trim(paramnames(1))//'    6.e-3    3.9e-2 '
 
         write(17,*) ''//trim(paramnames(2))//'    1.e-2    1. '
 
@@ -678,7 +728,7 @@ Program fisher
 
            Else
 
-              write(15,*) 'SOMETHING WENT WRONG WITH CLASS FOR CURRENT MODEL. LOW LIKELIHOOD ASSIGNED FOR CURRENT POINT'
+              write(job_number,*) 'SOMETHING WENT WRONG WITH CLASS FOR CURRENT MODEL. LOW LIKELIHOOD ASSIGNED FOR CURRENT POINT'
 
               old_loglikelihood = -1.d10
 
@@ -688,9 +738,9 @@ Program fisher
 
         Else
 
-           write(15,*) 'NOT INI FILE FOR CURRENT MODEL. SOMETHING WENT WRONG WITH SUBROUTINE "write_ini_file" '
+           write(job_number,*) 'NOT INI FILE FOR CURRENT MODEL. SOMETHING WENT WRONG WITH SUBROUTINE "write_ini_file" '
 
-           write(15,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
+           write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
     
            old_loglikelihood = -1.d10
 
@@ -698,7 +748,15 @@ Program fisher
 
      End If
 
-     open(13,file='./output/mcmc_final_output.txt') ! FILE TO STORE MCMC COMPUTATION
+     If (multiple_chains) then
+
+        open(13,file=PATH_TO_CHAINS_CHAIN//trim(string)//'.txt') ! FILE TO STORE MCMC COMPUTATION
+
+     Else
+
+        open(13,file=PATH_TO_CHAINS) ! FILE TO STORE MCMC COMPUTATION
+
+     End If
 
      open(14,file='./output/mcmc_output.txt')    !    TEMPORARY FILE 
 
@@ -706,9 +764,9 @@ Program fisher
 
      If (start_from_fiducial .and. (.not.testing_Gaussian_likelihood)) then
 
-        write(15,*) '# FIDUCIAL MODEL IS (PARAMETERS ORDERED AS IN WRITTEN IN HEADER OF CHAIN FILE) :', old_point
+        write(job_number,*) '# FIDUCIAL MODEL IS (PARAMETERS ORDERED AS IN WRITTEN IN HEADER OF CHAIN FILE) :', old_point
 
-        write(15,*) '# ln(L/L_max) AT THE FIDUCIAL MODEL :', old_loglikelihood
+        write(job_number,*) '# ln(L/L_max) AT THE FIDUCIAL MODEL :', old_loglikelihood
 
      End If
 
@@ -740,7 +798,15 @@ Program fisher
 
               If (using_inverse_fisher_matrix) then
 
-                 call setgmn(x_old,real(inv_F_ab),number_of_parameters,parm) 
+                 If (do_fisher_analysis) then
+
+                    call setgmn(x_old,real(inv_F_ab),number_of_parameters,parm) 
+
+                 Else
+                 
+                    call setgmn(x_old,real(Covguess),number_of_parameters,parm) 
+
+                 End If
 
                  call genmn(parm,x_new,work)
 
@@ -754,7 +820,7 @@ Program fisher
 
            End If
 
-           plausibility(1) = (x_new(1) .lt. real(2.d-3)) .or. (x_new(1) .gt. real(2.d-1))
+           plausibility(1) = (x_new(1) .lt. real(6.d-3)) .or. (x_new(1) .gt. real(3.9d-2))
 
            plausibility(2) = (x_new(2) .lt. real(1.d-2)) .or. (x_new(2) .gt. real(1.d0))
            
@@ -786,7 +852,7 @@ Program fisher
 
            Else if (q .eq. number_iterations) then
 
-              write(15,*) 'LOOP TO GENERATE MULTIVARIATE GAUSSIAN DEVIATE HIT MAXIMUM NUMBER OF ITERATIONS'
+              write(job_number,*) 'LOOP TO GENERATE MULTIVARIATE GAUSSIAN DEVIATE HIT MAXIMUM NUMBER OF ITERATIONS'
 
               stop
 
@@ -852,8 +918,8 @@ Program fisher
 
               Else
 
-                 write(15,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
-                 write(15,*) 'LOW LOG LIKELIHOOD'
+                 write(job_number,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
+                 write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED'
 
                  current_loglikelihood = -1.d10
 
@@ -863,9 +929,9 @@ Program fisher
 
            Else
 
-              write(15,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
+              write(job_number,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
 
-              write(15,*) 'LOW LOG LIKELIHOOD ASSIGNED '
+              write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED '
     
               current_loglikelihood = -1.d10
 
@@ -1016,7 +1082,7 @@ Program fisher
            average_acceptance_probability = sum(acceptance_probability(m-jumping_factor_update+1:m))&
                 /real(jumping_factor_update)
 
-           write(15,*) 'CURRENT AVERAGE ACCEPTANCE PROBABILITY IS: ',average_acceptance_probability
+           write(job_number,*) 'CURRENT AVERAGE ACCEPTANCE PROBABILITY IS: ',average_acceptance_probability
         
            If (average_acceptance_probability .lt. 0.1) then ! DECREASE STEP SIZE
 
@@ -1094,63 +1160,68 @@ Program fisher
      ! WRITE LAST INFORMATIONS AND CLOSE DATA FILE
      !############################################
 
-     write(15,*) 'NUMBER OF REJECTED POINTS IS : ', number_rejected_points
+     write(job_number,*) 'NUMBER OF REJECTED POINTS IS : ', number_rejected_points
 
-     write(15,*) 'ACCEPTANCE RATIO IS: ', dble(number_iterations - steps_taken_before_definite_run - number_rejected_points)/&
-          dble(number_iterations - steps_taken_before_definite_run)
+     write(job_number,*) 'ACCEPTANCE RATIO IS: ', dble(number_iterations - steps_taken_before_definite_run - &
+          number_rejected_points)/dble(number_iterations - steps_taken_before_definite_run)
 
      close(13)
 
      close(14)
 
-     If (adjusting_covariance_matrix) then
+     If (multiple_chains) then
 
-        call system('cd output; python compute_covariance_matrix.py')
-
-        call system('cd analyzer; python analyze_adjusting.py')
+        continue
 
      Else
 
-        call system('cd output; python compute_covariance_matrix_final.py')
+        If (adjusting_covariance_matrix) then
 
-        call system('cd analyzer; python analyze.py')
+           call system('cd output; python compute_covariance_matrix.py')
+
+           call system('cd analyzer; python analyze_adjusting.py')
+
+        Else
+
+           !call system('cd output; python compute_covariance_matrix_final.py')
+
+           call system('cd analyzer; python analyze.py')
+
+        End If
+
+        call read_bestfit_mcmc(bestfit)
+
+        call read_means_mcmc(means)
+
+        write(job_number,*) 'BESTFIT IS : '
+          
+        Do m=1,number_of_parameters
+
+           write(job_number,*) ''//trim(paramnames(m))//' = ', bestfit(m)
+
+        End Do
+
+        write(job_number,*) 'MEANS FOR THE SAMPLES ARE : '
+
+        Do m=1,number_of_parameters
+
+           write(job_number,*) ''//trim(paramnames(m))//' = ', means(m)
+
+        End Do
 
      End If
 
-     call read_bestfit_mcmc(bestfit)
-
-     call read_means_mcmc(means)
-
-     write(15,*) 'BESTFIT IS : '
-          
-     Do m=1,number_of_parameters
-
-        write(15,*) ''//trim(paramnames(m))//' = ', bestfit(m)
-
-     End Do
-
-     write(15,*) 'MEANS FOR THE SAMPLES ARE : '
-
-     Do m=1,number_of_parameters
-
-        write(15,*) ''//trim(paramnames(m))//' = ', means(m)
-
-     End Do
-
   Else
 
-     write(15,*) 'NOT DOING MCMC ANALYSIS'
+     write(job_number,*) 'NOT DOING MCMC ANALYSIS'
 
   End If
-
-  close(15)
 
   If (.not. testing_Gaussian_likelihood) then
 
      deallocate (old_point,current_point,inv_F_ab,Cl_current,Nl,El,Cl_obs,acceptance_probability)
 
   End If
-  !call system('cd output; python compute_covmatrix_bestfit.py')
 
 End Program fisher
 

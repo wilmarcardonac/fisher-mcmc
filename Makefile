@@ -25,7 +25,7 @@ def:	$(OBJ) $(OBJNR) $(OBJODE)
 	$(FC) $(F_FL) -c $<
 
 clean :
-	rm -f *.o *.mod *.ini *~  fort.* slurm*.out $(EXE)
+	rm -f *.o *.mod *.ini *~  fort.* slurm*.out nohup.out $(EXE)
 
 ### put dependencies here ###
 
