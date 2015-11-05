@@ -14,7 +14,7 @@ Program fisher
 
   Implicit none
 
-  Integer*4                              :: m,n,i,q    ! COUNTERS FOR LOOPS
+  Integer*4                              :: m,n,i   ! COUNTERS FOR LOOPS
 
   !#################
   ! FISHER VARIABLES
@@ -598,7 +598,7 @@ Program fisher
 
         write(17,*) ''//trim(paramnames(6))//'    1.e-4    6.e-1 '
 
-        write(17,*) ''//trim(paramnames(7))//'    1.e-5    2.'
+        write(17,*) ''//trim(paramnames(7))//'    0.    10.'
 
         close(17)
 
@@ -786,39 +786,33 @@ Program fisher
         ! x_old and old_point definitions 
         !######################################################################################################
 
-        Do q=1,number_iterations 
+        If (testing_Gaussian_likelihood) then
 
-           If (testing_Gaussian_likelihood) then
-
-              call setgmn(x_old,real(Covgauss),number_of_parameters,parm) 
+           call setgmn(x_old,real(Covgauss),number_of_parameters,parm) 
  
-              call genmn(parm,x_new,work)
+           call genmn(parm,x_new,work)
 
-              exit
+        Else
+
+           If (using_inverse_fisher_matrix) then
+
+              If (do_fisher_analysis) then
+
+                 call setgmn(x_old,real(inv_F_ab),number_of_parameters,parm) 
+
+              Else
+                 
+                 call setgmn(x_old,real(Covguess),number_of_parameters,parm) 
+
+              End If
+
+              call genmn(parm,x_new,work)
 
            Else
 
-              If (using_inverse_fisher_matrix) then
+              call setgmn(x_old,real(Covguess),number_of_parameters,parm) 
 
-                 If (do_fisher_analysis) then
-
-                    call setgmn(x_old,real(inv_F_ab),number_of_parameters,parm) 
-
-                 Else
-                 
-                    call setgmn(x_old,real(Covguess),number_of_parameters,parm) 
-
-                 End If
-
-                 call genmn(parm,x_new,work)
-
-              Else
-
-                 call setgmn(x_old,real(Covguess),number_of_parameters,parm) 
-
-                 call genmn(parm,x_new,work)
-
-              End If
+              call genmn(parm,x_new,work)
 
            End If
 
@@ -834,7 +828,7 @@ Program fisher
 
            plausibility(6) = (x_new(6) .lt. real(1.d-4)) .or. (x_new(6) .gt. real(6.d-1))
 
-           plausibility(7) = (x_new(7) .le. real(1.d-5)) .or. (x_new(7) .gt. real(2.d0))
+           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .gt. real(10.d0))
 
            Do n=1,number_of_parameters
 
@@ -844,19 +838,23 @@ Program fisher
 
                  exit
 
+              Else
+
+                 non_plausible_parameters = .false.
+
               End If
 
            End Do
 
-        End Do
-    
+        End If
+
         Do n=1,number_of_parameters
 
            If (n .eq. 4) then
 
               If (testing_Gaussian_likelihood) then
 
-                 current_point(n) = dble(x_new(n)) ! used if testing Gaussian likelihood
+                 current_point(n) = dble(x_new(n)) 
 
               Else
 
@@ -871,7 +869,7 @@ Program fisher
            End If
 
         End Do
-
+        
         If (testing_Gaussian_likelihood) then
 
            current_loglikelihood = log_Gaussian_likelihood(current_point) 
@@ -1211,11 +1209,11 @@ Program fisher
 
   End If
 
-  If (.not. testing_Gaussian_likelihood) then
+  !If (.not. testing_Gaussian_likelihood) then
 
-     deallocate (old_point,current_point,inv_F_ab,Cl_current,Nl,El,Cl_obs,acceptance_probability)
+  !   deallocate (old_point,current_point,inv_F_ab,Cl_current,Nl,El,Cl_obs,acceptance_probability)
 
-  End If
+  !End If
 
 End Program fisher
 
