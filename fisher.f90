@@ -840,9 +840,9 @@ Program fisher
 
               If (plausibility(n)) then
 
-                 x_new(n) = x_old(n)
+                 non_plausible_parameters = .true.
 
-                 non_plausible_parameters = .false.
+                 exit
 
               End If
 
