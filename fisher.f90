@@ -848,22 +848,6 @@ Program fisher
 
            End Do
 
-           If (non_plausible_parameters .and. (q .ne. number_iterations)) then
-
-              call genmn(parm,x_new,work)
-
-           Else if (q .eq. number_iterations) then
-
-              write(job_number,*) 'LOOP TO GENERATE MULTIVARIATE GAUSSIAN DEVIATE HIT MAXIMUM NUMBER OF ITERATIONS'
-
-              stop
-
-           Else 
-
-              exit
-
-           End If
-
         End Do
     
         Do n=1,number_of_parameters
@@ -894,48 +878,56 @@ Program fisher
 
         Else
 
-           call write_ini_file(current_point(1),current_point(2),current_point(3),current_point(4),&
-                current_point(5),current_point(6),current_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
-                selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+           If (non_plausible_parameters) then 
 
-           !################################
-           ! CALL CLASS FOR CURRENT INI FILE
-           !################################
-
-           inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist)
-             
-           If (ini_file_exist) then
-
-              call run_current_model(lensing) 
-
-              inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
-
-              If (cl_file_exist) then
-
-                 call read_Cl(Cl_current,11,lensing)
-
-                 current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
-
-                 call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
-
-              Else
-
-                 write(job_number,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
-                 write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED'
-
-                 current_loglikelihood = -1.d10
-
-              End if
-
-              call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! REMOVE INI FILE
+              current_loglikelihood = -1.d10
 
            Else
 
-              write(job_number,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
+              call write_ini_file(current_point(1),current_point(2),current_point(3),current_point(4),&
+                   current_point(5),current_point(6),current_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-              write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED '
+              !################################
+              ! CALL CLASS FOR CURRENT INI FILE
+              !################################
+
+              inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist)
+             
+              If (ini_file_exist) then
+
+                 call run_current_model(lensing) 
+
+                 inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
+
+                 If (cl_file_exist) then
+
+                    call read_Cl(Cl_current,11,lensing)
+
+                    current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
+
+                    call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
+
+                 Else
+
+                    write(job_number,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
+                    write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED'
+
+                    current_loglikelihood = -1.d10
+
+                 End if
+
+                 call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! REMOVE INI FILE
+
+              Else
+
+                 write(job_number,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
+
+                 write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED '
     
-              current_loglikelihood = -1.d10
+                 current_loglikelihood = -1.d10
+
+              End If
 
            End If
 
