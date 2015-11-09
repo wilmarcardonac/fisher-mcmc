@@ -1294,7 +1294,7 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     else 
         open(10, file='./ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
         write(10,'(a50)') 'number count contributions = density, rsd, doppler'
-        write(10,*) 'root = ../output/current_euclid_galaxy_'//trim(job)//'_'
+        write(10,*) 'root = ../output/current_euclid_galaxy_cl_'//trim(job)//'_'
     End if
     
     ! Background parameters and anisotropic stress
@@ -1777,13 +1777,13 @@ subroutine run_current_model_mcmc(len_flag,job)
     Character(len=10) :: job
     
     If (len_flag) then
-        inquire(file='./output/current_euclid_galaxy_lensing_cl_'//trim(job)//'.dat',exist=exist)
+        inquire(file='./output/current_euclid_galaxy_lensing_cl_'//trim(job)//'_cl.dat',exist=exist)
         If (.not.exist) then
             call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
             '../ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
         End If
     else
-        inquire(file='./output/current_euclid_galaxy_cl_'//trim(job)//'.dat',exist=exist)
+        inquire(file='./output/current_euclid_galaxy_cl_'//trim(job)//'_cl.dat',exist=exist)
         If (.not.exist) then
             call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
             '../ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
@@ -2225,11 +2225,11 @@ subroutine read_Cl_mcmc(Cl,u,lensing_flag,job)
 
     If (lensing_flag)  then 
     
-       open(u,file= './output/current_euclid_galaxy_lensing_cl_'//trim(job)//'.dat')
+       open(u,file= './output/current_euclid_galaxy_lensing_cl_'//trim(job)//'_cl.dat')
 
     Else 
 
-       open(u,file= PATH_TO_CURRENT_CL//trim(job)//'.dat')
+       open(u,file= PATH_TO_CURRENT_CL//trim(job)//'_cl.dat')
 
     End If
 

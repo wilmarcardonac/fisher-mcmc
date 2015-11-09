@@ -692,11 +692,11 @@ Program fisher
 
         inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
  
-        inquire(file= PATH_TO_CURRENT_CL//trim(string)//'.dat',exist=cl_file_exist)
+        inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
 
         If (cl_file_exist) then
 
-           call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'.dat')
+           call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')
 
         End If
 
@@ -719,16 +719,16 @@ Program fisher
         If (ini_file_exist) then
 
            call run_current_model_mcmc(lensing,string) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
- 
-           inquire(file= PATH_TO_CURRENT_CL//trim(string)//'.dat',exist=cl_file_exist)
-
+          
+           inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
+           
            If (cl_file_exist) then
 
               call read_Cl_mcmc(Cl_current,11,lensing,string)
 
               old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
 
-              call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'.dat')    ! REMOVE CL FILE 
+              call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
 
            Else
 
@@ -884,29 +884,29 @@ Program fisher
 
            Else
 
-              call write_ini_file(current_point(1),current_point(2),current_point(3),current_point(4),&
+              call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
                    current_point(5),current_point(6),current_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
-                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid,string)
 
               !################################
               ! CALL CLASS FOR CURRENT INI FILE
               !################################
 
-              inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist)
+              inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
              
               If (ini_file_exist) then
 
-                 call run_current_model(lensing) 
+                 call run_current_model_mcmc(lensing,string) 
 
-                 inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
+                 inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
 
                  If (cl_file_exist) then
 
-                    call read_Cl(Cl_current,11,lensing)
+                    call read_Cl_mcmc(Cl_current,11,lensing,string)
 
                     current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
 
-                    call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
+                    call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE
 
                  Else
 
@@ -917,7 +917,7 @@ Program fisher
 
                  End if
 
-                 call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! REMOVE INI FILE
+                 call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
 
               Else
 
