@@ -85,6 +85,8 @@ Program fisher
 
      job_number = 15
 
+     write(string,'(i2.2)') job_number 
+
      open(job_number,file=Execution_information)
 
   End If
@@ -544,23 +546,23 @@ Program fisher
 
         write(job_number,*) 'TESTING MCMC ANALYSIS WITH GAUSSIAN LIKELIHOOD'
 
-        open(17,file='./output/chains/mcmc_final_output.ranges')    ! FILE WITH HARD BOUNDS NEEDED BY GETDIST 
+        open(UNIT_RANGES_FILE,file= PATH_TO_RANGES_FILE )    ! FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
-        write(17,*) 'omega_b    N    N '
+        write(UNIT_RANGES_FILE,*) 'omega_b    N    N '
 
-        write(17,*) 'omega_cdm    N    N '
+        write(UNIT_RANGES_FILE,*) 'omega_cdm    N    N '
 
-        write(17,*) 'n_s    N    N '
+        write(UNIT_RANGES_FILE,*) 'n_s    N    N '
 
-        write(17,*) 'A_s    N    N '
+        write(UNIT_RANGES_FILE,*) 'A_s    N    N '
 
-        write(17,*) 'H0   N    N '
+        write(UNIT_RANGES_FILE,*) 'H0   N    N '
 
-        write(17,*) 'm_ncdm    N    N '
+        write(UNIT_RANGES_FILE,*) 'm_ncdm    N    N '
 
-        write(17,*) 'MG_beta2    N    N ' 
+        write(UNIT_RANGES_FILE,*) 'MG_beta2    N    N ' 
 
-        close(17)
+        close(UNIT_RANGES_FILE)
 
         Do i=1,number_of_parameters
 
@@ -574,33 +576,33 @@ Program fisher
 
      Else
 
-        open(16,file='./output/chains/mcmc_final_output.paramnames')    !    FILE WITH NAMES OF PARAMETERS NEEDED BY GETDIST 
+        open(UNIT_PARAMNAMES_FILE,file= PATH_TO_PARAMNAMES_FILE )    !    FILE WITH NAMES OF PARAMETERS NEEDED BY GETDIST 
 
         Do i=1,number_of_parameters
 
-           write(16,*) ''//trim(paramnames(i))//'    '//trim(latexname(i))//''
+           write(UNIT_PARAMNAMES_FILE,*) ''//trim(paramnames(i))//'    '//trim(latexname(i))//''
 
         End Do
 
-        close(16)
+        close(UNIT_PARAMNAMES_FILE)
 
-        open(17,file='./output/chains/mcmc_final_output.ranges')    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
+        open(UNIT_RANGES_FILE,file = PATH_TO_RANGES_FILE )    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
-        write(17,*) ''//trim(paramnames(1))//'    6.e-3    3.9e-2 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    6.e-3    3.9e-2 '
 
-        write(17,*) ''//trim(paramnames(2))//'    1.e-2    1. '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(2))//'    1.e-2    1. '
 
-        write(17,*) ''//trim(paramnames(3))//'    9.e-2    2. '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(3))//'    9.e-2    2. '
 
-        write(17,*) ''//trim(paramnames(4))//'    1.e-9    3.e-9 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-9    3.e-9 '
 
-        write(17,*) ''//trim(paramnames(5))//'    50    90 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(5))//'    50    90 '
 
-        write(17,*) ''//trim(paramnames(6))//'    1.e-4    6.e-1 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    6.e-1 '
 
-        write(17,*) ''//trim(paramnames(7))//'    0.    10.'
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    10.'
 
-        close(17)
+        close(UNIT_RANGES_FILE)
 
         If (start_from_fiducial) then
 
@@ -688,45 +690,45 @@ Program fisher
         ! WRITE INI FILE CORRESPONDING TO CURRENT POINT IN PARAMETER SPACE 
         !#################################################################
 
-        inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist)
+        inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
  
-        inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
+        inquire(file= PATH_TO_CURRENT_CL//trim(string)//'.dat',exist=cl_file_exist)
 
         If (cl_file_exist) then
 
-           call system('rm ./output/current_euclid_galaxy_cl.dat')
+           call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'.dat')
 
         End If
 
         If (ini_file_exist) then
 
-           call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')
+           call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')
 
         End If
 
-        call write_ini_file(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
+        call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
              old_point(7),tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_fid,&
-             q_linstep_fid,k_max_tau0_over_l_max_fid)
+             q_linstep_fid,k_max_tau0_over_l_max_fid,string)
 
         !###############################################
         ! RUN CLASS FOR CURRENT POINT IN PARAMETER SPACE
         !###############################################
 
-        inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
+        inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist) 
 
         If (ini_file_exist) then
 
-           call run_current_model(lensing) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
+           call run_current_model_mcmc(lensing,string) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
  
-           inquire(file='./output/current_euclid_galaxy_cl.dat',exist=cl_file_exist)
+           inquire(file= PATH_TO_CURRENT_CL//trim(string)//'.dat',exist=cl_file_exist)
 
            If (cl_file_exist) then
 
-              call read_Cl(Cl_current,11,lensing)
+              call read_Cl_mcmc(Cl_current,11,lensing,string)
 
               old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
 
-              call system('rm ./output/current_euclid_galaxy_cl.dat')    ! REMOVE CL FILE 
+              call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'.dat')    ! REMOVE CL FILE 
 
            Else
 
@@ -736,7 +738,7 @@ Program fisher
 
            End If
 
-           call system('rm ./ini_files/current_euclid_galaxy_cl_.ini')    ! REMOVE INI FILE
+           call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
 
         Else
 
@@ -1208,12 +1210,6 @@ Program fisher
      write(job_number,*) 'NOT DOING MCMC ANALYSIS'
 
   End If
-
-  !If (.not. testing_Gaussian_likelihood) then
-
-  !   deallocate (old_point,current_point,inv_F_ab,Cl_current,Nl,El,Cl_obs,acceptance_probability)
-
-  !End If
 
 End Program fisher
 

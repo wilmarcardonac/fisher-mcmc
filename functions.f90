@@ -1262,7 +1262,120 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
 end subroutine write_ini_file_for_fisher
 
+subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
+                          param_m_ncdm, param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
+                           param_deg_ncdm, len_flag,bessel,q,kmaxtau0,job)
+    
+    use fiducial
+    Implicit none
+    Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
+    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
+    logical :: len_flag
+    character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
+    character*16 :: string_MG_beta2
+    Character(len=10) :: job
+        
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
+    fmt = '(es16.10)' 
+    write(string_omega_b,fmt) param_omega_b
+    write(string_omega_cdm,fmt) param_omega_cdm
+    write(string_n_s,fmt) param_n_s
+    write(string_A_s,fmt) param_A_s
+    write(string_H0,fmt) param_H0
+    write(string_m_ncdm,fmt) param_m_ncdm
+    write(string_MG_beta2,fmt) param_MG_beta2
+
+    If (len_flag) then 
+        open(10, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
+        write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+        write(10,*) 'root = ../output/current_euclid_galaxy_lensing_'//trim(job)//'_'
+    else 
+        open(10, file='./ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
+        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(10,*) 'root = ../output/current_euclid_galaxy_'//trim(job)//'_'
+    End if
+    
+    ! Background parameters and anisotropic stress
+                                                                                                        
+    write(10,'(a6, es16.10)') 'A_s = ', param_A_s  
+
+    write(10,'(a6, es16.10)') 'n_s = ', param_n_s
+ 
+    write(10,'(a5, es16.10)') 'H0 = ', param_H0
+
+    write(10,'(a10, es16.10)') 'omega_b = ', param_omega_b
+
+    write(10,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
+
+    write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
+
+    write(10,'(a11, es16.10)') 'MG_beta2 = ', param_MG_beta2
+
+    ! Parameters for massive neutrinos                                                                                            
+
+    write(10,'(a7, f5.3)') 'N_ur = ', real(param_N_ur)
+
+    write(10,'(a9, f5.3)') 'N_ncdm = ', real(param_N_ncdm)
+
+    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(param_deg_ncdm)
+
+    write(10,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
+
+    ! Number counts in the output                                                                                            
+
+    write(10,'(a12)') 'output = nCl'
+    
+    !write(10,'(a20)') 'non linear = halofit'
+ 
+    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+
+    write(10,'(a17)') 'dNdz_evolution = '
+
+    write(10,'(a20)') 'selection = gaussian'
+
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+!    z_bin_centers(9),',',z_bin_centers(10)
+
+    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+ !   z_bin_widths(9),',',z_bin_widths(10)
+
+    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+  !  z_bin_bias(9),',',z_bin_bias(10)
+
+    write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
+
+    write(10,'(a13)') 'headers = yes'
+
+    write(10,'(a17)') 'bessel file = yes'
+
+    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
+
+    write(10,'(a8,i1)') 'l_min = ', lmin
+
+    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+
+    write(10,'(a14)') 'format = class'
+
+    write(10,'(a17)') 'gauge = newtonian'
+
+    ! PRECISION PARAMETERS
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+
+    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+
+    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+
+    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+
+    close(10)
+
+end subroutine write_ini_file_mcmc
 
 subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
                           param_m_ncdm, param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
@@ -1656,6 +1769,28 @@ subroutine run_current_model(len_flag)
 
 end subroutine run_current_model
 
+subroutine run_current_model_mcmc(len_flag,job)
+    use arrays
+    use fiducial
+    Implicit none
+    logical :: exist,len_flag
+    Character(len=10) :: job
+    
+    If (len_flag) then
+        inquire(file='./output/current_euclid_galaxy_lensing_cl_'//trim(job)//'.dat',exist=exist)
+        If (.not.exist) then
+            call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+            '../ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
+        End If
+    else
+        inquire(file='./output/current_euclid_galaxy_cl_'//trim(job)//'.dat',exist=exist)
+        If (.not.exist) then
+            call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+            '../ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
+        End If
+    End if
+
+end subroutine run_current_model_mcmc
 
 subroutine compute_derivatives()
     use arrays
@@ -2078,6 +2213,59 @@ subroutine read_Cl(Cl,u,lensing_flag)
     End Do
     close(u)
 end subroutine read_Cl
+
+subroutine read_Cl_mcmc(Cl,u,lensing_flag,job)
+    use fiducial
+    Implicit none
+    Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Cl
+    Integer*4 :: m,u,p,i
+    logical :: lensing_flag
+    character(len=*),parameter :: fmt = '(i2.2)'
+    Character(len=10) :: job
+
+    If (lensing_flag)  then 
+    
+       open(u,file= './output/current_euclid_galaxy_lensing_cl_'//trim(job)//'.dat')
+
+    Else 
+
+       open(u,file= PATH_TO_CURRENT_CL//trim(job)//'.dat')
+
+    End If
+
+    Do m=-5,lmax
+
+       If (m .le. 1) then
+
+          read(u,*)
+
+       Else
+
+          read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
+               Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
+               Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+          
+          Do p=1,nbins
+
+             Do i=1,nbins
+
+                If (p .gt. i) then
+
+                   Cl(m,p,i) = Cl(m,i,p)
+
+                End If
+
+             End Do
+
+          End Do
+
+       End If
+
+    End Do
+
+    close(u)
+
+end subroutine read_Cl_mcmc
 
 subroutine read_derivative(Cl,u,param_name,lensing_flag)
     use fiducial

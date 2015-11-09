@@ -83,6 +83,8 @@ Module fiducial
   Integer*4,parameter    :: covariance_matrix_update = 0 ! 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
   Integer*4,parameter    :: steps_taken_before_definite_run = 0 !100000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
   Integer*4,parameter    :: number_of_parallel_jobs = 10 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
+  Integer*4,parameter    :: UNIT_RANGES_FILE = 90        ! UNIT NUMBER FOR RANGES FILE
+  Integer*4,parameter    :: UNIT_PARAMNAMES_FILE = 91    ! UNIT NUMBER FOR PARAMMNAMES FILE
 
   Real*8,parameter       :: step_size_changes = 1.d-2      ! CHANGE IN STEP SIZE
 
@@ -110,6 +112,9 @@ Module fiducial
   Character(len=*),parameter :: EXECUTION_INFORMATION_CHAIN = './output/chains/execution_information_chain_'
   Character(len=*),parameter :: PATH_TO_CHAINS = './output/chains/mcmc_final_output.txt'
   Character(len=*),parameter :: PATH_TO_CHAINS_CHAIN = './output/chains/mcmc_final_output_'
- 
+  Character(len=*),parameter :: PATH_TO_RANGES_FILE = './output/chains/mcmc_final_output.ranges'
+  Character(len=*),parameter :: PATH_TO_PARAMNAMES_FILE = './output/chains/mcmc_final_output.paramnames'
+  Character(len=*),parameter :: PATH_TO_INI_FILES = './ini_files/current_euclid_galaxy_cl_'
+  Character(len=*),parameter :: PATH_TO_CURRENT_CL = './output/current_euclid_galaxy_cl_'
     
 End Module fiducial
