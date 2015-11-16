@@ -44,7 +44,6 @@ Program fisher
   Real*8                                 :: jumping_factor    ! STORES JUMPING FACTOR (INCREASE IF BIGGER STEP SIZE WANTED, DECREASE OTHERWISE)
   Real*4                                 :: average_acceptance_probability
   Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
-  Real*8,dimension(number_of_parameters) :: bestfit,means                           ! SAVES BESTFIT AND MEANS OF PARAMETERS 
 
   Logical                                :: cl_file_exist,ini_file_exist,exe_file ! CHECK EXISTENCE OF FILES
   Logical,parameter                      :: lensing = .false. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
@@ -63,7 +62,7 @@ Program fisher
 
         job_number = m + 20
 
-        write(string,'(i2.2)') job_number 
+        write(string,'(i2.2)') m 
 
         inquire(file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt',exist=exe_file) 
 
@@ -237,7 +236,7 @@ Program fisher
      ! ALLOCATING MEMORY FOR GRID OF MODELS
      allocate (param_omega_b(0:n_points-1), param_omega_cdm(0:n_points-1), param_n_s(0:n_points-1),&
           param_A_s(0:n_points-1), param_H0(0:n_points-1), param_m_ncdm(0:n_points-1),&
-          param_MG_beta2(0:n_points-1), stat = status1)
+          param_MG_beta2(0:n_points-1),bestfit(number_of_parameters),means(number_of_parameters), stat = status1)
 
      If (status1 .eq. 0) then 
 
@@ -754,17 +753,17 @@ Program fisher
 
      If (multiple_chains) then
 
-        open(13,file=PATH_TO_CHAINS_CHAIN//trim(string)//'.txt') ! FILE TO STORE MCMC COMPUTATION
+        open(UNIT_MCMC_FINAL,file=PATH_TO_CHAINS_CHAIN//trim(string)//'.txt') ! FILE TO STORE MCMC COMPUTATION
 
      Else
 
-        open(13,file=PATH_TO_CHAINS) ! FILE TO STORE MCMC COMPUTATION
+        open(UNIT_MCMC_FINAL,file=PATH_TO_CHAINS) ! FILE TO STORE MCMC COMPUTATION
 
      End If
 
-     open(14,file='./output/mcmc_output.txt')    !    TEMPORARY FILE 
+     open(UNIT_MCMC,file='./output/mcmc_output.txt')    !    TEMPORARY FILE 
 
-     write(13,*) '# NUMBER OF ITERATIONS IN FINAL MCMC : ', number_iterations - steps_taken_before_definite_run
+     write(job_number,*) '# NUMBER OF ITERATIONS IN FINAL MCMC : ', number_iterations - steps_taken_before_definite_run
 
      If (start_from_fiducial .and. (.not.testing_Gaussian_likelihood)) then
 
@@ -774,7 +773,7 @@ Program fisher
 
      End If
 
-     write(13,*) '# WEIGHT   -ln(L/L_{max})    ', paramnames(1:number_of_parameters) 
+     write(job_number,*) '# WEIGHT   -ln(L/L_{max})    ', paramnames(1:number_of_parameters) 
 
      !#######################################
      ! LOOP TO EXPLORE PARAMETER SPACE STARTS
@@ -945,11 +944,11 @@ Program fisher
 
            If (m .le. steps_taken_before_definite_run) then
 
-              write(14,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
+              write(UNIT_MCMC,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
            Else
 
-              write(13,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
+              write(UNIT_MCMC_FINAL,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
            End If
 
@@ -993,11 +992,11 @@ Program fisher
 
               If (m .le. steps_taken_before_definite_run) then
                    
-                 write(14,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
+                 write(UNIT_MCMC,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
               else
 
-                 write(13,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
+                 write(UNIT_MCMC_FINAL,*) weight,-old_loglikelihood,old_point(1:number_of_parameters)
 
               End If
 
@@ -1122,11 +1121,11 @@ Program fisher
      
                     call read_covariance_matrix_mcmc(Covgauss)
 
-                    close(14)
+                    close(UNIT_MCMC)
                    
                     call system('rm ./output/mcmc_output.txt')
 
-                    open(14,file='./output/mcmc_output.txt')
+                    open(UNIT_MCMC,file='./output/mcmc_output.txt')
 
                  Else
 
@@ -1134,11 +1133,11 @@ Program fisher
      
                     call read_covariance_matrix_mcmc(Covguess)
 
-                    close(14)
+                    close(UNIT_MCMC)
 
                     call system('rm ./output/mcmc_output.txt')
 
-                    open(14,file='./output/mcmc_output.txt')
+                    open(UNIT_MCMC,file='./output/mcmc_output.txt')
 
                  End If
 
@@ -1159,9 +1158,9 @@ Program fisher
      write(job_number,*) 'ACCEPTANCE RATIO IS: ', dble(number_iterations - steps_taken_before_definite_run - &
           number_rejected_points)/dble(number_iterations - steps_taken_before_definite_run)
 
-     close(13)
+     close(UNIT_MCMC_FINAL)
 
-     close(14)
+     close(UNIT_MCMC)
 
      If (multiple_chains) then
 

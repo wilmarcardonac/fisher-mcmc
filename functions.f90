@@ -1042,39 +1042,204 @@ end subroutine ini_file_generator
 
 subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_flag, Cl_flag,bessel,q,kmaxtau0)
     use fiducial
+    use arrays
     Implicit none
     Real*8:: parameter_value,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
-    logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag
+    logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag,bestfit_flag
     character(len=*) :: parameter_name
     character(len=*),parameter :: fmt = '(es16.10)' 
     character*16 :: string_par_value
 
-    fid1 = parameter_value .eq. omega_b
+    If (fisher_analysis_at_bestfit) then
 
-    fid2 = parameter_value .eq. omega_cdm
+       fid1 = parameter_value .eq. bestfit(1) ! omega_b
 
-    fid3 = parameter_value .eq. n_s
+       fid2 = parameter_value .eq. bestfit(2) ! omega_cdm
 
-    fid4 = parameter_value .eq. A_s
+       fid3 = parameter_value .eq. bestfit(3) ! n_s
 
-    fid5 = parameter_value .eq. H0
+       fid4 = parameter_value .eq. bestfit(4) ! A_s
 
-    fid6 = parameter_value .eq. m_ncdm
+       fid5 = parameter_value .eq. bestfit(5) ! H0
 
-    fid7 = parameter_value .eq. MG_beta2
+       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
-    fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
+       fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
+
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
      
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
-    write(string_par_value,fmt) parameter_value
+       write(string_par_value,fmt) parameter_value
 
-    If (lensing_flag) then
+       If (lensing_flag) then
 
-        If (Cl_flag) then
+          If (Cl_flag) then
 
-            If (fiducial_flag) then
+             If (bestfit_flag) then
+
+                open(10, file='./ini_files/Cl_bestfit_lensing.ini')
+
+                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+
+                write(10,*) 'root = ../data/Cl_bestfit_lensing_'
+
+             Else 
+
+                print *, 'INI FILE FOR BESTFIT WITH LENSING NOT IMPLEMENTED YET'
+
+                stop
+
+!                open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
+
+!                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+
+!                write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
+
+             End If
+
+          Else
+
+             print *, 'NO INI FILE FOR ERROR WITH LENSING AT BEST FIT IMPLEMENTED'
+
+             stop
+
+!             open(10, file='./ini_files/El.ini')
+
+!             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+
+!             write(10,*) 'root = ../data/El_'
+
+!             write(10,'(a25)') 'number count error = 0.10'
+
+          End if
+
+       Else 
+
+          If (bestfit_flag) then
+
+             open(10, file='./ini_files/Cl_bestfit_no_lensing.ini')
+
+             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+
+             write(10,*) 'root = ../data/Cl_bestfit_no_lensing_'
+
+          Else
+
+             print *, 'MUST IMPLEMENT INI FILE AROUND BEST FIT'
+
+             stop
+
+!             open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
+
+!             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+
+!             write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
+
+          End If
+
+       End if
+
+       ! Background parameters and anisotropic stress
+
+       If (parameter_name .ne. param_name_omega_b) then
+
+          write(10,'(a10, es16.10)') 'omega_b = ', bestfit(1) 
+
+       Else
+
+          write(10,'(a10, es16.10)') 'omega_b = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_omega_cdm) then
+
+          write(10,'(a12, es16.10)') 'omega_cdm = ', bestfit(2)
+
+       Else
+
+          write(10,'(a12, es16.10)') 'omega_cdm = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_n_s) then
+
+          write(10,'(a6, es16.10)') 'n_s = ', bestfit(3)
+
+       else
+
+          write(10,'(a6, es16.10)') 'n_s = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_A_s) then 
+ 
+          write(10,'(a6, es16.10)') 'A_s = ', bestfit(4) 
+
+       else
+
+          write(10,'(a6, es16.10)') 'A_s = ', parameter_value  
+
+       End If
+
+       If (parameter_name .ne. param_name_H0) then
+
+          write(10,'(a5, es16.10)') 'H0 = ', bestfit(5)
+
+       Else
+
+          write(10,'(a5, es16.10)') 'H0 = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_m_ncdm) then
+
+          write(10,'(a9, es16.10)') 'm_ncdm = ', bestfit(6)
+
+       Else
+
+          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_MG_beta2) then
+
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', bestfit(7)
+
+       Else
+
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+ 
+       End If
+
+    Else
+
+       fid1 = parameter_value .eq. omega_b
+
+       fid2 = parameter_value .eq. omega_cdm
+
+       fid3 = parameter_value .eq. n_s
+
+       fid4 = parameter_value .eq. A_s
+
+       fid5 = parameter_value .eq. H0
+
+       fid6 = parameter_value .eq. m_ncdm
+
+       fid7 = parameter_value .eq. MG_beta2
+
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
+     
+       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+
+       write(string_par_value,fmt) parameter_value
+
+       If (lensing_flag) then
+
+          If (Cl_flag) then
+
+             If (fiducial_flag) then
 
                 open(10, file='./ini_files/Cl_fiducial_lensing.ini')
 
@@ -1082,7 +1247,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 write(10,*) 'root = ../data/Cl_fiducial_lensing_'
 
-            Else 
+             Else 
 
                 open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
@@ -1090,123 +1255,123 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
-            End If
+             End If
 
-        Else
+          Else
 
-            open(10, file='./ini_files/El.ini')
+             open(10, file='./ini_files/El.ini')
 
-            write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-            write(10,*) 'root = ../data/El_'
+             write(10,*) 'root = ../data/El_'
 
-            write(10,'(a25)') 'number count error = 0.10'
+             write(10,'(a25)') 'number count error = 0.10'
 
-        End if
+          End if
 
-    Else 
+       Else 
 
-        If (fiducial_flag) then
+          If (fiducial_flag) then
 
-            open(10, file='./ini_files/Cl_fiducial_no_lensing.ini')
+             open(10, file='./ini_files/Cl_fiducial_no_lensing.ini')
 
-            write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
 
-            write(10,*) 'root = ../data/Cl_fiducial_no_lensing_'
+             write(10,*) 'root = ../data/Cl_fiducial_no_lensing_'
 
-        Else
+          Else
 
-        open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
+             open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
 
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
 
-        write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
+             write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
 
-        End If
+          End If
 
-    End if
+       End if
+
+       ! Background parameters and anisotropic stress
+
+       If (parameter_name .ne. param_name_A_s) then 
+ 
+          write(10,'(a6, es16.10)') 'A_s = ', A_s  
+
+       else
+
+          write(10,'(a6, es16.10)') 'A_s = ', parameter_value  
+
+       End If
+
+       If (parameter_name .ne. param_name_n_s) then
+
+          write(10,'(a6, es16.10)') 'n_s = ', n_s
+
+       else
+
+          write(10,'(a6, es16.10)') 'n_s = ', parameter_value
+
+       End If
+ 
+       If (parameter_name .ne. param_name_H0) then
+
+          write(10,'(a5, es16.10)') 'H0 = ', H0
+
+       Else
+
+          write(10,'(a5, es16.10)') 'H0 = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_omega_b) then
+
+          write(10,'(a10, es16.10)') 'omega_b = ', omega_b
+
+       Else
+
+          write(10,'(a10, es16.10)') 'omega_b = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_omega_cdm) then
+
+          write(10,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
+
+       Else
+
+          write(10,'(a12, es16.10)') 'omega_cdm = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_MG_beta2) then
+
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
+
+       Else
+
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+ 
+       End If
+
+       If (parameter_name .ne. param_name_m_ncdm) then
+
+          write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+
+       Else
+
+          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+
+       End If
+
+    End If
     
-    ! Background parameters and anisotropic stress
-
-    If (parameter_name .ne. param_name_A_s) then 
- 
-        write(10,'(a6, es16.10)') 'A_s = ', A_s  
-
-    else
-
-        write(10,'(a6, es16.10)') 'A_s = ', parameter_value  
-
-    End If    
-
-    If (parameter_name .ne. param_name_n_s) then
-
-        write(10,'(a6, es16.10)') 'n_s = ', n_s
-
-    else
-
-        write(10,'(a6, es16.10)') 'n_s = ', parameter_value
-
-    End If
- 
-    If (parameter_name .ne. param_name_H0) then
-
-        write(10,'(a5, es16.10)') 'H0 = ', H0
-
-    Else
-
-        write(10,'(a5, es16.10)') 'H0 = ', parameter_value
-
-    End If
-
-    If (parameter_name .ne. param_name_omega_b) then
-
-        write(10,'(a10, es16.10)') 'omega_b = ', omega_b
-
-    Else
-
-        write(10,'(a10, es16.10)') 'omega_b = ', parameter_value
-
-    End If
-
-    If (parameter_name .ne. param_name_omega_cdm) then
-
-        write(10,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
-
-    Else
-
-        write(10,'(a12, es16.10)') 'omega_cdm = ', parameter_value
-
-    End If
-
     write(10,'(a11, es16.10)') 'tau_reio = ', tau
-
-    If (parameter_name .ne. param_name_MG_beta2) then
-
-        write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
-
-    Else
-
-        write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
- 
-    End If
-
-    ! Parameters for massive neutrinos                                                                                            
 
     write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
 
     write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
 
     write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
-
-    If (parameter_name .ne. param_name_m_ncdm) then
-
-        write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
-
-    Else
-
-        write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
-
-    End If
 
     ! Number counts in the output                                                                                            
 
@@ -1513,19 +1678,28 @@ subroutine fill_parameters_array(p)
     If (compute_data_fisher_analysis) then
         ! Write ini files for Cl's with/without lensing
 
-        Do index=1,2
+       If (fisher_analysis_at_bestfit) then
 
-            If (index .eq. 1) then
+          call read_bestfit_mcmc(bestfit)
+
+          call write_ini_file_for_fisher('omega_b',bestfit(1),.false.,.true.,&
+               selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
+
+       Else
+
+          Do index=1,2
+
+             If (index .eq. 1) then
 
                 lensing_flag = .true.     
 
-            Else
+             Else
 
                 lensing_flag = .false.     
 
-            End If
+             End If
 
-            Do m=0,2*p
+             Do m=0,2*p
 
                 call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.,&
                      selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
@@ -1548,14 +1722,16 @@ subroutine fill_parameters_array(p)
                 call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.,&
                      selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-            End Do
+             End Do
 
-        End Do
+          End Do
 
-        ! Write ini file for error file including lensing and only for fiducial model
+          ! Write ini file for error file including lensing and only for fiducial model
 
-        call write_ini_file_for_fisher('MG_beta2',MG_beta2,.true.,.false.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+          call write_ini_file_for_fisher('MG_beta2',MG_beta2,.true.,.false.,&
+               selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+       End If
 
     End If
 
@@ -1633,117 +1809,214 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     Real*8 ::parameter_value
     character(len=*) :: parameter_name
     character*16 :: string_par_value
-    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag
+    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag,bestfit_flag
     character(len=*),parameter :: fmt = '(es16.10)'
 
-    fid1 = parameter_value .eq. omega_b
+    If (fisher_analysis_at_bestfit) then
 
-    fid2 = parameter_value .eq. omega_cdm
+       fid1 = parameter_value .eq. bestfit(1) ! omega_b
 
-    fid3 = parameter_value .eq. n_s
+       fid2 = parameter_value .eq. bestfit(2) ! omega_cdm
 
-    fid4 = parameter_value .eq. A_s
+       fid3 = parameter_value .eq. bestfit(3) ! n_s
 
-    fid5 = parameter_value .eq. H0
+       fid4 = parameter_value .eq. bestfit(4) ! A_s
 
-    fid6 = parameter_value .eq. m_ncdm
+       fid5 = parameter_value .eq. bestfit(5) ! H0
 
-    fid7 = parameter_value .eq. MG_beta2
+       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
-    fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
+       fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
+
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
      
-    write(string_par_value,fmt) parameter_value
+       write(string_par_value,fmt) parameter_value
 
-    If (lensing_flag) then
+       If (lensing_flag) then
 
-        If (Cl_flag) then
+          If (Cl_flag) then
 
-            If (fiducial_flag) then
+             If (bestfit_flag) then
+ 
+                inquire(file='./data/Cl_bestfit_lensing_cl.dat',exist=exist)
+
+                If (.not.exist) then
+
+                   call write_sh_file('Cl_bestfit_lensing')
+
+                   call system('cd class_montanari-lensing ; sbatch Cl_bestfit_lensing.sh')
+
+                End If
+
+             Else 
+
+                print *,'FISHER AROUND BEST FIT NOT IMPLEMENTED YET'
+
+                stop
+
+!                inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_cl.dat',exist=exist)
+
+!                If (.not.exist) then
+
+!                   call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
+
+!                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+!                        '_lensing.sh')
+
+!                End If
+
+             End If
+
+          Else
+
+             print *, 'ERROR FILE AT BEST FIT NOT IMPLEMENTED YET'
+
+             stop
+
+!             inquire(file='./data/El_cl.dat',exist=exist)
+
+!             If (.not.exist) then
+
+!                call write_sh_file('El')
+
+!                call system('cd class_montanari-lensing ; sbatch El.sh')
+
+!             End If
+
+          End if
+
+       Else 
+
+          If (bestfit_flag) then
+
+             inquire(file='./data/Cl_bestfit_no_lensing_cl.dat',exist=exist)
+
+             If (.not.exist) then
+
+                call write_sh_file('Cl_bestfit_no_lensing')
+
+                call system('cd class_montanari-lensing ; sbatch Cl_bestfit_no_lensing.sh')
+
+             End If
+
+          Else
+
+             print *,'FISHER ANALYSIS AROUND BEST FIT NOT IMPLEMENTED YET WITHOUT LENSING'
+
+             stop
+
+!             inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_cl.dat',exist=exist)
+
+!             If (.not.exist) then
+
+!                call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
+
+!                call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+!                     '_no_lensing.sh')
+
+!             End If
+
+          End If
+
+       End if
+
+    Else
+
+       fid1 = parameter_value .eq. omega_b
+
+       fid2 = parameter_value .eq. omega_cdm
+
+       fid3 = parameter_value .eq. n_s
+
+       fid4 = parameter_value .eq. A_s
+
+       fid5 = parameter_value .eq. H0
+
+       fid6 = parameter_value .eq. m_ncdm
+
+       fid7 = parameter_value .eq. MG_beta2
+
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
+     
+       write(string_par_value,fmt) parameter_value
+
+       If (lensing_flag) then
+
+          If (Cl_flag) then
+
+             If (fiducial_flag) then
  
                 inquire(file='./data/Cl_fiducial_lensing_cl.dat',exist=exist)
 
                 If (.not.exist) then
 
-                    call write_sh_file('Cl_fiducial_lensing')
+                   call write_sh_file('Cl_fiducial_lensing')
 
-                    call system('cd class_montanari-lensing ; sbatch Cl_fiducial_lensing.sh')
-
-!                    call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-!                    '../ini_files/Cl_fiducial_lensing.ini ../cl_lss_nu_el.pre')
+                   call system('cd class_montanari-lensing ; sbatch Cl_fiducial_lensing.sh')
 
                 End If
 
-            Else 
+             Else 
 
                 inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_cl.dat',exist=exist)
 
                 If (.not.exist) then
 
-                    call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
+                   call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
 
-                    call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-                    '_lensing.sh')
-
-!                    call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-!                    '../ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini ../cl_lss_nu_el.pre')
+                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+                        '_lensing.sh')
 
                 End If
 
-            End If
+             End If
 
-        Else
+          Else
 
-            inquire(file='./data/El_cl.dat',exist=exist)
+             inquire(file='./data/El_cl.dat',exist=exist)
 
-            If (.not.exist) then
+             If (.not.exist) then
 
                 call write_sh_file('El')
 
                 call system('cd class_montanari-lensing ; sbatch El.sh')
 
-!                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-!                '../ini_files/El.ini ../cl_lss_nu_el.pre')
+             End If
 
-            End If
+          End if
 
-        End if
+       Else 
 
-    Else 
+          If (fiducial_flag) then
 
-        If (fiducial_flag) then
+             inquire(file='./data/Cl_fiducial_no_lensing_cl.dat',exist=exist)
 
-            inquire(file='./data/Cl_fiducial_no_lensing_cl.dat',exist=exist)
-
-            If (.not.exist) then
+             If (.not.exist) then
 
                 call write_sh_file('Cl_fiducial_no_lensing')
 
                 call system('cd class_montanari-lensing ; sbatch Cl_fiducial_no_lensing.sh')
 
-!                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-!                '../ini_files/Cl_fiducial_no_lensing.ini ../cl_lss_nu_el.pre')
+             End If
 
-            End If
+          Else
 
-        Else
+             inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_cl.dat',exist=exist)
 
-            inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_cl.dat',exist=exist)
-
-            If (.not.exist) then
+             If (.not.exist) then
 
                 call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
 
                 call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-                '_no_lensing.sh')
+                     '_no_lensing.sh')
 
-!                call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
-!                '../ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini ../cl_lss_nu_el.pre')
+             End If
 
-            End If
+          End If
 
-        End If
+       End if
 
-    End if
+    End If
 
 end subroutine run_class
 
