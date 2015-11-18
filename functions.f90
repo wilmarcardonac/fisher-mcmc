@@ -539,7 +539,7 @@ subroutine compute_ratio_likelihood()
     fiducial_point(4) = log(1.d1**1.d1*A_s)
     fiducial_point(5) = H0
     fiducial_point(6) = m_ncdm
-    fiducial_point(7) = MG_beta2
+!    fiducial_point(7) = MG_beta2
 
     open(16,file='./output/ratio_likelihood_values.dat')
     write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm    MG_beta2 '
