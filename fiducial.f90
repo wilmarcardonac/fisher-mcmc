@@ -56,9 +56,12 @@ Module fiducial
   Real*8,parameter    :: fsky = 1.5d4/4.1253d4
   Real*8,parameter    :: theoreticalerror = 0.d0 !5.d-2
   Real*8,parameter    :: l_switch_limber_for_cl_density_over_z = 20000.d0
-  Real*8,parameter    :: selection_sampling_bessel_fid = 1.2d0 ! 3. FOR FISHER
-  Real*8,parameter    :: q_linstep_fid = 40.d0                ! 0.3 FOR FISHER
-  Real*8,parameter    :: k_max_tau0_over_l_max_fid = 2.d0    ! 20. FOR FISHER
+  Real*8,parameter    :: selection_sampling_bessel_fid = 3.d0 ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: q_linstep_fid = 0.3d0                ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: k_max_tau0_over_l_max_fid = 20.d0    ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: selection_sampling_bessel_mcmc = 1.2d0 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
+  Real*8,parameter    :: q_linstep_mcmc = 40.d0                 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
+  Real*8,parameter    :: k_max_tau0_over_l_max_mcmc = 2.d0      ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
 
   !##################
   ! FISHER PARAMETERS
@@ -67,11 +70,12 @@ Module fiducial
   Integer*4,parameter :: n_points = 5 ! NUMBER OF POINTS PER COSMOLOGICAL PARAMETER
   Integer*4,parameter :: lmax = 400   ! HIGHEST MULTIPOLE
 
-  Logical,parameter   :: compute_data_fisher_analysis = .false.   ! COMPUTE DATA FOR FISHER ANALYSIS IF SET IT TRUE
-  Logical,parameter   :: do_fisher_analysis = .false. ! DO FISHER MATRIX ANALYSIS IF SET IT TRUE
+  Logical,parameter   :: compute_data_fisher_analysis = .true. !.false.   ! COMPUTE DATA FOR FISHER ANALYSIS IF SET IT TRUE
+  Logical,parameter   :: do_fisher_analysis = .true. !.false. ! DO FISHER MATRIX ANALYSIS IF SET IT TRUE
+  Logical,parameter   :: fisher_analysis_at_bestfit = .true.  ! DO FISHER MATRIX ANALYSIS AT THE BEST FIT IF SET IT TRUE, OTHERWISE AT THE FIDUCIAL MODEL
   Logical,parameter   :: testing_precision = .false. ! PERFORM PRECISION TEST IF SET IT TRUE
   Logical,parameter   :: compute_data_testing_precision = .false. ! COMPUTE DATA FOR PRECISION TEST IF SET IT TRUE
-  Logical,parameter   :: compute_likelihood_along_bias_vector = .false.
+  Logical,parameter   :: compute_likelihood_along_bias_vector = .false. 
   
   !################
   ! MCMC PARAMETERS
@@ -85,6 +89,8 @@ Module fiducial
   Integer*4,parameter    :: number_of_parallel_jobs = 10 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
   Integer*4,parameter    :: UNIT_RANGES_FILE = 90        ! UNIT NUMBER FOR RANGES FILE
   Integer*4,parameter    :: UNIT_PARAMNAMES_FILE = 91    ! UNIT NUMBER FOR PARAMMNAMES FILE
+  Integer*4,parameter    :: UNIT_MCMC = 92               ! UNIT NUMBER FOR MCMC OUTPUT (CALIBRATING PHASE)
+  Integer*4,parameter    :: UNIT_MCMC_FINAL = 93         ! UNIT NUMBER FOR MCMC FINAL OUTPUT 
 
   Real*8,parameter       :: step_size_changes = 1.d-2      ! CHANGE IN STEP SIZE
 
@@ -95,7 +101,7 @@ Module fiducial
        'A_s         ','H_0         ','m_{ncdm}    ','\beta_2     ']
 
   Logical,parameter      :: using_inverse_fisher_matrix = .true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
-  Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
+  Logical,parameter      :: do_mcmc_analysis = .false. !.true.    ! DO MCMC ANALYSIS IF SET IT TRUE
   Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
   Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
