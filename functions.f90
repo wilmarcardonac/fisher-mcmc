@@ -2012,11 +2012,13 @@ subroutine read_covariance_matrix_mcmc(matrix1)
     Character*1,parameter :: UPLO = 'U'
     Logical :: pos_def,exist 
  
-    inquire(file='./output/covariance_matrix.txt',exist=exist)
+    inquire(file='./output/chains/covariance_matrix.txt',exist=exist)
 
     If (exist) then
 
-       open(12,file='./output/covariance_matrix.txt')
+       open(12,file='./output/chains/covariance_matrix.txt')
+
+       read(12,*)
 
     Else
 
@@ -2054,7 +2056,9 @@ subroutine read_covariance_matrix_mcmc(matrix1)
       
         If (pos_def) then
 
-            open(12,file='./output/covariance_matrix.txt')
+            open(12,file='./output/chains/covariance_matrix.txt')
+
+            read(12,*)
 
             Do index1=1,number_of_parameters
 

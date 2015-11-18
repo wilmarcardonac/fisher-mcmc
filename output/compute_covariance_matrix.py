@@ -7,6 +7,6 @@ for index in range(len(data[:,5])):
 
 Cov = np.cov(data[:,2:],rowvar=0)
 
-np.savetxt('covariance_matrix.txt',Cov,fmt='%.10E')
+np.savetxt('covariance_matrix.txt',Cov,fmt='%.10E',header=' ',comments='# ')
 
 exit()
