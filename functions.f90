@@ -1682,6 +1682,24 @@ subroutine fill_parameters_array(p)
 
           call read_bestfit_mcmc(bestfit)
 
+          Do m=-p,p    
+
+             param_omega_b(m+p) = bestfit(1) + m*sigma_omega_b   
+
+             param_omega_cdm(m+p) = bestfit(2) + m*sigma_omega_cdm
+
+             param_n_s(m+p) = bestfit(3) + m*sigma_n_s
+
+             param_A_s(m+p) = bestfit(4) + m*sigma_A_s
+
+             param_H0(m+p) = bestfit(5) + m*sigma_H0
+
+             param_m_ncdm(m+p) = bestfit(6) + m*sigma_m_ncdm
+
+             param_MG_beta2(m+p) = bestfit(7) + m*sigma_MG_beta2
+
+          End Do
+
           call write_ini_file_for_fisher('omega_b',bestfit(1),.false.,.true.,&
                selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 

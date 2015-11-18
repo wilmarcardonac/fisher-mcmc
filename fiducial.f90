@@ -56,9 +56,12 @@ Module fiducial
   Real*8,parameter    :: fsky = 1.5d4/4.1253d4
   Real*8,parameter    :: theoreticalerror = 0.d0 !5.d-2
   Real*8,parameter    :: l_switch_limber_for_cl_density_over_z = 20000.d0
-  Real*8,parameter    :: selection_sampling_bessel_fid = 3.d0 ! 1.2d0 FOR MCMC ! 3. FOR FISHER
-  Real*8,parameter    :: q_linstep_fid = 0.3d0 ! 40.d0 FOR MCMC ! 0.3 FOR FISHER
-  Real*8,parameter    :: k_max_tau0_over_l_max_fid = 20.d0 ! 2.d0 FOR MCMC ! 20. FOR FISHER
+  Real*8,parameter    :: selection_sampling_bessel_fid = 3.d0 ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: q_linstep_fid = 0.3d0                ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: k_max_tau0_over_l_max_fid = 20.d0    ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: selection_sampling_bessel_mcmc = 1.2d0 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
+  Real*8,parameter    :: q_linstep_mcmc = 40.d0                 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
+  Real*8,parameter    :: k_max_tau0_over_l_max_mcmc = 2.d0      ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
 
   !##################
   ! FISHER PARAMETERS
