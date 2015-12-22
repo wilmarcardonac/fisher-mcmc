@@ -15,10 +15,10 @@ Module fiducial
   Real*8,parameter :: H0 = 6.727d1
   Real*8,parameter :: m_ncdm = 6.0d-2
   Real*8,parameter :: MG_beta2 = 1.00d0
-  Real*8,parameter :: N_ur = 0.d0
+  Real*8,parameter :: N_ur = 2.0328d0
   Real*8,parameter :: N_ncdm = 1.d0
-  Real*8,parameter :: deg_ncdm = 3.d0
-  Real*8,parameter :: tau = 0.089d0
+  Real*8,parameter :: deg_ncdm = 1.d0
+  Real*8,parameter :: tau = 0.079d0
 
   Character(len=*),parameter :: param_name_omega_b = 'omega_b'
   Character(len=*),parameter :: param_name_omega_cdm = 'omega_cdm'
@@ -81,12 +81,12 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 10000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_iterations = 12000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
   Integer*4,parameter    :: number_of_parameters = 6       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0 ! 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
   Integer*4,parameter    :: steps_taken_before_definite_run = 0 !100000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
-  Integer*4,parameter    :: number_of_parallel_jobs = 10 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
+  Integer*4,parameter    :: number_of_parallel_jobs = 9 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
   Integer*4,parameter    :: UNIT_RANGES_FILE = 90        ! UNIT NUMBER FOR RANGES FILE
   Integer*4,parameter    :: UNIT_PARAMNAMES_FILE = 91    ! UNIT NUMBER FOR PARAMMNAMES FILE
   Integer*4,parameter    :: UNIT_MCMC = 92               ! UNIT NUMBER FOR MCMC OUTPUT (CALIBRATING PHASE)
@@ -106,7 +106,7 @@ Module fiducial
   Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
   Logical,parameter      :: adjusting_covariance_matrix = .false.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
-  Logical,parameter      :: read_covariance_matrix_from_file = .true. !.false. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
+  Logical,parameter      :: read_covariance_matrix_from_file = .false. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
   Logical,parameter      :: multiple_chains = .true. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
 
