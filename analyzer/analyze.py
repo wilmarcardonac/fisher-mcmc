@@ -5,6 +5,8 @@ number_of_parameters = 6
 
 samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':0.2})
 
+samples2 = loadMCSamples('../../fisher-mcmc/output/chains/previous_runs/three-massive-nu-tau-0.089/mcmc_final_output',settings={'ignore_rows':0.2})
+
 g = plots.getSinglePlotter()
 
 g.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
@@ -12,6 +14,10 @@ g.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
 g.triangle_plot(samples,filled=True)
 
 g.export('../output/chains/triangle_figure.pdf')
+
+g.triangle_plot([samples,samples2],filled=True,legend_labels=['Only auto-correlations','Auto and cross-correlations'])
+
+g.export('../output/chains/triangle_figure_joint.pdf')
 
 print 'TRIANGLE PLOT CREATED'
 
@@ -57,7 +63,7 @@ f.export('../output/chains/1D_plots.pdf')
 
 print '1D PLOTS CREATED'
 
-covariance_matrix = samples.getCov(pars=[0,1,2,6,4,5])#nparam=number_of_parameters)
+covariance_matrix = samples.getCov(pars=[0,1,2,6,4,5]) #nparam=number_of_parameters)
 
 covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
 

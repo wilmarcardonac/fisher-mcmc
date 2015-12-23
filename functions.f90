@@ -9,7 +9,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
     Implicit none
 
     Real*8:: bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: Cl_flag,fid1,fid2,fid3,fiducial_flag
     character(len=*),parameter :: fmt = '(i2.2)' 
     character*16 :: string
@@ -24,7 +24,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     fiducial_flag = (fid1 .and. fid2) .and. fid3 
      
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
     write(string,fmt) index
 
@@ -125,6 +125,10 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
+
+    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
@@ -673,7 +677,7 @@ subroutine compute_ratio_likelihood()
         End If
 
         call write_ini_file(point_parameter_space(1),point_parameter_space(2),point_parameter_space(3),&
-        point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),point_parameter_space(7),&
+        point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),MG_beta2,&
         tau,N_ur,N_ncdm,deg_ncdm,lensing_flag,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
         inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
@@ -714,9 +718,9 @@ subroutine compute_ratio_likelihood()
 
         End if
 
-        write(16,*) -loglikelihood,point_parameter_space(1),point_parameter_space(2),&
-        point_parameter_space(3),point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),&
-        point_parameter_space(7)
+        write(16,*) -loglikelihood,point_parameter_space(1:number_of_parameters)!,point_parameter_space(2),&
+!        point_parameter_space(3),point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),&
+ !       point_parameter_space(7)
 
     End Do
 
@@ -940,18 +944,18 @@ end function i_j_from_I_oa
 subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
                               param_m_ncdm, param_tau_reio, param_N_ur, param_N_ncdm, param_deg_ncdm, &
                               param_MG_beta2,Cl_El_flag, len_flag,z_bin_centers,z_bin_widths,z_bin_bias,&
-                              bessel,q,kmaxtau0)
+                              s_z_mag_bias,bessel,q,kmaxtau0)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: f1,f2,f3,f4,f5,f6,f7,fiducial_model,len_flag,Cl_El_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
     character*16 :: string_MG_beta2
     
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
     fmt = '(es16.10)' 
     write(string_omega_b,fmt) param_omega_b
@@ -1110,6 +1114,10 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
+    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
+
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
     write(10,'(a13)') 'headers = yes'
@@ -1145,8 +1153,8 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
     use arrays
     Implicit none
     Real*8:: parameter_value,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
-    logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag,bestfit_flag
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
+    logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag
     character(len=*) :: parameter_name
     character(len=*),parameter :: fmt = '(es16.10)' 
     character*16 :: string_par_value
@@ -1169,7 +1177,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
      
-       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
        write(string_par_value,fmt) parameter_value
 
@@ -1331,7 +1339,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
      
-       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
        write(string_par_value,fmt) parameter_value
 
@@ -1511,6 +1519,10 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
+    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
+
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
     write(10,'(a13)') 'headers = yes'
@@ -1549,13 +1561,13 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
     character*16 :: string_MG_beta2
     Character(len=10) :: job
         
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
     fmt = '(es16.10)' 
     write(string_omega_b,fmt) param_omega_b
@@ -1626,6 +1638,10 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
   !  z_bin_bias(9),',',z_bin_bias(10)
 
+    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
+
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
     write(10,'(a13)') 'headers = yes'
@@ -1664,12 +1680,12 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
     character*16 :: string_MG_beta2
         
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
     fmt = '(es16.10)' 
     write(string_omega_b,fmt) param_omega_b
@@ -1739,6 +1755,10 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
     write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
   !  z_bin_bias(9),',',z_bin_bias(10)
+
+    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+!    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
@@ -1941,7 +1961,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     Real*8 ::parameter_value
     character(len=*) :: parameter_name
     character*16 :: string_par_value
-    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag,fid7
+    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag!,fid7
     character(len=*),parameter :: fmt = '(es16.10)'
 
     If (fisher_analysis_at_bestfit) then
@@ -2837,7 +2857,7 @@ function galaxy_distribution(z)
 end function galaxy_distribution
 
 
-subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
+subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
     use fiducial
     Implicit none
     
@@ -2845,7 +2865,11 @@ subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
     Integer*4 :: m,n,i
     Real*8,dimension(int((zmax - zmin)/dz)) :: z_array
     Real*8,dimension(int(nbins+1)) :: z_bin_edges
-    Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias
+    Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
+    Real*8,parameter :: s_0 = 0.1194d0
+    Real*8,parameter :: s_1 = 0.2122d0
+    Real*8,parameter :: s_2 = -0.0671d0
+    Real*8,parameter :: s_3 = 0.1031d0
     Integer*4 :: p,nb
     p = int((zmax - zmin)/dz)
     nb = nbins + 1
@@ -2882,6 +2906,7 @@ subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
         z_bin_centers(n-1) = (z_bin_edges(n) + z_bin_edges(n-1))/2.
         z_bin_widths(n-1) = (z_bin_edges(n) - z_bin_edges(n-1))/2.
         z_bin_bias(n-1) = sqrt(1.d0 + z_bin_centers(n-1))
+        s_z_mag_bias(n-1) = s_0 + s_1*z_bin_centers(n-1) + s_2*z_bin_centers(n-1)**2 + s_3*z_bin_centers(n-1)**3
     End Do
 
 end subroutine bin_centers_widths_bias
