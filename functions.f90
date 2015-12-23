@@ -363,233 +363,133 @@ function log_Gaussian_likelihood(array)
 end function log_Gaussian_likelihood
 
 function euclid_galaxy_cl_likelihood(Cl)
-
-  use fiducial
-  use arrays
-  Implicit none
-
-  Integer*4,parameter :: L = lmax - lmin + 1
-  Integer*4 :: indexl,indexbin_i,indexbin_j,indexbin_k,indexbin_p
-  Real*8,parameter :: epsilon_min = 0.d0
-  Real*8,parameter :: epsilon_max = 1.d2
-  Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Clth,Cl,Elth
-  Real*8,dimension(1:nbins,1:nbins) :: Cov_mix,Cov_obs,Cov_the,Cov_the_El,Cov_mix_new
-  Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l
+    use fiducial
+    use arrays
+    Implicit none
+    Integer*4,parameter :: L = lmax - lmin + 1
+    Integer*4 :: indexl,indexbin_i,indexbin_j,indexbin_k,indexbin_p
+    Real*8,parameter :: epsilon_min = 0.d0
+    Real*8,parameter :: epsilon_max = 1.d2
+    Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Clth,Cl,Elth
+    Real*8,dimension(1:nbins,1:nbins) :: Cov_mix,Cov_obs,Cov_the,Cov_the_El,Cov_mix_new
+    Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l
    
-  Do indexl=lmin,lmax
-
-     Do indexbin_i=1,nbins
-
-        Do indexbin_j=1,nbins
-
-           Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/&
+    Do indexl=lmin,lmax
+        Do indexbin_i=1,nbins
+            Do indexbin_j=1,nbins
+                Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/&
                 dble(indexl)/(dble(indexl) + 1.d0) + Nl(indexbin_i,indexbin_j)
-
-           Elth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*El(indexl,indexbin_i,indexbin_j)/&
+                Elth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*El(indexl,indexbin_i,indexbin_j)/&
                 dble(indexl)/(dble(indexl) + 1.d0)*sqrt(dble(L))
-
+            End Do
         End Do
+    End Do
 
-     End Do
+    chi2 = 0.d0
 
-  End Do
+    Do indexl=lmin,lmax
 
-  chi2 = 0.d0
-
-  Do indexl=lmin,lmax
-
-     Do indexbin_i=1,nbins
-
-        Do indexbin_j=1,nbins
-
-           If (use_only_autocorrelations) then
-
-              If (indexbin_i .eq. indexbin_j) then
-
-                 Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
-
-                 Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-              Else
-
-                 Cov_obs(indexbin_i,indexbin_j) = 0.d0
-
-                 Cov_the(indexbin_i,indexbin_j) = 0.d0
-
-              End If
-
-           Else
-
-              Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
-
-              Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-           End If
-
+        Do indexbin_i=1,nbins
+            Do indexbin_j=1,nbins
+                Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
+                Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+            End Do
         End Do
-
-     End Do
         
-     det_obs = compute_determinant(Cov_obs)
-
-     det_the = compute_determinant(Cov_the)
-
-     det_mix = 0.d0
+        det_obs = compute_determinant(Cov_obs)
+        det_the = compute_determinant(Cov_the)
+        det_mix = 0.d0
         
-     If (theoreticalerror .gt. 0.d0) then 
-
-        If (use_only_autocorrelations) then
-
-           print *, 'USING ONLY AUTOCORRELATIONS WITH THEORETICAL ERROR NOT EQUAL TO ZERO NOT IMPLEMENTED YET'
-
-           stop
-
-        Else
+        If (theoreticalerror .gt. 0.d0) then 
            
-           Do  indexbin_k=1,nbins
+            Do  indexbin_k=1,nbins
 
-              Do indexbin_i=1,nbins
-
-                 Do indexbin_j=1,nbins
-
-                    Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-                 End Do
-
-              End Do
+                Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+                    End Do
+                End Do
             
-              Do indexbin_p=1,nbins
-
-                 Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-              End Do
-                
-              det_mix = compute_determinant(Cov_mix) + det_mix
-
-           End Do
-
-           ! Here function to minimize chi2 w.r.t must be called  
-
-           epsilon_l = 0.d0 ! In the meantime we disregard epsilon_l (output of function above)
-
-           !If ( (epsilon_l-epsilon_min < 1.d-5/dble(L)) .or. (epsilon_max-epsilon_l<1.d-5/dble(L)) ) then 
-           !    print *,'Minimization did not converge for ', indexl, 'having epsilon_l equal to ',epsilon_l
-           !End If
-        
-           Do indexbin_i=1,nbins
-
-              Do indexbin_j=1,nbins
-
-                 Cov_the_El(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
-                      + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
-
-              End Do
-
-           End Do
-
-           det_the_El = compute_determinant(Cov_the_El)
-
-           det_the_El_mix = 0.d0
-
-           Do  indexbin_k=1,nbins
-
-              Do indexbin_i=1,nbins
-
-                 Do indexbin_j=1,nbins
-
-                    Cov_mix_new(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
-                         + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
-
-                 End Do
-
-              End Do
-            
-              Do indexbin_p=1,nbins
-
-                 Cov_mix_new(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-              End Do
-                
-              det_the_El_mix = compute_determinant(Cov_mix_new) + det_the_El_mix
-
-           End Do
-            
-           chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the_El/det_obs) + det_the_El_mix/det_the_El &
-                - dble(nbins)) + chi2 + epsilon_l**2
-
-        End If
-
-     Else
-
-        Do  indexbin_k=1,nbins
-
-           Do indexbin_i=1,nbins
-
-              Do indexbin_j=1,nbins
-
-                 If (use_only_autocorrelations) then
-
-                    If (indexbin_i .eq. indexbin_j) then
-
-                       Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-                    Else
-
-                       Cov_mix(indexbin_i,indexbin_j) = 0.d0
-
-                    End If
-                    
-                 Else
-
-                    Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-                 End If
-
-              End Do
-
-           End Do
-            
-           Do indexbin_p=1,nbins
-
-              If (use_only_autocorrelations) then
-
-                 If (indexbin_p .eq. indexbin_k) then
-
+                Do indexbin_p=1,nbins
                     Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-                 Else
-
-                    Cov_mix(indexbin_p,indexbin_k) = 0.d0
-
-                 End If
-
-              Else
-
-                 Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-              End If
-
-           End Do
+                End Do
                 
-           det_mix = compute_determinant(Cov_mix) + det_mix
+                det_mix = compute_determinant(Cov_mix) + det_mix
 
-        End Do
+            End Do
 
-        chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the/det_obs) + det_mix/det_the - dble(nbins)) + chi2
+            ! Here function to minimize chi2 w.r.t must be called  
 
-     End if
+            epsilon_l = 0.d0 ! In the meantime we disregard epsilon_l (output of function above)
 
-  End Do
+            !If ( (epsilon_l-epsilon_min < 1.d-5/dble(L)) .or. (epsilon_max-epsilon_l<1.d-5/dble(L)) ) then 
+            !    print *,'Minimization did not converge for ', indexl, 'having epsilon_l equal to ',epsilon_l
+            !End If
+ 
+            Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_the_El(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
+                        + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
+                    End Do
+            End Do
+
+            det_the_El = compute_determinant(Cov_the_El)
+
+            det_the_El_mix = 0.d0
+
+            Do  indexbin_k=1,nbins
+
+                Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_mix_new(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
+                        + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
+                    End Do
+                End Do
+            
+                Do indexbin_p=1,nbins
+                    Cov_mix_new(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
+                End Do
+                
+                det_the_El_mix = compute_determinant(Cov_mix_new) + det_the_El_mix
+
+            End Do
+            
+            chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the_El/det_obs) + det_the_El_mix/det_the_El &
+            - dble(nbins)) + chi2 + epsilon_l**2
+
+        else
+
+            Do  indexbin_k=1,nbins
+
+                Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+                    End Do
+                End Do
+            
+                Do indexbin_p=1,nbins
+                    Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
+                End Do
+                
+                det_mix = compute_determinant(Cov_mix) + det_mix
+
+            End Do
+
+            chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the/det_obs) + det_mix/det_the - dble(nbins)) + chi2
+
+        end if
+    End Do
     
-  If (abs(chi2).ge.0.d0) then
+    If (abs(chi2).ge.0.d0) then
 
-     euclid_galaxy_cl_likelihood = -chi2/2.d0   
+        euclid_galaxy_cl_likelihood = -chi2/2.d0   
 
-  Else
+    Else
 
-     euclid_galaxy_cl_likelihood = -1.d10     
+        euclid_galaxy_cl_likelihood = -1.d10     
    
-  End If
+    End If
+
 
 end function euclid_galaxy_cl_likelihood
 
@@ -1163,11 +1063,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fid5 = parameter_value .eq. bestfit(5) ! H0
 
-       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
+!       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
-       !fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
+ !      fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
 
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5! .or. fid6) .or. fid7)
      
        call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
@@ -1293,25 +1193,25 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       If (parameter_name .ne. param_name_m_ncdm) then
+!       If (parameter_name .ne. param_name_m_ncdm) then
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', bestfit(6)
+       write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm !bestfit(6)
 
-       Else
+  !     Else
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+   !       write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
 
-       End If
+    !   End If
 
-       !If (parameter_name .ne. param_name_MG_beta2) then
+!       If (parameter_name .ne. param_name_MG_beta2) then
 
        write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
 
-       !Else
+ !      Else
 
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+   !       write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
  
-       !End If
+  !     End If
 
     Else
 
@@ -1325,11 +1225,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fid5 = parameter_value .eq. H0
 
-       fid6 = parameter_value .eq. m_ncdm
+!       fid6 = parameter_value .eq. m_ncdm
 
-       !fid7 = parameter_value .eq. MG_beta2
+ !      fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5! .or. fid6) .or. fid7)
      
        call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
@@ -1370,7 +1270,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
           End if
 
        Else 
-
+          
           If (Cl_flag) then
 
              If (fiducial_flag) then
@@ -1457,25 +1357,25 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       !If (parameter_name .ne. param_name_MG_beta2) then
+!       If (parameter_name .ne. param_name_MG_beta2) then
 
        write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
 
-       !Else
+ !      Else
 
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+  !        write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
  
-!       End If
+   !    End If
 
-       If (parameter_name .ne. param_name_m_ncdm) then
+    !   If (parameter_name .ne. param_name_m_ncdm) then
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+       write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
 
-       Else
+     !  Else
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+       !   write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
 
-       End If
+      ! End If
 
     End If
     
@@ -1941,7 +1841,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     Real*8 ::parameter_value
     character(len=*) :: parameter_name
     character*16 :: string_par_value
-    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag,fid7
+    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fiducial_flag,bestfit_flag!,fid7,fid6
     character(len=*),parameter :: fmt = '(es16.10)'
 
     If (fisher_analysis_at_bestfit) then
@@ -1956,11 +1856,11 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        fid5 = parameter_value .eq. bestfit(5) ! H0
 
-       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
+!       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
        !fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
 
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)! .or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5 !.or. fid6)! .or. fid7)
      
        write(string_par_value,fmt) parameter_value
 
@@ -2068,11 +1968,11 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        fid5 = parameter_value .eq. H0
 
-       fid6 = parameter_value .eq. m_ncdm
+!       fid6 = parameter_value .eq. m_ncdm
 
-       !fid7 = parameter_value .eq. MG_beta2
+!       fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5 !.or. fid6) .or. fid7)
      
        write(string_par_value,fmt) parameter_value
 
