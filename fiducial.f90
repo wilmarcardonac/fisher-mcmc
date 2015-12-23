@@ -4,20 +4,20 @@ Module fiducial
 
   save 
 
-  !#############################
-  ! PARAMETERS OF FIDUCIAL MODEL
-  !#############################
+  !##################################################################################
+  ! PARAMETERS OF FIDUCIAL MODEL FROM COLUMN 4 IN TABLE 3 OF PLANCK PAPER XIII (2015)
+  !##################################################################################
   
   Real*8,parameter :: omega_b = 2.225d-2
   Real*8,parameter :: omega_cdm = 1.198d-1
   Real*8,parameter :: n_s = 9.645d-1
   Real*8,parameter :: A_s = 2.20652d-9
   Real*8,parameter :: H0 = 6.727d1
-  Real*8,parameter :: m_ncdm = 6.0d-2
+  Real*8,parameter :: m_ncdm = 0.0d0
   Real*8,parameter :: MG_beta2 = 1.00d0
-  Real*8,parameter :: N_ur = 2.0328d0
-  Real*8,parameter :: N_ncdm = 1.d0
-  Real*8,parameter :: deg_ncdm = 1.d0
+  Real*8,parameter :: N_ur = 3.046d0
+  Real*8,parameter :: N_ncdm = 0.d0
+  Real*8,parameter :: deg_ncdm = 0.d0
   Real*8,parameter :: tau = 0.079d0
 
   Character(len=*),parameter :: param_name_omega_b = 'omega_b'
@@ -82,7 +82,7 @@ Module fiducial
   !################
 
   Integer*4,parameter    :: number_iterations = 12000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
-  Integer*4,parameter    :: number_of_parameters = 6       ! NUMBER OF COSMOLOGICAL PARAMETERS
+  Integer*4,parameter    :: number_of_parameters = 5       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0 ! 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
   Integer*4,parameter    :: steps_taken_before_definite_run = 0 !100000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
@@ -96,9 +96,9 @@ Module fiducial
 
   Character*16,parameter :: phrase = 'randomizer'       ! PHRASE NEEDED BY NUMBER RANDOM GENERATOR
   Character(len=9),dimension(number_of_parameters), parameter :: paramnames = ['omega_b  ','omega_cdm','   n_s   ',&
-       '   A_s   ','   H0    ','  m_ncdm ']!,' MG_beta2']
+       '   A_s   ','   H0    ']!,'  m_ncdm ']!,' MG_beta2']
   Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-       'A_s         ','H_0         ','m_{ncdm}    ']!,'\beta_2     ']
+       'A_s         ','H_0         ']!,'m_{ncdm}    ']!,'\beta_2     ']
 
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
@@ -108,8 +108,7 @@ Module fiducial
   Logical,parameter      :: adjusting_covariance_matrix = .false.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: read_covariance_matrix_from_file = .false. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
-  Logical,parameter      :: multiple_chains = .true. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
-  Logical,parameter      :: use_only_autocorrelations = .false. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
+  Logical,parameter      :: multiple_chains = .false.!.true. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
 
   !###############
   ! PATHS TO FILES

@@ -169,7 +169,7 @@ Program fisher
 
               Covguess(5,5) = sigma_H0**2
 
-              Covguess(6,6) = sigma_m_ncdm**2
+!              Covguess(6,6) = sigma_m_ncdm**2
 
 !              Covguess(7,7) = sigma_MG_beta2**2
 
@@ -188,24 +188,26 @@ Program fisher
         write(job_number,*) 'IF NEW DATA WANTED, REMOVE CORRESPONDING FILES BEFORE RUNNING THE CODE'
 
         call write_ini_file_for_fisher('omega_b',omega_b,.false.,.false.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 
         call run_class('omega_b',omega_b,.false.,.false.) ! COMPUTES EL FIDUCIAL NOT INCLUDING LENSING
 
-        call write_ini_file_for_fisher('omega_b',omega_b,.true.,.true.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+        call write_ini_file_for_fisher('omega_b', omega_b, .true., .true.,selection_sampling_bessel_fid,&
+             q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-        call run_class('omega_b',omega_b,.true.,.true.)   ! COMPUTE CL FIDUCIAL INCLUDING LENSING
+        call run_class('omega_b',omega_b,.true.,.true.) ! COMPUTES CL FIDUCIAL INCLUDING LENSING
 
-        call write_ini_file_for_fisher('omega_b',omega_b,.false.,.true.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+        call write_ini_file_for_fisher('omega_b', omega_b, .false., .true.,selection_sampling_bessel_fid,&
+             q_linstep_fid,k_max_tau0_over_l_max_fid)
 
         call run_class('omega_b',omega_b,.false.,.true.) ! COMPUTES CL FIDUCIAL NOT INCLUDING LENSING
 
         call write_ini_file_for_fisher('omega_b',omega_b,.true.,.false.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 
         call run_class('omega_b',omega_b,.true.,.false.) ! COMPUTES EL FIDUCIAL INCLUDING LENSING
+
+        stop
 
      End If
 
@@ -573,7 +575,7 @@ Program fisher
 
         write(UNIT_RANGES_FILE,*) 'H0   N    N '
 
-        write(UNIT_RANGES_FILE,*) 'm_ncdm    N    N '
+!        write(UNIT_RANGES_FILE,*) 'm_ncdm    N    N '
 
 !        write(UNIT_RANGES_FILE,*) 'MG_beta2    N    N ' 
 
@@ -613,7 +615,7 @@ Program fisher
 
         write(UNIT_RANGES_FILE,*) ''//trim(paramnames(5))//'    50    90 '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    6.e-1 '
+!        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    6.e-1 '
 
 !        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    10.'
 
@@ -631,7 +633,7 @@ Program fisher
 
            old_point(5) = H0
 
-           old_point(6) = m_ncdm
+!           old_point(6) = m_ncdm
 
 !           old_point(7) = MG_beta2
     
@@ -681,7 +683,7 @@ Program fisher
            
            x_old(5) = genunf(real(H0-sigma_H0),real(H0+sigma_H0))                             ! H0
 
-           x_old(6) = genunf(real(m_ncdm-sigma_m_ncdm),real(m_ncdm+sigma_m_ncdm))             ! m_ncdm
+!           x_old(6) = genunf(real(m_ncdm-sigma_m_ncdm),real(m_ncdm+sigma_m_ncdm))             ! m_ncdm
 
 !           x_old(7) = genunf(real(MG_beta2-sigma_MG_beta2),real(MG_beta2+sigma_MG_beta2))     ! MG_beta2
 
@@ -721,7 +723,7 @@ Program fisher
 
         End If
 
-        call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
+        call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),m_ncdm,&
              MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_mcmc,&
              q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
@@ -843,7 +845,7 @@ Program fisher
 
            plausibility(5) = (x_new(5) .lt. real(50.d0)).or.(x_new(5).gt.real(90.d0))
 
-           plausibility(6) = (x_new(6) .lt. real(1.d-4)) .or. (x_new(6) .gt. real(6.d-1))
+!           plausibility(6) = (x_new(6) .lt. real(1.d-4)) .or. (x_new(6) .gt. real(6.d-1))
 
 !           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .gt. real(10.d0))
 
@@ -900,7 +902,7 @@ Program fisher
            Else
 
               call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
-                   current_point(5),current_point(6),MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+                   current_point(5),m_ncdm,MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,&
                    selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
               !################################
