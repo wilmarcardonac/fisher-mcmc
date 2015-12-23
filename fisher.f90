@@ -207,8 +207,6 @@ Program fisher
 
         call run_class('omega_b',omega_b,.true.,.false.) ! COMPUTES EL FIDUCIAL INCLUDING LENSING
 
-        stop
-
      End If
 
   Else 
