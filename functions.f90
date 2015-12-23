@@ -13,7 +13,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
     logical :: Cl_flag,fid1,fid2,fid3,fiducial_flag
     character(len=*),parameter :: fmt = '(i2.2)' 
     character*16 :: string
-    Logical,parameter :: lensing_flag = .false.
+    Logical,parameter :: lensing_flag = .true. 
     Integer*4 :: index
 
     fid1 = bessel .eq. selection_sampling_bessel_fid
@@ -30,9 +30,48 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     If (lensing_flag) then
 
-        print *,'NOT LENSING IMPLEMENTED WHEN TESTING PRECISION PARAMETERS'
+        If (fiducial_flag) then
 
-        stop
+            If (Cl_flag) then
+
+                print *,'PRECISION PARAMETERS MUST BE DIFFERENT OF FIDUCIAL VALUES FOR CL'
+
+                stop
+
+            Else
+
+               print *,'ERROR FILE IS ASSUMED TO BE PRECOMPUTED'
+
+               stop
+
+!                open(10, file='./ini_files/El.ini')
+
+ !               write(10,*) 'root = ../data/El_nl_'
+
+  !              write(10,'(a25)') 'number count error = 0.10'   
+
+            End If
+
+        Else
+
+            If (Cl_flag) then
+
+                open(10, file='./ini_files/Cl_'//trim(string)//'.ini')
+
+                write(10,*) 'root = ../data/Cl_'//trim(string)//'_'
+
+            Else
+               
+                print *,'NOT ERROR FILE WITHOUT FIDUCIAL PARAMETERS'
+
+                stop
+
+            End If
+
+
+        End If
+
+        write(10,'(a59)') 'number count contributions = density, rsd, doppler, lensing'
 
     Else 
 
@@ -168,46 +207,46 @@ subroutine run_class_testing_precision(Cl_flag,index)
     character*16 :: string
     logical :: exist,Cl_flag
     character(len=*),parameter :: fmt = '(i2.2)'
-    Logical,parameter :: lensing_flag = .false.
+!    Logical,parameter :: lensing_flag = .true.
     Integer*4 :: index
     
     write(string,fmt) index
 
-    If (.not.lensing_flag) then
+!    If (.not.lensing_flag) then
 
-        If (Cl_flag) then
+    If (Cl_flag) then
 
-                inquire(file='./data/Cl_'//trim(string)//'_cl.dat',exist=exist)
+       inquire(file='./data/Cl_'//trim(string)//'_cl.dat',exist=exist)
+       
+       If (.not.exist) then
 
-                If (.not.exist) then
+          call write_sh_file('Cl_'//trim(string)//'')
 
-                    call write_sh_file('Cl_'//trim(string)//'')
+          call system('cd class_montanari-lensing ; sbatch Cl_'//trim(string)//'.sh')
 
-                    call system('cd class_montanari-lensing ; sbatch Cl_'//trim(string)//'.sh')
+       End If
 
-                End If
+    Else
 
-        Else
+       inquire(file='./data/El_nl_cl.dat',exist=exist)
 
-            inquire(file='./data/El_nl_cl.dat',exist=exist)
+       If (.not.exist) then
 
-            If (.not.exist) then
+          call write_sh_file('El_nl')
 
-                call write_sh_file('El_nl')
+          call system('cd class_montanari-lensing ; sbatch El_nl.sh')
 
-                call system('cd class_montanari-lensing ; sbatch El_nl.sh')
-
-            End If
-
-        End if
-
-    Else 
-
-        print *, 'TESTING PRECISION HAS ONLY BEEN IMPLEMENTED WITHOUT LENSING'
-
-        stop
+       End If
 
     End if
+
+!    Else 
+
+!        print *, 'TESTING PRECISION HAS ONLY BEEN IMPLEMENTED WITHOUT LENSING'
+
+!        stop
+
+!    End if
 
 end subroutine run_class_testing_precision
 
@@ -288,24 +327,24 @@ subroutine testing_precision_cl()
 
 
     ! ALLOCATING MEMORY FOR EL, FIDUCIAL CL (LENSING), FIDUCIAL CL (NOT LENSING), OBSERVED CL, SHOT NOISE, SYSTEMATIC CL
-    allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),Cl_obs(lmin:lmax,0:nbins,0:nbins),&
+    allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid(lmin:lmax,0:nbins,0:nbins),Cl_obs(lmin:lmax,0:nbins,0:nbins),&
          Nl(1:nbins,1:nbins),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
 
     If (status3 .eq. 0) then 
 
-       write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST ALLOCATED SUCCESSFULLY'
+       write(15,*) 'MEMORY FOR EL, CL_FID, CL_OBS, NL, CL_SYST ALLOCATED SUCCESSFULLY'
 
     Else 
 
-       write(15,*) 'MEMORY FOR EL, CL_FID, CL_FID_NL, CL_OBS, NL, CL_SYST WAS NOT ALLOCATED PROPERLY'
+       write(15,*) 'MEMORY FOR EL, CL_FID, CL_OBS, NL, CL_SYST WAS NOT ALLOCATED PROPERLY'
 
        stop
 
     End If
 
-    call read_data(El,10,filetype,ElCl,.false.,.true.,.false.)
+    call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
 
-    call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
+    call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
     call compute_shot_noise()
 
@@ -320,34 +359,34 @@ subroutine testing_precision_cl()
 
             qls = qls_fid + dble(index)*step_q
 
-            call read_cl(Cl_current,index,.false.)
+            call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls,kmt_fid,ssb_fid
     
         Else If ((index .gt. number_of_q) .and. (index .lt. (number_of_q+number_of_kmax) )) then
 
             kmt = kmt_fid - dble(index-number_of_q)*step_kmax
 
-            call read_cl(Cl_current,index,.false.)
+            call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls_fid,kmt,ssb_fid
     
         Else If ( (index .gt. (number_of_q+number_of_kmax)) .and. (index .le. (number_of_q+number_of_kmax+number_of_bessel) ) )then
 
             ssb = ssb_fid - dble(index-number_of_q-number_of_kmax)*step_bessel
 
-            call read_cl(Cl_current,index,.false.)
+            call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls_fid,kmt_fid,ssb
     
         End If
 
     End Do
 
-    deallocate(El,Cl_fid_nl,Cl_obs,Nl,Cl_current)
+    deallocate(El,Cl_fid,Cl_obs,Nl,Cl_current)
 
     close(16)
 
@@ -367,233 +406,133 @@ function log_Gaussian_likelihood(array)
 end function log_Gaussian_likelihood
 
 function euclid_galaxy_cl_likelihood(Cl)
-
-  use fiducial
-  use arrays
-  Implicit none
-
-  Integer*4,parameter :: L = lmax - lmin + 1
-  Integer*4 :: indexl,indexbin_i,indexbin_j,indexbin_k,indexbin_p
-  Real*8,parameter :: epsilon_min = 0.d0
-  Real*8,parameter :: epsilon_max = 1.d2
-  Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Clth,Cl,Elth
-  Real*8,dimension(1:nbins,1:nbins) :: Cov_mix,Cov_obs,Cov_the,Cov_the_El,Cov_mix_new
-  Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l
+    use fiducial
+    use arrays
+    Implicit none
+    Integer*4,parameter :: L = lmax - lmin + 1
+    Integer*4 :: indexl,indexbin_i,indexbin_j,indexbin_k,indexbin_p
+    Real*8,parameter :: epsilon_min = 0.d0
+    Real*8,parameter :: epsilon_max = 1.d2
+    Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Clth,Cl,Elth
+    Real*8,dimension(1:nbins,1:nbins) :: Cov_mix,Cov_obs,Cov_the,Cov_the_El,Cov_mix_new
+    Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l
    
-  Do indexl=lmin,lmax
-
-     Do indexbin_i=1,nbins
-
-        Do indexbin_j=1,nbins
-
-           Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/&
+    Do indexl=lmin,lmax
+        Do indexbin_i=1,nbins
+            Do indexbin_j=1,nbins
+                Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/&
                 dble(indexl)/(dble(indexl) + 1.d0) + Nl(indexbin_i,indexbin_j)
-
-           Elth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*El(indexl,indexbin_i,indexbin_j)/&
+                Elth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*El(indexl,indexbin_i,indexbin_j)/&
                 dble(indexl)/(dble(indexl) + 1.d0)*sqrt(dble(L))
-
+            End Do
         End Do
+    End Do
 
-     End Do
+    chi2 = 0.d0
 
-  End Do
+    Do indexl=lmin,lmax
 
-  chi2 = 0.d0
-
-  Do indexl=lmin,lmax
-
-     Do indexbin_i=1,nbins
-
-        Do indexbin_j=1,nbins
-
-           If (use_only_autocorrelations) then
-
-              If (indexbin_i .eq. indexbin_j) then
-
-                 Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
-
-                 Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-              Else
-
-                 Cov_obs(indexbin_i,indexbin_j) = 0.d0
-
-                 Cov_the(indexbin_i,indexbin_j) = 0.d0
-
-              End If
-
-           Else
-
-              Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
-
-              Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-           End If
-
+        Do indexbin_i=1,nbins
+            Do indexbin_j=1,nbins
+                Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
+                Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+            End Do
         End Do
-
-     End Do
         
-     det_obs = compute_determinant(Cov_obs)
-
-     det_the = compute_determinant(Cov_the)
-
-     det_mix = 0.d0
+        det_obs = compute_determinant(Cov_obs)
+        det_the = compute_determinant(Cov_the)
+        det_mix = 0.d0
         
-     If (theoreticalerror .gt. 0.d0) then 
-
-        If (use_only_autocorrelations) then
-
-           print *, 'USING ONLY AUTOCORRELATIONS WITH THEORETICAL ERROR NOT EQUAL TO ZERO NOT IMPLEMENTED YET'
-
-           stop
-
-        Else
+        If (theoreticalerror .gt. 0.d0) then 
            
-           Do  indexbin_k=1,nbins
+            Do  indexbin_k=1,nbins
 
-              Do indexbin_i=1,nbins
-
-                 Do indexbin_j=1,nbins
-
-                    Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-                 End Do
-
-              End Do
+                Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+                    End Do
+                End Do
             
-              Do indexbin_p=1,nbins
-
-                 Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-              End Do
-                
-              det_mix = compute_determinant(Cov_mix) + det_mix
-
-           End Do
-
-           ! Here function to minimize chi2 w.r.t must be called  
-
-           epsilon_l = 0.d0 ! In the meantime we disregard epsilon_l (output of function above)
-
-           !If ( (epsilon_l-epsilon_min < 1.d-5/dble(L)) .or. (epsilon_max-epsilon_l<1.d-5/dble(L)) ) then 
-           !    print *,'Minimization did not converge for ', indexl, 'having epsilon_l equal to ',epsilon_l
-           !End If
-        
-           Do indexbin_i=1,nbins
-
-              Do indexbin_j=1,nbins
-
-                 Cov_the_El(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
-                      + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
-
-              End Do
-
-           End Do
-
-           det_the_El = compute_determinant(Cov_the_El)
-
-           det_the_El_mix = 0.d0
-
-           Do  indexbin_k=1,nbins
-
-              Do indexbin_i=1,nbins
-
-                 Do indexbin_j=1,nbins
-
-                    Cov_mix_new(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
-                         + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
-
-                 End Do
-
-              End Do
-            
-              Do indexbin_p=1,nbins
-
-                 Cov_mix_new(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-              End Do
-                
-              det_the_El_mix = compute_determinant(Cov_mix_new) + det_the_El_mix
-
-           End Do
-            
-           chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the_El/det_obs) + det_the_El_mix/det_the_El &
-                - dble(nbins)) + chi2 + epsilon_l**2
-
-        End If
-
-     Else
-
-        Do  indexbin_k=1,nbins
-
-           Do indexbin_i=1,nbins
-
-              Do indexbin_j=1,nbins
-
-                 If (use_only_autocorrelations) then
-
-                    If (indexbin_i .eq. indexbin_j) then
-
-                       Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-                    Else
-
-                       Cov_mix(indexbin_i,indexbin_j) = 0.d0
-
-                    End If
-                    
-                 Else
-
-                    Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
-
-                 End If
-
-              End Do
-
-           End Do
-            
-           Do indexbin_p=1,nbins
-
-              If (use_only_autocorrelations) then
-
-                 If (indexbin_p .eq. indexbin_k) then
-
+                Do indexbin_p=1,nbins
                     Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-                 Else
-
-                    Cov_mix(indexbin_p,indexbin_k) = 0.d0
-
-                 End If
-
-              Else
-
-                 Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
-
-              End If
-
-           End Do
+                End Do
                 
-           det_mix = compute_determinant(Cov_mix) + det_mix
+                det_mix = compute_determinant(Cov_mix) + det_mix
 
-        End Do
+            End Do
 
-        chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the/det_obs) + det_mix/det_the - dble(nbins)) + chi2
+            ! Here function to minimize chi2 w.r.t must be called  
 
-     End if
+            epsilon_l = 0.d0 ! In the meantime we disregard epsilon_l (output of function above)
 
-  End Do
+            !If ( (epsilon_l-epsilon_min < 1.d-5/dble(L)) .or. (epsilon_max-epsilon_l<1.d-5/dble(L)) ) then 
+            !    print *,'Minimization did not converge for ', indexl, 'having epsilon_l equal to ',epsilon_l
+            !End If
+ 
+            Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_the_El(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
+                        + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
+                    End Do
+            End Do
+
+            det_the_El = compute_determinant(Cov_the_El)
+
+            det_the_El_mix = 0.d0
+
+            Do  indexbin_k=1,nbins
+
+                Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_mix_new(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)&
+                        + epsilon_l*Elth(indexl,indexbin_i,indexbin_j)
+                    End Do
+                End Do
+            
+                Do indexbin_p=1,nbins
+                    Cov_mix_new(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
+                End Do
+                
+                det_the_El_mix = compute_determinant(Cov_mix_new) + det_the_El_mix
+
+            End Do
+            
+            chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the_El/det_obs) + det_the_El_mix/det_the_El &
+            - dble(nbins)) + chi2 + epsilon_l**2
+
+        else
+
+            Do  indexbin_k=1,nbins
+
+                Do indexbin_i=1,nbins
+                    Do indexbin_j=1,nbins
+                        Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+                    End Do
+                End Do
+            
+                Do indexbin_p=1,nbins
+                    Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
+                End Do
+                
+                det_mix = compute_determinant(Cov_mix) + det_mix
+
+            End Do
+
+            chi2 = fsky*(2.d0*dble(indexl)+1.d0)*(log(det_the/det_obs) + det_mix/det_the - dble(nbins)) + chi2
+
+        end if
+    End Do
     
-  If (abs(chi2).ge.0.d0) then
+    If (abs(chi2).ge.0.d0) then
 
-     euclid_galaxy_cl_likelihood = -chi2/2.d0   
+        euclid_galaxy_cl_likelihood = -chi2/2.d0   
 
-  Else
+    Else
 
-     euclid_galaxy_cl_likelihood = -1.d10     
+        euclid_galaxy_cl_likelihood = -1.d10     
    
-  End If
+    End If
+
 
 end function euclid_galaxy_cl_likelihood
 
@@ -642,13 +581,13 @@ subroutine compute_ratio_likelihood()
     fiducial_point(3) = n_s
     fiducial_point(4) = log(1.d1**1.d1*A_s)
     fiducial_point(5) = H0
-    fiducial_point(6) = m_ncdm
+!    fiducial_point(6) = m_ncdm
 !    fiducial_point(7) = MG_beta2
 
     open(16,file='./output/ratio_likelihood_values.dat')
-    write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm    MG_beta2 '
+    write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0 '!   m_ncdm    MG_beta2 '
     write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl),omega_b,omega_cdm,n_s,A_s,&
-    H0,m_ncdm,MG_beta2
+    H0!,m_ncdm,MG_beta2
 
     Do p=1,2
 
@@ -677,7 +616,7 @@ subroutine compute_ratio_likelihood()
         End If
 
         call write_ini_file(point_parameter_space(1),point_parameter_space(2),point_parameter_space(3),&
-        point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),point_parameter_space(7),&
+        point_parameter_space(4),point_parameter_space(5),m_ncdm,MG_beta2,&
         tau,N_ur,N_ncdm,deg_ncdm,lensing_flag,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
         inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
@@ -718,9 +657,9 @@ subroutine compute_ratio_likelihood()
 
         End if
 
-        write(16,*) -loglikelihood,point_parameter_space(1),point_parameter_space(2),&
-        point_parameter_space(3),point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),&
-        point_parameter_space(7)
+        write(16,*) -loglikelihood,point_parameter_space(1:number_of_parameters)!,point_parameter_space(2),&
+!        point_parameter_space(3),point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),&
+ !       point_parameter_space(7)
 
     End Do
 
@@ -753,7 +692,7 @@ subroutine compute_observed_Cl()
         Do p=1,nbins
             Do i=1,nbins
                If (testing_precision) then
-                  Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid_nl(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
+                  Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
                Else
                   Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
                End If
@@ -1173,9 +1112,9 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
-       !fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
+       fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
 
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
      
        call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
@@ -1311,15 +1250,15 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       !If (parameter_name .ne. param_name_MG_beta2) then
+       If (parameter_name .ne. param_name_MG_beta2) then
 
-       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', bestfit(7)
 
-       !Else
+       Else
 
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
  
-       !End If
+       End If
 
     Else
 
@@ -1335,9 +1274,9 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fid6 = parameter_value .eq. m_ncdm
 
-       !fid7 = parameter_value .eq. MG_beta2
+       fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
      
        call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
@@ -1379,35 +1318,21 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        Else 
 
-          If (Cl_flag) then
+          If (fiducial_flag) then
 
-             If (fiducial_flag) then
-
-                open(10, file='./ini_files/Cl_fiducial_no_lensing.ini')
-
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
-
-                write(10,*) 'root = ../data/Cl_fiducial_no_lensing_'
-
-             Else
-
-                open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
-
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
-
-                write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
-
-             End If
-
-          Else
-
-             open(10, file='./ini_files/El_nl.ini')
+             open(10, file='./ini_files/Cl_fiducial_no_lensing.ini')
 
              write(10,'(a50)') 'number count contributions = density, rsd, doppler'
 
-             write(10,*) 'root = ../data/El_nl_'
+             write(10,*) 'root = ../data/Cl_fiducial_no_lensing_'
 
-             write(10,'(a25)') 'number count error = 0.10'
+          Else
+
+             open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
+
+             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+
+             write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
 
           End If
 
@@ -1465,15 +1390,15 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       !If (parameter_name .ne. param_name_MG_beta2) then
+       If (parameter_name .ne. param_name_MG_beta2) then
 
-       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
 
-       !Else
+       Else
 
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
  
-!       End If
+       End If
 
        If (parameter_name .ne. param_name_m_ncdm) then
 
@@ -2090,9 +2015,9 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        fid6 = parameter_value .eq. m_ncdm
 
-       !fid7 = parameter_value .eq. MG_beta2
+       fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
      
        write(string_par_value,fmt) parameter_value
 
@@ -2143,44 +2068,28 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        Else 
 
-          If (Cl_flag) then
+          If (fiducial_flag) then
 
-             If (fiducial_flag) then
+             inquire(file='./data/Cl_fiducial_no_lensing_cl.dat',exist=exist)
 
-                inquire(file='./data/Cl_fiducial_no_lensing_cl.dat',exist=exist)
+             If (.not.exist) then
 
-                If (.not.exist) then
+                call write_sh_file('Cl_fiducial_no_lensing')
 
-                   call write_sh_file('Cl_fiducial_no_lensing')
-
-                   call system('cd class_montanari-lensing ; sbatch Cl_fiducial_no_lensing.sh')
-
-                End If
-
-             Else
-
-                inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_cl.dat',exist=exist)
-
-                If (.not.exist) then
-
-                   call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
-
-                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-                        '_no_lensing.sh')
-
-                End If
+                call system('cd class_montanari-lensing ; sbatch Cl_fiducial_no_lensing.sh')
 
              End If
 
           Else
 
-             inquire(file='./data/El_nl_cl.dat',exist=exist)
+             inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_cl.dat',exist=exist)
 
              If (.not.exist) then
 
-                call write_sh_file('El_nl')
+                call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
 
-                call system('cd class_montanari-lensing ; sbatch El_nl.sh')
+                call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+                     '_no_lensing.sh')
 
              End If
 
@@ -2865,7 +2774,7 @@ subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag
     Integer*4 :: m,n,i
     Real*8,dimension(int((zmax - zmin)/dz)) :: z_array
     Real*8,dimension(int(nbins+1)) :: z_bin_edges
-    Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
+    Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
     Real*8,parameter :: s_0 = 0.1194d0
     Real*8,parameter :: s_1 = 0.2122d0
     Real*8,parameter :: s_2 = -0.0671d0
