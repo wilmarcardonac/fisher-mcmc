@@ -62,7 +62,7 @@ Program fisher
 
         job_number = m + 20
 
-        write(string,'(i2.2)') m 
+        write(string,'(i1.1)') m 
 
         inquire(file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt',exist=exe_file) 
 
@@ -187,9 +187,25 @@ Program fisher
         write(job_number,*) 'SUBMITTING JOBS TO COMPUTE DATA FOR FIDUCIAL MODEL (CL AND EL) IF NEEDED'
         write(job_number,*) 'IF NEW DATA WANTED, REMOVE CORRESPONDING FILES BEFORE RUNNING THE CODE'
 
-        call run_class('omega_b',omega_b,.true.,.true.)
+        call write_ini_file_for_fisher('omega_b',omega_b,.false.,.false.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-        call run_class('omega_b',omega_b,.true.,.false.)
+        call run_class('omega_b',omega_b,.false.,.false.) ! COMPUTES EL FIDUCIAL NOT INCLUDING LENSING
+
+        call write_ini_file_for_fisher('omega_b',omega_b,.true.,.true.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+        call run_class('omega_b',omega_b,.true.,.true.)   ! COMPUTE CL FIDUCIAL INCLUDING LENSING
+
+        call write_ini_file_for_fisher('omega_b',omega_b,.false.,.true.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+        call run_class('omega_b',omega_b,.false.,.true.) ! COMPUTES CL FIDUCIAL NOT INCLUDING LENSING
+
+        call write_ini_file_for_fisher('omega_b',omega_b,.true.,.false.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+        call run_class('omega_b',omega_b,.true.,.false.) ! COMPUTES EL FIDUCIAL INCLUDING LENSING
 
      End If
 

@@ -1,5 +1,0 @@
- FISHER matrix analysis has started 
- Using existing data for Fisher matrix analysis 
- Reading data of fiducial model with/without lensing and error data 
- -ln(L/L_{max}) at the fiducial point without lensing is    3651.1185182623672     
- -ln(L/L_{max}) at the fiducial point with lensing is    36.727571672367610     

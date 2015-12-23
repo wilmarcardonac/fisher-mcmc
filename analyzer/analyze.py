@@ -1,4 +1,5 @@
 from getdist import loadMCSamples,plots,covmat
+import numpy as np
 
 number_of_parameters = 6
 
@@ -13,6 +14,10 @@ g.triangle_plot(samples,filled=True)
 g.export('../output/chains/triangle_figure.pdf')
 
 print 'TRIANGLE PLOT CREATED'
+
+p = samples.getParams()
+
+samples.addDerived(np.log(1.e1**10*p.A_s),name='ln1010As',label='\ln 10^{10}A_s')
 
 bestfit = samples.getLikeStats()
 
@@ -52,7 +57,7 @@ f.export('../output/chains/1D_plots.pdf')
 
 print '1D PLOTS CREATED'
 
-covariance_matrix = samples.getCov(nparam=number_of_parameters)
+covariance_matrix = samples.getCov(pars=[0,1,2,6,4,5])#nparam=number_of_parameters)
 
 covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
 
