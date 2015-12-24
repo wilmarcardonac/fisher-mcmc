@@ -111,7 +111,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
  
     write(10,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a17)') 'dNdz_evolution = '
+    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
 
     write(10,'(a20)') 'selection = gaussian'
 
@@ -141,7 +141,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     write(10,'(a8,i1)') 'l_min = ', lmin
 
-    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
     write(10,'(a14)') 'format = class'
 
@@ -1403,7 +1403,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
  
     write(10,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a17)') 'dNdz_evolution = '
+    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
 
     write(10,'(a20)') 'selection = gaussian'
 
@@ -1433,7 +1433,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     write(10,'(a8,i1)') 'l_min = ', lmin
 
-    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
     write(10,'(a14)') 'format = class'
 
@@ -1522,7 +1522,7 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
  
     write(10,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a17)') 'dNdz_evolution = '
+    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
 
     write(10,'(a20)') 'selection = gaussian'
 
@@ -1552,7 +1552,7 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 
     write(10,'(a8,i1)') 'l_min = ', lmin
 
-    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
     write(10,'(a14)') 'format = class'
 
@@ -1640,7 +1640,7 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
  
     write(10,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a17)') 'dNdz_evolution = '
+    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
 
     write(10,'(a20)') 'selection = gaussian'
 
@@ -1670,7 +1670,7 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     write(10,'(a8,i1)') 'l_min = ', lmin
 
-    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
     write(10,'(a14)') 'format = class'
 
