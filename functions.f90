@@ -1093,7 +1093,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
     Implicit none
     Real*8:: parameter_value,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
-    logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fid7,fiducial_flag,bestfit_flag
+    logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fiducial_flag,bestfit_flag
     character(len=*) :: parameter_name
     character(len=*),parameter :: fmt = '(es16.10)' 
     character*16 :: string_par_value
@@ -1110,11 +1110,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fid5 = parameter_value .eq. bestfit(5) ! H0
 
-       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
+!       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
-       fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
+ !      fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
 
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5 !.or. fid6) .or. fid7)
      
        call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
@@ -1240,25 +1240,25 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       If (parameter_name .ne. param_name_m_ncdm) then
+!       If (parameter_name .ne. param_name_m_ncdm) then
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', bestfit(6)
+  !        write(10,'(a9, es16.10)') 'm_ncdm = ', bestfit(6)
 
-       Else
+ !      Else
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+       write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm !parameter_value
 
-       End If
+   !    End If
 
-       If (parameter_name .ne. param_name_MG_beta2) then
+   !    If (parameter_name .ne. param_name_MG_beta2) then
 
-          write(10,'(a11, es16.10)') 'MG_beta2 = ', bestfit(7)
+  !        write(10,'(a11, es16.10)') 'MG_beta2 = ', bestfit(7)
 
-       Else
+ !      Else
 
-          write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !parameter_value
  
-       End If
+!       End If
 
     Else
 
@@ -1272,11 +1272,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fid5 = parameter_value .eq. H0
 
-       fid6 = parameter_value .eq. m_ncdm
+!       fid6 = parameter_value .eq. m_ncdm
 
-       fid7 = parameter_value .eq. MG_beta2
+ !      fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5 !.or. fid6) .or. fid7)
      
        call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
@@ -1390,25 +1390,25 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       If (parameter_name .ne. param_name_MG_beta2) then
+!       If (parameter_name .ne. param_name_MG_beta2) then
 
-          write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
+       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
 
-       Else
+ !      Else
 
-          write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+  !        write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
  
-       End If
+   !    End If
 
-       If (parameter_name .ne. param_name_m_ncdm) then
+!       If (parameter_name .ne. param_name_m_ncdm) then
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+       write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
 
-       Else
+ !      Else
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+  !        write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
 
-       End If
+   !    End If
 
     End If
     
@@ -1886,7 +1886,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     Real*8 ::parameter_value
     character(len=*) :: parameter_name
     character*16 :: string_par_value
-    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag,fid7
+    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fiducial_flag,bestfit_flag
     character(len=*),parameter :: fmt = '(es16.10)'
 
     If (fisher_analysis_at_bestfit) then
@@ -1901,11 +1901,11 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        fid5 = parameter_value .eq. bestfit(5) ! H0
 
-       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
+!       fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
        !fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
 
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)! .or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5 !.or. fid6)! .or. fid7)
      
        write(string_par_value,fmt) parameter_value
 
@@ -2013,11 +2013,11 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        fid5 = parameter_value .eq. H0
 
-       fid6 = parameter_value .eq. m_ncdm
+!       fid6 = parameter_value .eq. m_ncdm
 
-       fid7 = parameter_value .eq. MG_beta2
+ !      fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6) .or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. fid5 !.or. fid6) .or. fid7)
      
        write(string_par_value,fmt) parameter_value
 

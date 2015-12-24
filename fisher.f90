@@ -34,7 +34,7 @@ Program fisher
   Integer*4                              :: seed1,seed2 ! SEEDS NEEDED BY RANDOM NUMBER GENERATOR
   Integer*4                              :: number_accepted_points,number_rejected_points ! COUNT POINTS IN PARAMETER SPACE
   Integer*4                              :: weight    ! COUNTS NUMBER OF TAKEN STEPS BEFORE MOVING TO A NEW POINT
-  Integer*4                              :: job_number ! JOB IDENTIFIER WHEN RUNNING MULTIPLE CHAINS
+  Integer*4                              :: job_number,number_rnd ! JOB IDENTIFIER WHEN RUNNING MULTIPLE CHAINS
 
   Real*8                                 :: old_loglikelihood,current_loglikelihood      ! STORE LIKELIHOOD VALUES
   Real*4                                 :: genunf                                ! RANDOM UNIFORM DEVIATES
@@ -80,9 +80,13 @@ Program fisher
 
      End Do
 
+     number_rnd = job_number - 20
+
   Else
 
      job_number = 21
+
+     number_rnd = job_number
 
      write(string,'(i2.2)') job_number 
 
@@ -102,7 +106,7 @@ Program fisher
 
      call initialize() ! INITIALIZE RANDOM NUMBER GENERATORS 
      
-     call setcgn(job_number-20)
+     call setcgn(number_rnd)
 
      call phrtsd(phrase,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
 
@@ -187,9 +191,25 @@ Program fisher
         write(job_number,*) 'SUBMITTING JOBS TO COMPUTE DATA FOR FIDUCIAL MODEL (CL AND EL) IF NEEDED'
         write(job_number,*) 'IF NEW DATA WANTED, REMOVE CORRESPONDING FILES BEFORE RUNNING THE CODE'
 
-        call run_class('omega_b',omega_b,.true.,.true.)
+        call write_ini_file_for_fisher('omega_b',omega_b,.false.,.false.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 
-        call run_class('omega_b',omega_b,.true.,.false.)
+        call run_class('omega_b',omega_b,.false.,.false.) ! COMPUTES EL FIDUCIAL NOT INCLUDING LENSING
+
+        call write_ini_file_for_fisher('omega_b', omega_b, .true., .true.,selection_sampling_bessel_fid,&
+             q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+        call run_class('omega_b',omega_b,.true.,.true.) ! COMPUTES CL FIDUCIAL INCLUDING LENSING
+
+        call write_ini_file_for_fisher('omega_b', omega_b, .false., .true.,selection_sampling_bessel_fid,&
+             q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+        call run_class('omega_b',omega_b,.false.,.true.) ! COMPUTES CL FIDUCIAL NOT INCLUDING LENSING
+
+        call write_ini_file_for_fisher('omega_b',omega_b,.true.,.false.,&
+                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
+
+        call run_class('omega_b',omega_b,.true.,.false.) ! COMPUTES EL FIDUCIAL INCLUDING LENSING
 
      End If
 
