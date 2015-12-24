@@ -9,7 +9,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
     Implicit none
 
     Real*8:: bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: Cl_flag,fid1,fid2,fid3,fiducial_flag
     character(len=*),parameter :: fmt = '(i2.2)' 
     character*16 :: string
@@ -24,7 +24,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     fiducial_flag = (fid1 .and. fid2) .and. fid3 
      
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
     write(string,fmt) index
 
@@ -125,10 +125,6 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-!    z_bin_bias(9),',',z_bin_bias(10)
-
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
@@ -646,9 +642,9 @@ subroutine compute_ratio_likelihood()
 !    fiducial_point(7) = MG_beta2
 
     open(16,file='./output/ratio_likelihood_values.dat')
-    write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm '
+    write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm    MG_beta2 '
     write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl),omega_b,omega_cdm,n_s,A_s,&
-    H0,m_ncdm
+    H0,m_ncdm,MG_beta2
 
     Do p=1,2
 
@@ -677,7 +673,7 @@ subroutine compute_ratio_likelihood()
         End If
 
         call write_ini_file(point_parameter_space(1),point_parameter_space(2),point_parameter_space(3),&
-        point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),MG_beta2,&
+        point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),point_parameter_space(7),&
         tau,N_ur,N_ncdm,deg_ncdm,lensing_flag,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
         inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
@@ -718,9 +714,9 @@ subroutine compute_ratio_likelihood()
 
         End if
 
-        write(16,*) -loglikelihood,point_parameter_space(1:number_of_parameters)!,point_parameter_space(2),&
-!        point_parameter_space(3),point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),&
- !       point_parameter_space(7)
+        write(16,*) -loglikelihood,point_parameter_space(1),point_parameter_space(2),&
+        point_parameter_space(3),point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),&
+        point_parameter_space(7)
 
     End Do
 
@@ -944,18 +940,18 @@ end function i_j_from_I_oa
 subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
                               param_m_ncdm, param_tau_reio, param_N_ur, param_N_ncdm, param_deg_ncdm, &
                               param_MG_beta2,Cl_El_flag, len_flag,z_bin_centers,z_bin_widths,z_bin_bias,&
-                              s_z_mag_bias,bessel,q,kmaxtau0)
+                              bessel,q,kmaxtau0)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: f1,f2,f3,f4,f5,f6,f7,fiducial_model,len_flag,Cl_El_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
     character*16 :: string_MG_beta2
     
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
     fmt = '(es16.10)' 
     write(string_omega_b,fmt) param_omega_b
@@ -1114,10 +1110,6 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-!    z_bin_bias(9),',',z_bin_bias(10)
-
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
     write(10,'(a13)') 'headers = yes'
@@ -1153,7 +1145,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
     use arrays
     Implicit none
     Real*8:: parameter_value,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag
     character(len=*) :: parameter_name
     character(len=*),parameter :: fmt = '(es16.10)' 
@@ -1175,9 +1167,9 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        !fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
 
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6)) ! .or. fid7)
      
-       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
+       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
        write(string_par_value,fmt) parameter_value
 
@@ -1187,63 +1179,65 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              If (bestfit_flag) then
 
-                open(10, file='./ini_files/Cl_bestfit_lensing.ini')
+                open(10, file='./ini_files/Bl_bestfit_lensing.ini')
 
                 write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-                write(10,*) 'root = ../data/Cl_bestfit_lensing_'
+                write(10,*) 'root = ../data/Bl_bestfit_lensing_'
 
              Else 
 
-                print *, 'INI FILE FOR BESTFIT WITH LENSING NOT IMPLEMENTED YET'
+                open(10, file='./ini_files/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
-                stop
+                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-!                open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
-
-!                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
-
-!                write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
+                write(10,*) 'root = ../data/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
              End If
 
           Else
 
-             print *, 'NO INI FILE FOR ERROR WITH LENSING AT BEST FIT IMPLEMENTED'
+             open(10, file='./ini_files/Bl.ini')
 
-             stop
+             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-!             open(10, file='./ini_files/El.ini')
+             write(10,*) 'root = ../data/Bl_'
 
-!             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
-
-!             write(10,*) 'root = ../data/El_'
-
-!             write(10,'(a25)') 'number count error = 0.10'
+             write(10,'(a25)') 'number count error = 0.10'
 
           End if
 
        Else 
 
-          If (bestfit_flag) then
+          If (Cl_flag) then
 
-             open(10, file='./ini_files/Cl_bestfit_no_lensing.ini')
+             If (bestfit_flag) then
 
-             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                open(10, file='./ini_files/Bl_bestfit_no_lensing.ini')
 
-             write(10,*) 'root = ../data/Cl_bestfit_no_lensing_'
+                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+
+                write(10,*) 'root = ../data/Bl_bestfit_no_lensing_'
+
+             Else
+
+                open(10, file='./ini_files/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
+
+                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+
+                write(10,*) 'root = ../data/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
+
+             End If
 
           Else
 
-             print *, 'MUST IMPLEMENT INI FILE AROUND BEST FIT'
+             open(10, file='./ini_files/Bl_nl.ini')
 
-             stop
+             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
 
-!             open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
+             write(10,*) 'root = ../data/Bl_nl_'
 
-!             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
-
-!             write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
+             write(10,'(a25)') 'number count error = 0.10'
 
           End If
 
@@ -1311,15 +1305,15 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       !If (parameter_name .ne. param_name_MG_beta2) then
+       If (parameter_name .ne. param_name_MG_beta2) then
 
-       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
 
-       !Else
+       Else
 
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 ! parameter_value
  
-       !End If
+       End If
 
     Else
 
@@ -1337,9 +1331,9 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        !fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6)) !.or. fid7)
      
-       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
+       call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
        write(string_par_value,fmt) parameter_value
 
@@ -1465,15 +1459,15 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       !If (parameter_name .ne. param_name_MG_beta2) then
+       If (parameter_name .ne. param_name_MG_beta2) then
 
-       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
 
-       !Else
+       Else
 
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+          write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !parameter_value
  
-!       End If
+       End If
 
        If (parameter_name .ne. param_name_m_ncdm) then
 
@@ -1519,10 +1513,6 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-!    z_bin_bias(9),',',z_bin_bias(10)
-
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
     write(10,'(a13)') 'headers = yes'
@@ -1561,13 +1551,13 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
     character*16 :: string_MG_beta2
     Character(len=10) :: job
         
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
     fmt = '(es16.10)' 
     write(string_omega_b,fmt) param_omega_b
@@ -1638,10 +1628,6 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
   !  z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-!    z_bin_bias(9),',',z_bin_bias(10)
-
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
     write(10,'(a13)') 'headers = yes'
@@ -1680,12 +1666,12 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
-    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
+    Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
     character*16 :: string_MG_beta2
         
-    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
+    call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
 
     fmt = '(es16.10)' 
     write(string_omega_b,fmt) param_omega_b
@@ -1756,10 +1742,6 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
     z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
   !  z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
-!    z_bin_bias(9),',',z_bin_bias(10)
-
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
 
     write(10,'(a13)') 'headers = yes'
@@ -1791,101 +1773,199 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 end subroutine write_ini_file
 
 subroutine fill_parameters_array(p)
-    use arrays
-    use fiducial
-    Implicit none
-    Integer*4 p,m,index
-    logical :: lensing_flag
 
-    ! Fill array of cosmological parameters to be used for first step of Fisher analysis (Derivatives) 
+  use arrays
+  use fiducial
+  Implicit none
 
-    Do m=-p,p    
-        param_omega_b(m+p) = omega_b + m*sigma_omega_b   
-        param_omega_cdm(m+p) = omega_cdm + m*sigma_omega_cdm
-        param_n_s(m+p) = n_s + m*sigma_n_s
-        param_A_s(m+p) = A_s + m*sigma_A_s
-        param_H0(m+p) = H0 + m*sigma_H0
-        param_m_ncdm(m+p) = m_ncdm + m*sigma_m_ncdm
-        !param_MG_beta2(m+p) = MG_beta2 + m*sigma_MG_beta2
-    End Do
+  Integer*4 p,m,index
+  logical :: lensing_flag
 
-    If (compute_data_fisher_analysis) then
-        ! Write ini files for Cl's with/without lensing
+  If (compute_data_fisher_analysis) then
 
-       If (fisher_analysis_at_bestfit) then
+     If (fisher_analysis_at_bestfit) then
 
-          call read_bestfit_mcmc(bestfit)
+        call read_bestfit_mcmc(bestfit)
 
-          Do m=-p,p    
+        Do m=-p,p    
 
-             param_omega_b(m+p) = bestfit(1) + m*sigma_omega_b   
+           param_omega_b(m+p) = bestfit(1) + m*sigma_omega_b   
 
-             param_omega_cdm(m+p) = bestfit(2) + m*sigma_omega_cdm
+           param_omega_cdm(m+p) = bestfit(2) + m*sigma_omega_cdm
 
-             param_n_s(m+p) = bestfit(3) + m*sigma_n_s
+           param_n_s(m+p) = bestfit(3) + m*sigma_n_s
 
-             param_A_s(m+p) = bestfit(4) + m*sigma_A_s
+           param_A_s(m+p) = bestfit(4) + m*sigma_A_s
 
-             param_H0(m+p) = bestfit(5) + m*sigma_H0
+           param_H0(m+p) = bestfit(5) + m*sigma_H0
 
-             param_m_ncdm(m+p) = bestfit(6) + m*sigma_m_ncdm
+           param_m_ncdm(m+p) = bestfit(6) + m*sigma_m_ncdm
+           
+           !param_MG_beta2(m+p) = bestfit(7) + m*sigma_MG_beta2
 
-         !    param_MG_beta2(m+p) = bestfit(7) + m*sigma_MG_beta2
+        End Do
 
-          End Do
+        Do index=1,2
 
-          call write_ini_file_for_fisher('omega_b',bestfit(1),.false.,.true.,&
-               selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
+           If (index .eq. 1) then
 
-       Else
+              lensing_flag = .true.     
 
-          Do index=1,2
+           Else
 
-             If (index .eq. 1) then
+              lensing_flag = .false.     
 
-                lensing_flag = .true.     
+           End If
 
-             Else
+           Do m=0,2*p
 
-                lensing_flag = .false.     
+              call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 
-             End If
+              call write_ini_file_for_fisher('omega_cdm',param_omega_cdm(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-             Do m=0,2*p
+              call write_ini_file_for_fisher('n_s',param_n_s(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.,&
-                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
+              call write_ini_file_for_fisher('A_s',param_A_s(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('omega_cdm',param_omega_cdm(m),lensing_flag,.true.,&
-                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+              call write_ini_file_for_fisher('H0',param_H0(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('n_s',param_n_s(m),lensing_flag,.true.,&
-                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+              call write_ini_file_for_fisher('m_ncdm',param_m_ncdm(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('A_s',param_A_s(m),lensing_flag,.true.,&
-                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+              !call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.,&
+              !     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-                call write_ini_file_for_fisher('H0',param_H0(m),lensing_flag,.true.,&
-                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+           End Do
 
-                call write_ini_file_for_fisher('m_ncdm',param_m_ncdm(m),lensing_flag,.true.,&
-                     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+        End Do
 
-           !     call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.,&
-            !         selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+        call write_ini_file_for_fisher('omega_b',bestfit(1),.false.,.false.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 
-             End Do
+        call write_ini_file_for_fisher('omega_b',bestfit(1),.true.,.false.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
 
-          End Do
+     Else
 
-          ! Write ini file for error file including lensing and only for fiducial model
+        Do m=-p,p
+    
+           param_omega_b(m+p) = omega_b + m*sigma_omega_b   
 
-          call write_ini_file_for_fisher('H0',H0,.true.,.false.,&
-               selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+           param_omega_cdm(m+p) = omega_cdm + m*sigma_omega_cdm
+     
+           param_n_s(m+p) = n_s + m*sigma_n_s
+     
+           param_A_s(m+p) = A_s + m*sigma_A_s
+     
+           param_H0(m+p) = H0 + m*sigma_H0
+     
+           param_m_ncdm(m+p) = m_ncdm + m*sigma_m_ncdm
+     
+           !param_MG_beta2(m+p) = MG_beta2 + m*sigma_MG_beta2
+    
+        End Do
 
-       End If
+        Do index=1,2
 
-    End If
+           If (index .eq. 1) then
+
+              lensing_flag = .true.     
+
+           Else
+
+              lensing_flag = .false.     
+
+           End If
+
+           Do m=0,2*p
+
+              call write_ini_file_for_fisher('omega_b',param_omega_b(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)    
+
+              call write_ini_file_for_fisher('omega_cdm',param_omega_cdm(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+              call write_ini_file_for_fisher('n_s',param_n_s(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+              call write_ini_file_for_fisher('A_s',param_A_s(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+              call write_ini_file_for_fisher('H0',param_H0(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+              call write_ini_file_for_fisher('m_ncdm',param_m_ncdm(m),lensing_flag,.true.,&
+                   selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+              !call write_ini_file_for_fisher('MG_beta2',param_MG_beta2(m),lensing_flag,.true.,&
+              !     selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+           End Do
+
+        End Do
+
+        ! Write ini file for error file including lensing and only for fiducial model
+
+        call write_ini_file_for_fisher('m_ncdm',m_ncdm,.true.,.false.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+        call write_ini_file_for_fisher('m_ncdm',m_ncdm,.false.,.false.,&
+             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+     End If
+
+  Else
+
+     If (fisher_analysis_at_bestfit) then
+
+        call read_bestfit_mcmc(bestfit)
+
+        Do m=-p,p    
+
+           param_omega_b(m+p) = bestfit(1) + m*sigma_omega_b   
+
+           param_omega_cdm(m+p) = bestfit(2) + m*sigma_omega_cdm
+
+           param_n_s(m+p) = bestfit(3) + m*sigma_n_s
+
+           param_A_s(m+p) = bestfit(4) + m*sigma_A_s
+
+           param_H0(m+p) = bestfit(5) + m*sigma_H0
+
+           param_m_ncdm(m+p) = bestfit(6) + m*sigma_m_ncdm
+           
+           !param_MG_beta2(m+p) = bestfit(7) + m*sigma_MG_beta2
+
+        End Do
+
+     Else
+
+        Do m=-p,p
+    
+           param_omega_b(m+p) = omega_b + m*sigma_omega_b   
+
+           param_omega_cdm(m+p) = omega_cdm + m*sigma_omega_cdm
+     
+           param_n_s(m+p) = n_s + m*sigma_n_s
+     
+           param_A_s(m+p) = A_s + m*sigma_A_s
+     
+           param_H0(m+p) = H0 + m*sigma_H0
+     
+           param_m_ncdm(m+p) = m_ncdm + m*sigma_m_ncdm
+     
+           !param_MG_beta2(m+p) = MG_beta2 + m*sigma_MG_beta2
+    
+        End Do
+
+     End If
+
+  End If
 
 end subroutine fill_parameters_array
 
@@ -1922,13 +2002,13 @@ subroutine compute_data_for_fisher_analysis(p)
 
             call run_class('m_ncdm',param_m_ncdm(m),lensing_flag,.true.)
 
-            !call run_class('MG_beta2',param_MG_beta2(m),lensing_flag,.true.)
+            call run_class('MG_beta2',param_MG_beta2(m),lensing_flag,.true.)
 
         End Do
 
     End Do
 
-    call run_class('H0',H0,.true.,.false.)
+    call run_class('MG_beta2',MG_beta2,.true.,.false.)
 
 end subroutine compute_data_for_fisher_analysis
 
@@ -1961,7 +2041,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     Real*8 ::parameter_value
     character(len=*) :: parameter_name
     character*16 :: string_par_value
-    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag!,fid7
+    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag
     character(len=*),parameter :: fmt = '(es16.10)'
 
     If (fisher_analysis_at_bestfit) then
@@ -1980,7 +2060,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        !fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
 
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)! .or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6))! .or. fid7)
      
        write(string_par_value,fmt) parameter_value
 
@@ -1990,87 +2070,87 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
              If (bestfit_flag) then
  
-                !inquire(file='./data/Cl_bestfit_lensing_cl.dat',exist=exist)
+                inquire(file='./data/Bl_bestfit_lensing_cl.dat',exist=exist)
 
-                !If (.not.exist) then
+                If (.not.exist) then
 
-                !   call write_sh_file('Cl_bestfit_lensing')
+                   call write_sh_file('Bl_bestfit_lensing')
 
-                !   call system('cd class_montanari-lensing ; sbatch Cl_bestfit_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch Bl_bestfit_lensing.sh')
 
-                !End If
-
-                print *,'CLS NOT COMPUTED FOR BESTFIT+LENSING FOR THE MOMENT'
-
-                continue 
+                End If
 
              Else 
 
-                print *,'FISHER AROUND BEST FIT NOT IMPLEMENTED YET'
+                inquire(file='./data/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_cl.dat',exist=exist)
 
-                continue
+                If (.not.exist) then
 
-!                inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_cl.dat',exist=exist)
+                   call write_sh_file('Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
 
-!                If (.not.exist) then
+                   call system('cd class_montanari-lensing ; sbatch Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+                        '_lensing.sh')
 
-!                   call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
-
-!                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-!                        '_lensing.sh')
-
-!                End If
+                End If
 
              End If
 
           Else
 
-             print *, 'ERROR FILE AT BEST FIT NOT IMPLEMENTED YET'
+             inquire(file='./data/Bl_cl.dat',exist=exist)
 
-             continue
+             If (.not.exist) then
 
-!             inquire(file='./data/El_cl.dat',exist=exist)
+                call write_sh_file('Bl')
 
-!             If (.not.exist) then
+                call system('cd class_montanari-lensing ; sbatch Bl.sh')
 
-!                call write_sh_file('El')
-
-!                call system('cd class_montanari-lensing ; sbatch El.sh')
-
-!             End If
+             End If
 
           End if
 
        Else 
 
-          If (bestfit_flag) then
+          If (Cl_flag) then
 
-             inquire(file='./data/Cl_bestfit_no_lensing_cl.dat',exist=exist)
+             If (bestfit_flag) then
 
-             If (.not.exist) then
+                inquire(file='./data/Bl_bestfit_no_lensing_cl.dat',exist=exist)
 
-                call write_sh_file('Cl_bestfit_no_lensing')
+                If (.not.exist) then
 
-                call system('cd class_montanari-lensing ; sbatch Cl_bestfit_no_lensing.sh')
+                   call write_sh_file('Bl_bestfit_no_lensing')
+
+                   call system('cd class_montanari-lensing ; sbatch Bl_bestfit_no_lensing.sh')
+
+                End If
+
+             Else
+
+                inquire(file='./data/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_cl.dat',exist=exist)
+
+                If (.not.exist) then
+
+                   call write_sh_file('Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
+
+                   call system('cd class_montanari-lensing ; sbatch Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
+                        '_no_lensing.sh')
+
+                End If
 
              End If
 
           Else
 
-             print *,'FISHER ANALYSIS AROUND BEST FIT NOT IMPLEMENTED YET WITHOUT LENSING'
+             inquire(file='./data/Bl_nl_cl.dat',exist=exist)
 
-             continue
+             If (.not.exist) then
 
-!             inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_cl.dat',exist=exist)
+                call write_sh_file('Bl_nl')
 
-!             If (.not.exist) then
+                call system('cd class_montanari-lensing ; sbatch Bl_nl.sh')
 
-!                call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
-
-!                call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-!                     '_no_lensing.sh')
-
-!             End If
+             End If
 
           End If
 
@@ -2092,7 +2172,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        !fid7 = parameter_value .eq. MG_beta2
 
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. ((fid5 .or. fid6)) ! .or. fid7)
      
        write(string_par_value,fmt) parameter_value
 
@@ -2183,7 +2263,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
                 call system('cd class_montanari-lensing ; sbatch El_nl.sh')
 
              End If
-
+             
           End If
 
        End if
@@ -2857,7 +2937,7 @@ function galaxy_distribution(z)
 end function galaxy_distribution
 
 
-subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
+subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias)
     use fiducial
     Implicit none
     
@@ -2865,11 +2945,7 @@ subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag
     Integer*4 :: m,n,i
     Real*8,dimension(int((zmax - zmin)/dz)) :: z_array
     Real*8,dimension(int(nbins+1)) :: z_bin_edges
-    Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
-    Real*8,parameter :: s_0 = 0.1194d0
-    Real*8,parameter :: s_1 = 0.2122d0
-    Real*8,parameter :: s_2 = -0.0671d0
-    Real*8,parameter :: s_3 = 0.1031d0
+    Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias
     Integer*4 :: p,nb
     p = int((zmax - zmin)/dz)
     nb = nbins + 1
@@ -2906,7 +2982,6 @@ subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag
         z_bin_centers(n-1) = (z_bin_edges(n) + z_bin_edges(n-1))/2.
         z_bin_widths(n-1) = (z_bin_edges(n) - z_bin_edges(n-1))/2.
         z_bin_bias(n-1) = sqrt(1.d0 + z_bin_centers(n-1))
-        s_z_mag_bias(n-1) = s_0 + s_1*z_bin_centers(n-1) + s_2*z_bin_centers(n-1)**2 + s_3*z_bin_centers(n-1)**3
     End Do
 
 end subroutine bin_centers_widths_bias
