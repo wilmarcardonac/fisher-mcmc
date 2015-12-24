@@ -173,39 +173,39 @@ subroutine run_class_testing_precision(Cl_flag,index)
     
     write(string,fmt) index
 
-    If (.not.lensing_flag) then
+    If (lensing_flag) then
 
-        If (Cl_flag) then
+       print *, 'TESTING PRECISION HAS ONLY BEEN IMPLEMENTED WITHOUT LENSING'
 
-                inquire(file='./data/Cl_'//trim(string)//'_cl.dat',exist=exist)
-
-                If (.not.exist) then
-
-                    call write_sh_file('Cl_'//trim(string)//'')
-
-                    call system('cd class_montanari-lensing ; sbatch Cl_'//trim(string)//'.sh')
-
-                End If
-
-        Else
-
-            inquire(file='./data/El_nl_cl.dat',exist=exist)
-
-            If (.not.exist) then
-
-                call write_sh_file('El_nl')
-
-                call system('cd class_montanari-lensing ; sbatch El_nl.sh')
-
-            End If
-
-        End if
+       stop
 
     Else 
 
-        print *, 'TESTING PRECISION HAS ONLY BEEN IMPLEMENTED WITHOUT LENSING'
+       If (Cl_flag) then
 
-        stop
+          inquire(file='./data/Cl_'//trim(string)//'_cl.dat',exist=exist)
+
+          If (.not.exist) then
+
+             call write_sh_file('Cl_'//trim(string)//'')
+
+             call system('cd class_montanari-lensing ; sbatch Cl_'//trim(string)//'.sh')
+
+          End If
+
+       Else
+
+          inquire(file='./data/El_nl_cl.dat',exist=exist)
+
+          If (.not.exist) then
+
+             call write_sh_file('El_nl')
+
+             call system('cd class_montanari-lensing ; sbatch El_nl.sh')
+
+          End If
+
+       End if
 
     End if
 
