@@ -34,7 +34,7 @@ Program fisher
   Integer*4                              :: seed1,seed2 ! SEEDS NEEDED BY RANDOM NUMBER GENERATOR
   Integer*4                              :: number_accepted_points,number_rejected_points ! COUNT POINTS IN PARAMETER SPACE
   Integer*4                              :: weight    ! COUNTS NUMBER OF TAKEN STEPS BEFORE MOVING TO A NEW POINT
-  Integer*4                              :: job_number ! JOB IDENTIFIER WHEN RUNNING MULTIPLE CHAINS
+  Integer*4                              :: job_number,number_rnd ! JOB IDENTIFIER WHEN RUNNING MULTIPLE CHAINS
 
   Real*8                                 :: old_loglikelihood,current_loglikelihood      ! STORE LIKELIHOOD VALUES
   Real*4                                 :: genunf                                ! RANDOM UNIFORM DEVIATES
@@ -62,7 +62,7 @@ Program fisher
 
         job_number = m + 20
 
-        write(string,'(i1.1)') m 
+        write(string,'(i2.2)') m 
 
         inquire(file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt',exist=exe_file) 
 
@@ -80,9 +80,13 @@ Program fisher
 
      End Do
 
+     number_rnd = job_number - 20
+
   Else
 
      job_number = 15
+
+     number_rnd = job_number
 
      write(string,'(i2.2)') job_number 
 
@@ -102,7 +106,7 @@ Program fisher
 
      call initialize() ! INITIALIZE RANDOM NUMBER GENERATORS 
      
-     call setcgn(job_number)
+     call setcgn(number_rnd)
 
      call phrtsd(phrase,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
 

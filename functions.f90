@@ -13,7 +13,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
     logical :: Cl_flag,fid1,fid2,fid3,fiducial_flag
     character(len=*),parameter :: fmt = '(i2.2)' 
     character*16 :: string
-    Logical,parameter :: lensing_flag = .false.
+    Logical,parameter :: lensing_flag = .true.
     Integer*4 :: index
 
     fid1 = bessel .eq. selection_sampling_bessel_fid
@@ -30,9 +30,44 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     If (lensing_flag) then
 
-        print *,'NOT LENSING IMPLEMENTED WHEN TESTING PRECISION PARAMETERS'
+        If (fiducial_flag) then
 
-        stop
+            If (Cl_flag) then
+
+                print *,'PRECISION PARAMETERS MUST BE DIFFERENT OF FIDUCIAL VALUES FOR CL'
+
+                stop
+
+            Else
+
+                open(10, file='./ini_files/El.ini')
+
+                write(10,*) 'root = ../data/El_'
+
+                write(10,'(a25)') 'number count error = 0.10'   
+
+            End If
+
+        Else
+
+            If (Cl_flag) then
+
+                open(10, file='./ini_files/Cl_'//trim(string)//'.ini')
+
+                write(10,*) 'root = ../data/Cl_'//trim(string)//'_'
+
+            Else
+               
+                print *,'NOT ERROR FILE WITHOUT FIDUCIAL PARAMETERS'
+
+                stop
+
+            End If
+
+
+        End If
+
+        write(10,'(a59)') 'number count contributions = density, rsd, doppler, lensing'
 
     Else 
 
@@ -168,12 +203,40 @@ subroutine run_class_testing_precision(Cl_flag,index)
     character*16 :: string
     logical :: exist,Cl_flag
     character(len=*),parameter :: fmt = '(i2.2)'
-    Logical,parameter :: lensing_flag = .false.
+    Logical,parameter :: lensing_flag = .true.
     Integer*4 :: index
     
     write(string,fmt) index
 
-    If (.not.lensing_flag) then
+    If (lensing_flag) then
+
+        If (Cl_flag) then
+
+                inquire(file='./data/Cl_'//trim(string)//'_cl.dat',exist=exist)
+
+                If (.not.exist) then
+
+                    call write_sh_file('Cl_'//trim(string)//'')
+
+                    call system('cd class_montanari-lensing ; sbatch Cl_'//trim(string)//'.sh')
+
+                End If
+
+        Else
+
+            inquire(file='./data/El_cl.dat',exist=exist)
+
+            If (.not.exist) then
+
+                call write_sh_file('El')
+
+                call system('cd class_montanari-lensing ; sbatch El.sh')
+
+            End If
+
+        End if
+
+    Else
 
         If (Cl_flag) then
 
@@ -200,12 +263,6 @@ subroutine run_class_testing_precision(Cl_flag,index)
             End If
 
         End if
-
-    Else 
-
-        print *, 'TESTING PRECISION HAS ONLY BEEN IMPLEMENTED WITHOUT LENSING'
-
-        stop
 
     End if
 
@@ -288,7 +345,7 @@ subroutine testing_precision_cl()
 
 
     ! ALLOCATING MEMORY FOR EL, FIDUCIAL CL (LENSING), FIDUCIAL CL (NOT LENSING), OBSERVED CL, SHOT NOISE, SYSTEMATIC CL
-    allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),Cl_obs(lmin:lmax,0:nbins,0:nbins),&
+    allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid(lmin:lmax,0:nbins,0:nbins),Cl_obs(lmin:lmax,0:nbins,0:nbins),&
          Nl(1:nbins,1:nbins),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status3)
 
     If (status3 .eq. 0) then 
@@ -303,9 +360,9 @@ subroutine testing_precision_cl()
 
     End If
 
-    call read_data(El,10,filetype,ElCl,.false.,.true.,.false.)
+    call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
 
-    call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
+    call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
     call compute_shot_noise()
 
@@ -320,7 +377,7 @@ subroutine testing_precision_cl()
 
             qls = qls_fid + dble(index)*step_q
 
-            call read_cl(Cl_current,index,.false.)
+            call read_cl(Cl_current,index,.true.)
 
             write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls,kmt_fid,ssb_fid
@@ -329,7 +386,7 @@ subroutine testing_precision_cl()
 
             kmt = kmt_fid - dble(index-number_of_q)*step_kmax
 
-            call read_cl(Cl_current,index,.false.)
+            call read_cl(Cl_current,index,.true.)
 
             write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls_fid,kmt,ssb_fid
@@ -338,7 +395,7 @@ subroutine testing_precision_cl()
 
             ssb = ssb_fid - dble(index-number_of_q-number_of_kmax)*step_bessel
 
-            call read_cl(Cl_current,index,.false.)
+            call read_cl(Cl_current,index,.true.)
 
             write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls_fid,kmt_fid,ssb
@@ -752,11 +809,9 @@ subroutine compute_observed_Cl()
     Do m=lmin,lmax
         Do p=1,nbins
             Do i=1,nbins
-               If (testing_precision) then
-                  Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid_nl(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
-               Else
+
                   Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
-               End If
+
             End Do
         End Do
     End Do 
