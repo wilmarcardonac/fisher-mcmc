@@ -6,7 +6,6 @@
 #SBATCH --mail-user=wilmar.cardona@unige.ch
 #SBATCH --mail-type=ALL
 #SBATCH --partition=debug
-#SBATCH --clusters=baobab
 #SBATCH --output=slurm-%J.out
 
 srun ./fisher
