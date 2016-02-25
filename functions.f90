@@ -443,8 +443,8 @@ function euclid_galaxy_cl_likelihood(Cl)
 
         Do indexbin_j=1,nbins
 
-           Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/&
-                dble(indexl)/(dble(indexl) + 1.d0) + Nl(indexbin_i,indexbin_j)
+           Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*(Cl(indexl,indexbin_i,indexbin_j) + &
+                El(indexl,indexbin_i,indexbin_j) )/dble(indexl)/(dble(indexl) + 1.d0) + Nl(indexbin_i,indexbin_j)
 
            Elth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*El(indexl,indexbin_i,indexbin_j)/&
                 dble(indexl)/(dble(indexl) + 1.d0)*sqrt(dble(L))
@@ -2277,7 +2277,7 @@ subroutine run_current_model_mcmc(len_flag,job)
     Character(len=10) :: job
     
     If (len_flag) then
-        inquire(file='./output/current_euclid_galaxy_lensing_cl_'//trim(job)//'_cl.dat',exist=exist)
+        inquire(file= PATH_TO_CURRENT_CL//trim(job)//'_cl.dat',exist=exist)
         If (.not.exist) then
             call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
             '../ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
@@ -2729,7 +2729,7 @@ subroutine read_Cl_mcmc(Cl,u,lensing_flag,job)
 
     If (lensing_flag)  then 
     
-       open(u,file= './output/current_euclid_galaxy_lensing_cl_'//trim(job)//'_cl.dat')
+       open(u,file= PATH_TO_CURRENT_CL//trim(job)//'_cl.dat')
 
     Else 
 

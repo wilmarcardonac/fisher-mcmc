@@ -103,10 +103,10 @@ Module fiducial
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
   Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
-  Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
+  Logical,parameter      :: start_from_bestfit = .true.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
   Logical,parameter      :: adjusting_covariance_matrix = .false.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
-  Logical,parameter      :: read_covariance_matrix_from_file = .false. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
+  Logical,parameter      :: read_covariance_matrix_from_file = .true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
   Logical,parameter      :: multiple_chains = .true. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: use_only_autocorrelations = .false. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
@@ -121,7 +121,7 @@ Module fiducial
   Character(len=*),parameter :: PATH_TO_CHAINS_CHAIN = './output/chains/mcmc_final_output_'
   Character(len=*),parameter :: PATH_TO_RANGES_FILE = './output/chains/mcmc_final_output.ranges'
   Character(len=*),parameter :: PATH_TO_PARAMNAMES_FILE = './output/chains/mcmc_final_output.paramnames'
-  Character(len=*),parameter :: PATH_TO_INI_FILES = './ini_files/current_euclid_galaxy_cl_'
-  Character(len=*),parameter :: PATH_TO_CURRENT_CL = './output/current_euclid_galaxy_cl_'
+  Character(len=*),parameter :: PATH_TO_INI_FILES = './ini_files/current_euclid_galaxy_cl_lensing_'
+  Character(len=*),parameter :: PATH_TO_CURRENT_CL = './output/current_euclid_galaxy_lensing_'
     
 End Module fiducial
