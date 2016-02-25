@@ -500,7 +500,7 @@ Program fisher
      If (do_mcmc_analysis) then
 
         allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),&
-          Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),stat = status3)
+          Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),bestfit(number_of_parameters),stat = status3)
 
         call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
@@ -516,7 +516,7 @@ Program fisher
 
         call compute_observed_Cl()
 
-        call read_data(El,10,filetype,ElCl,lensing,.true.,.false.)
+        call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
 
      Else
 
@@ -603,17 +603,17 @@ Program fisher
 
         open(UNIT_RANGES_FILE,file = PATH_TO_RANGES_FILE )    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    6.e-3    3.9e-2 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    6.e-3    5.9e-2 '
 
         write(UNIT_RANGES_FILE,*) ''//trim(paramnames(2))//'    1.e-2    1. '
 
         write(UNIT_RANGES_FILE,*) ''//trim(paramnames(3))//'    9.e-2    2. '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-9    3.e-9 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-9    4.e-9 '
 
         write(UNIT_RANGES_FILE,*) ''//trim(paramnames(5))//'    50    90 '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    6.e-1 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    1. '
 
 !        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    10.'
 
@@ -833,17 +833,17 @@ Program fisher
 
            End If
 
-           plausibility(1) = (x_new(1) .lt. real(6.d-3)) .or. (x_new(1) .gt. real(3.9d-2))
+           plausibility(1) = (x_new(1) .lt. real(6.d-3)) .or. (x_new(1) .gt. real(5.9d-2))
 
            plausibility(2) = (x_new(2) .lt. real(1.d-2)) .or. (x_new(2) .gt. real(1.d0))
            
            plausibility(3) = (x_new(3) .lt. real(9.d-2)) .or. (x_new(3) .gt. real(2.d0))
 
-           plausibility(4) = (x_new(4) .lt. real(log(10.d0))) .or. (x_new(4) .gt. real(log(30.d0))) ! limit As<3.d-9 but using log(10^10As)
+           plausibility(4) = (x_new(4) .lt. real(log(10.d0))) .or. (x_new(4) .gt. real(log(40.d0))) ! limit As<3.d-9 but using log(10^10As)
 
            plausibility(5) = (x_new(5) .lt. real(50.d0)).or.(x_new(5).gt.real(90.d0))
 
-           plausibility(6) = (x_new(6) .lt. real(1.d-4)) .or. (x_new(6) .gt. real(6.d-1))
+           plausibility(6) = (x_new(6) .lt. real(1.d-4)) .or. (x_new(6) .gt. real(1.d0))
 
 !           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .gt. real(10.d0))
 
