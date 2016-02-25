@@ -386,8 +386,8 @@ function euclid_galaxy_cl_likelihood(Cl)
 
         Do indexbin_j=1,nbins
 
-           Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/&
-                dble(indexl)/(dble(indexl) + 1.d0) + Nl(indexbin_i,indexbin_j)
+           Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*(Cl(indexl,indexbin_i,indexbin_j) + &
+                El(indexl,indexbin_i,indexbin_j) )/dble(indexl)/(dble(indexl) + 1.d0) + Nl(indexbin_i,indexbin_j)
 
            Elth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*El(indexl,indexbin_i,indexbin_j)/&
                 dble(indexl)/(dble(indexl) + 1.d0)*sqrt(dble(L))
