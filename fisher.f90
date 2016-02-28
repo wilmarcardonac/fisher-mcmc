@@ -603,17 +603,17 @@ Program fisher
 
         open(UNIT_RANGES_FILE,file = PATH_TO_RANGES_FILE )    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    3.e-3    3.9e-2 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    3.e-3    7.e-2 '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(2))//'    1.e-2    1.e0 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(2))//'    1.e-3    1. '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(3))//'    9.e-2    2.e0 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(3))//'    9.e-2    2. '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-9    6.0e-9 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-11    1.e-7 '
 
         write(UNIT_RANGES_FILE,*) ''//trim(paramnames(5))//'    30    90 '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    1.e0 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    1. '
 
 !        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    10.'
 
@@ -833,13 +833,13 @@ Program fisher
 
            End If
 
-           plausibility(1) = (x_new(1) .lt. real(3.d-3)) .or. (x_new(1) .gt. real(3.9d-2))
+           plausibility(1) = (x_new(1) .lt. real(3.d-3)) .or. (x_new(1) .gt. real(7.d-2))
 
-           plausibility(2) = (x_new(2) .lt. real(1.d-2)) .or. (x_new(2) .gt. real(1.d0))
+           plausibility(2) = (x_new(2) .lt. real(1.d-3)) .or. (x_new(2) .gt. real(1.d0))
            
            plausibility(3) = (x_new(3) .lt. real(9.d-2)) .or. (x_new(3) .gt. real(2.d0))
 
-           plausibility(4) = (x_new(4) .lt. real(log(10.d0))) .or. (x_new(4) .gt. real(log(60.d0))) ! limit As<3.d-9 but using log(10^10As)
+           plausibility(4) = (x_new(4) .lt. real(log(1.d-1))) .or. (x_new(4) .gt. real(log(1.d3))) ! limit As<3.d-9 but using log(10^10As)
 
            plausibility(5) = (x_new(5) .lt. real(30.d0)).or.(x_new(5).gt.real(90.d0))
 
