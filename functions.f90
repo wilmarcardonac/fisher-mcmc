@@ -1503,26 +1503,26 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
     
 !    write(10,'(a20)') 'non linear = halofit'
  
-    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+    write(10,'(a32)') 'dNdz_selection =                '
 
-    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
+    write(10,'(a32)') 'dNdz_evolution =                '
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(10,'(a20)') 'selection = tophat  '
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(10,'(a17, 3(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4)!,',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
     !z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+    write(10,'(a18, 3(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4)!,',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
 !    z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(10,'(a17, 3(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4)!,',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(10,'(a31, 3(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4)!,',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
@@ -1622,26 +1622,26 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     
     !write(10,'(a20)') 'non linear = halofit'
  
-    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+    write(10,'(a32)') 'dNdz_selection =                '
 
-    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
+    write(10,'(a32)') 'dNdz_evolution =                '
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(10,'(a20)') 'selection = tophat  '
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(10,'(a17, 3(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4)!,',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
 !    z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+    write(10,'(a18, 3(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4)!,',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
  !   z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(10,'(a17, 3(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4)!,',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
   !  z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(10,'(a31, 3(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4)!,',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
@@ -2684,9 +2684,8 @@ subroutine read_data(Cl,u,param_name,param_value,lensing_flag,fiducial_flag,El_C
         If (m .le. 1) then
             read(u,*)
         else
-            read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
-            Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
-            Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+            read(u,*) Cl(m,0,0),Cl(m,1,1:nbins),Cl(m,2,2:nbins),Cl(m,3,3:nbins),&
+            Cl(m,4,4)!,Cl(m,4,5),Cl(m,5,5)
 
 !            read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
 !            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&
@@ -2790,9 +2789,8 @@ subroutine read_Cl_mcmc(Cl,u,lensing_flag,job)
 
        Else
 
-          read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
-               Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
-               Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+          read(u,*) Cl(m,0,0),Cl(m,1,1:nbins),Cl(m,2,2:nbins),Cl(m,3,3:nbins),&
+               Cl(m,4,4)!,Cl(m,4,5),Cl(m,5,5)
           
           Do p=1,nbins
 
@@ -2961,52 +2959,66 @@ subroutine bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag
     use fiducial
     Implicit none
     
-    Real*8 :: n_tot, gd_1, gd_2, gal_count, z
-    Integer*4 :: m,n,i
-    Real*8,dimension(int((zmax - zmin)/dz)) :: z_array
-    Real*8,dimension(int(nbins+1)) :: z_bin_edges
+    !Real*8 :: n_tot, gd_1, gd_2, gal_count, z
+    Integer*4 :: n!,m,i
+    !Real*8,dimension(int((zmax - zmin)/dz)) :: z_array
+    Real*8,dimension(int(nbins+nbins)) :: z_bin_edges
     Real*8,dimension(nbins) :: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
     Real*8,parameter :: s_0 = 0.1194d0
     Real*8,parameter :: s_1 = 0.2122d0
     Real*8,parameter :: s_2 = -0.0671d0
     Real*8,parameter :: s_3 = 0.1031d0
-    Integer*4 :: p,nb
-    p = int((zmax - zmin)/dz)
-    nb = nbins + 1
+    !Integer*4 :: p,nb
+    !p = int((zmax - zmin)/dz)
+    !nb = nbins + 1
     
-    z_array(1) = zmin
-    Do m=2,p
-        z_array(m) = z_array(m-1) + dz
-    End do
-    z_array(p) = zmax
+    !z_array(1) = zmin
+    !Do m=2,p
+    !    z_array(m) = z_array(m-1) + dz
+    !End do
+    !z_array(p) = zmax
 
-    n_tot = 0.d0
-    Do m=1,p-1
-        gd_1 = galaxy_distribution(z_array(m))
-        gd_2 = galaxy_distribution(z_array(m+1))
-        n_tot = (gd_1 + gd_2)/2.*dz + n_tot 
-    End Do
+    !n_tot = 0.d0
+    !Do m=1,p-1
+    !    gd_1 = galaxy_distribution(z_array(m))
+    !    gd_2 = galaxy_distribution(z_array(m+1))
+    !    n_tot = (gd_1 + gd_2)/2.*dz + n_tot 
+    !End Do
     
     z_bin_edges(1) = zmin
-    Do n=1,nbins
-        gal_count = 0.d0
-        z = z_bin_edges(n)
-        Do i=1,10000
-            If (gal_count .gt. n_tot/nbins) exit
-            gd_1 = galaxy_distribution(z)
-            gd_2 = galaxy_distribution(z+dz)
-            gal_count = (gd_1 + gd_2)/2.*dz + gal_count
-            z = z + dz 
-        End Do
-        z_bin_edges(n+1) = z
-    End Do
-    z_bin_edges(nbins+1) = zmax
+    !Do n=1,nbins
+    !    gal_count = 0.d0
+    !    z = z_bin_edges(n)
+    !    Do i=1,10000
+    !        If (gal_count .gt. n_tot/nbins) exit
+    !        gd_1 = galaxy_distribution(z)
+    !        gd_2 = galaxy_distribution(z+dz)
+    !        gal_count = (gd_1 + gd_2)/2.*dz + gal_count
+    !        z = z + dz 
+    !    End Do
+    !    z_bin_edges(n+1) = z
+    !End Do
+    z_bin_edges(2) = 0.5d0
+    z_bin_edges(3) = 0.6d0
+    z_bin_edges(4) = 1.0d0
+    z_bin_edges(5) = 1.1d0
+    z_bin_edges(6) = 1.5d0
+    z_bin_edges(7) = 1.6d0
+    z_bin_edges(nbins+nbins) = zmax
+
+    z_bin_centers(1) = (z_bin_edges(2) + z_bin_edges(1))/2.
+    z_bin_centers(2) = (z_bin_edges(4) + z_bin_edges(3))/2.
+    z_bin_centers(3) = (z_bin_edges(6) + z_bin_edges(5))/2.
+    z_bin_centers(4) = (z_bin_edges(8) + z_bin_edges(7))/2.
+
+    z_bin_widths(1) = (z_bin_edges(2) - z_bin_edges(1))/2.
+    z_bin_widths(2) = (z_bin_edges(4) - z_bin_edges(3))/2.
+    z_bin_widths(3) = (z_bin_edges(6) - z_bin_edges(5))/2.
+    z_bin_widths(4) = (z_bin_edges(8) - z_bin_edges(7))/2.
 
     Do n=2,nbins+1
-        z_bin_centers(n-1) = (z_bin_edges(n) + z_bin_edges(n-1))/2.
-        z_bin_widths(n-1) = (z_bin_edges(n) - z_bin_edges(n-1))/2.
         z_bin_bias(n-1) = sqrt(1.d0 + z_bin_centers(n-1))
-        s_z_mag_bias(n-1) = s_0 + s_1*z_bin_centers(n-1) + s_2*z_bin_centers(n-1)**2 + s_3*z_bin_centers(n-1)**3
+        s_z_mag_bias(n-1) = 0.d0 !s_0 + s_1*z_bin_centers(n-1) + s_2*z_bin_centers(n-1)**2 + s_3*z_bin_centers(n-1)**3
     End Do
 
 end subroutine bin_centers_widths_bias
