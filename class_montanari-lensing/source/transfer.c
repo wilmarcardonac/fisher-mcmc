@@ -228,7 +228,7 @@ int transfer_init(
   class_alloc(sources,
               ptr->md_size*sizeof(double**),
               ptr->error_message);
-  
+
   class_call(transfer_perturbation_copy_sources_and_nl_corrections(ppt,pnl,ptr,sources),
              ptr->error_message,
              ptr->error_message);
@@ -725,7 +725,7 @@ int transfer_perturbation_copy_sources_and_nl_corrections(
   int index_tp;
   int index_k;
   int index_tau;
-  
+
   for (index_md = 0; index_md < ptr->md_size; index_md++) {
 
     class_alloc(sources[index_md],
@@ -769,7 +769,7 @@ int transfer_perturbation_copy_sources_and_nl_corrections(
                     log(1.+ppt->k[index_k]/pnl->k_nl[index_tau])
                     / (1.+log(1.+ppt->k[index_k]/pnl->k_nl[index_tau]))
                     * pow(ppt->k[index_k]/ptr->lcmb_pivot,ptr->lcmb_tilt),
-                  .5);                              
+                  .5);
               }
             }
           }
@@ -1863,7 +1863,7 @@ int transfer_source_tau_size(
 
         /* value of l at which the code switches to Limber approximation
            (necessary for next step) */
-        l_limber=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[bin];
+        l_limber=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[bin];
 
         /* check that bessel well sampled, if not define finer sampling
            overwriting the previous one.
@@ -1916,17 +1916,25 @@ int transfer_source_tau_size(
 
       /* value of l at which the code switches to Limber approximation
          (necessary for next step) */
-      l_limber=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[bin];
+      if(_index_tt_in_range_(ptr->index_tt_nc_g5,   ppt->selection_num, ppt->has_nc_gr)) {
+        /* Even if G5 is integrated along the line-of-sight, we do not apply the same Limber criteria as for the other integrated terms yet, because here we have the derivative of the Bessel.  */
+        l_limber=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[bin];
+        *tau_size=MAX(*tau_size,(int)((tau0-tau_min)/((tau0-tau_mean)/2./l_limber))*ppr->selection_sampling_bessel);
+      }
+      else {
+        l_limber=ppr->l_switch_limber_for_nc_los_over_z*ppt->selection_mean[bin];
 
-      /* check that bessel well sampled, if not define finer sampling
-         overwriting the previous one.
-         One Bessel oscillations corresponds to [Delta tau]=2pi/k.
-         This is minimal for largest relevant k_max,
-         namely k_max=l_limber/((tau0-tau_mean)/2).
-         We need to cut the interval (tau_0-tau_min) in pieces of size
-         [Delta tau]=2pi/k_max. This gives the number below.
-      */
-      *tau_size=MAX(*tau_size,(int)((tau0-tau_min)/((tau0-tau_mean)/2./l_limber))*ppr->selection_sampling_bessel);
+
+        /* check that bessel well sampled, if not define finer sampling
+           overwriting the previous one.
+           One Bessel oscillations corresponds to [Delta tau]=2pi/k.
+           This is minimal for largest relevant k_max,
+           namely k_max=l_limber/((tau0-tau_mean)/2).
+           We need to cut the interval (tau_0-tau_min) in pieces of size
+           [Delta tau]=2pi/k_max. This gives the number below.
+        */
+        *tau_size=MAX(*tau_size,(int)((tau0-tau_min)/((tau0-tau_mean)/2./l_limber))*ppr->selection_sampling_bessel_los);
+      }
     }
   }
 
@@ -2383,7 +2391,7 @@ int transfer_sources(
   double z;
   double dNdz;
   double dln_dNdz_dz;
-  
+
   /* in which cases are perturbation and transfer sources are different?
      I.e., in which case do we need to mutiply the sources by some
      background and/or window function, and eventually to resample it,
@@ -2540,7 +2548,7 @@ int transfer_sources(
 
 /* TO FIX
    Issue with Gaussian window functions: it seems that some values is slightly tau>tau_max. However it happens only for some set of cosmological parameters, different for different machines. In the meantime fix it by setting tau=tau_max if (tau-tau_max)<tau_max by 0.01%
-*/           
+*/
         for (index_tau = 0; index_tau < tau_size; index_tau++) {
           if (tau0 - tau0_minus_tau[index_tau] > ppt->tau_sampling[ppt->tau_size-1]) {
             if ( fabs(tau0 - tau0_minus_tau[index_tau] - ppt->tau_sampling[ppt->tau_size-1])/ppt->tau_sampling[ppt->tau_size-1] < (ppr->selection_rounding_tolerance) )
@@ -2999,8 +3007,8 @@ int transfer_sources(
 
           /* copy from input array to output array */
           sources[index_tau] *= rescaling;
-          
-          if ( (ptr->has_el_number_count == _TRUE_) && 
+
+          if ( (ptr->has_el_number_count == _TRUE_) &&
                ( (_index_tt_in_range_(ptr->index_tt_nc_lens, ppt->selection_num, ppt->has_nc_lens)) ||
                  (_index_tt_in_range_(ptr->index_tt_nc_g4,   ppt->selection_num, ppt->has_nc_gr)) ||
                  (_index_tt_in_range_(ptr->index_tt_nc_g5,   ppt->selection_num, ppt->has_nc_gr)) )) {
@@ -3780,37 +3788,38 @@ int transfer_use_limber(
       if ((ppt->has_cl_cmb_lensing_potential == _TRUE_) && (index_tt == ptr->index_tt_lcmb) && (l>ppr->l_switch_limber)) {
         *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_density, ppt->selection_num, ppt->has_nc_density) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_density])) {
+      if (_index_tt_in_range_(ptr->index_tt_density, ppt->selection_num, ppt->has_nc_density) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_density])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_rsd,     ppt->selection_num, ppt->has_nc_rsd) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_rsd])) {
+      if (_index_tt_in_range_(ptr->index_tt_rsd,     ppt->selection_num, ppt->has_nc_rsd) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_rsd])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_d0,      ppt->selection_num, ppt->has_nc_doppler) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_d0])) {
+      if (_index_tt_in_range_(ptr->index_tt_d0,      ppt->selection_num, ppt->has_nc_doppler) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_d0])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_d1,      ppt->selection_num, ppt->has_nc_doppler) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_d1])) {
+      if (_index_tt_in_range_(ptr->index_tt_d1,      ppt->selection_num, ppt->has_nc_doppler) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_d1])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_nc_lens, ppt->selection_num, ppt->has_nc_lens) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_lens])) {
+      if (_index_tt_in_range_(ptr->index_tt_nc_lens, ppt->selection_num, ppt->has_nc_lens) && (l>=ppr->l_switch_limber_for_nc_los_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_lens])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_nc_g1, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g1])) {
+      if (_index_tt_in_range_(ptr->index_tt_nc_g1, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g1])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_nc_g2, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g2])) {
+      if (_index_tt_in_range_(ptr->index_tt_nc_g2, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g2])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_nc_g3, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g3])) {
+      if (_index_tt_in_range_(ptr->index_tt_nc_g3, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g3])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_nc_g4, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g4])) {
+      if (_index_tt_in_range_(ptr->index_tt_nc_g4, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_nc_los_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g4])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_nc_g5, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g5])) {
+      /* Even if G5 is integrated along the line-of-sight, we do not apply the same Limber criteria as for the other integrated terms yet, because here we have the derivative of the Bessel.  */
+      if (_index_tt_in_range_(ptr->index_tt_nc_g5, ppt->selection_num, ppt->has_nc_gr) && (l>=ppr->l_switch_limber_for_nc_local_over_z*ppt->selection_mean[index_tt-ptr->index_tt_nc_g5])) {
         if (ppt->selection != dirac) *use_limber = _TRUE_;
       }
-      if (_index_tt_in_range_(ptr->index_tt_lensing, ppt->selection_num, ppt->has_cl_lensing_potential) && (l>=ppr->l_switch_limber_for_cl_density_over_z*ppt->selection_mean[index_tt-ptr->index_tt_lensing])) {
+      if (_index_tt_in_range_(ptr->index_tt_lensing, ppt->selection_num, ppt->has_cl_lensing_potential) && (l>=ppr->l_switch_limber_for_nc_los_over_z*ppt->selection_mean[index_tt-ptr->index_tt_lensing])) {
         *use_limber = _TRUE_;
       }
     }
@@ -4673,7 +4682,7 @@ int transfer_radial_function(
     factor = 1.0;
     for (j=0; j<x_size; j++)
       radial_function[x_size-1-j] = factor*absK_over_k2*d2Phi[j]*rescale_argument*rescale_argument*rescale_function[j];
-    break;  
+    break;
   }
 
   free(Phi);

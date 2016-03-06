@@ -184,7 +184,9 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1191,7 +1193,9 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1596,7 +1600,9 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1715,7 +1721,9 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1833,7 +1841,9 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
