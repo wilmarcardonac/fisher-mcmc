@@ -81,7 +81,7 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 5000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_iterations = 10000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
   Integer*4,parameter    :: number_of_parameters = 6       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0 ! 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
@@ -98,12 +98,12 @@ Module fiducial
   Character(len=9),dimension(number_of_parameters), parameter :: paramnames = ['omega_b  ','omega_cdm','   n_s   ',&
        '   A_s   ','   H0    ','  m_ncdm ']!,' MG_beta2']
   Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-       'A_s         ','H_0         ','m_{ncdm}    ']!,'\beta_2     ']
+       'A_s         ','H_0         ','m_{\nu}     ']!,'\beta_2     ']
 
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
   Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
-  Logical,parameter      :: start_from_bestfit = .true.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
+  Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
   Logical,parameter      :: adjusting_covariance_matrix = .false.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: read_covariance_matrix_from_file = .true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
