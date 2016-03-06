@@ -3,7 +3,9 @@ import numpy as np
 
 number_of_parameters = 6
 
-samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':0.2})
+samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':0.})
+
+#print 'CONVERGENCE FOR SAMPLES WITH LENSING ', samples.getGelmanRubin()
 
 g = plots.getSinglePlotter()
 
