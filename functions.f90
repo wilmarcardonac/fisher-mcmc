@@ -381,7 +381,8 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm)-&
+                 euclid_galaxy_cl_likelihood(Cl_current,omega_b,omega_cdm)),&
                  qls,kmt_fid,ssb_fid
     
         Else If ((index .gt. number_of_q) .and. (index .lt. (number_of_q+number_of_kmax) )) then
@@ -390,7 +391,8 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm)-&
+                 euclid_galaxy_cl_likelihood(Cl_current,omega_b,omega_cdm)),&
                  qls_fid,kmt,ssb_fid
     
         Else If ( (index .gt. (number_of_q+number_of_kmax)) .and. (index .le. (number_of_q+number_of_kmax+number_of_bessel) ) )then
@@ -399,7 +401,8 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm)-&
+                 euclid_galaxy_cl_likelihood(Cl_current,omega_b,omega_cdm)),&
                  qls_fid,kmt_fid,ssb
     
         End If
@@ -425,7 +428,7 @@ function log_Gaussian_likelihood(array)
     log_Gaussian_likelihood = -log_Gaussian_likelihood/2.d0
 end function log_Gaussian_likelihood
 
-function euclid_galaxy_cl_likelihood(Cl)
+function euclid_galaxy_cl_likelihood(Cl,ob,ocdm)
 
   use fiducial
   use arrays
@@ -437,7 +440,7 @@ function euclid_galaxy_cl_likelihood(Cl)
   Real*8,parameter :: epsilon_max = 1.d2
   Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Clth,Cl,Elth
   Real*8,dimension(1:nbins,1:nbins) :: Cov_mix,Cov_obs,Cov_the,Cov_the_El,Cov_mix_new
-  Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l
+  Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l,ob,ocdm
    
   Do indexl=lmin,lmax
 
@@ -643,6 +646,26 @@ function euclid_galaxy_cl_likelihood(Cl)
      End if
 
   End Do
+
+  If (use_gaussian_prior_omega_b) then 
+
+     chi2 = (omega_b - ob)**2/((5.d0*sigma_omega_b)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_b)**2)
+
+  Else
+
+     continue
+
+  End If
+
+  If (use_gaussian_prior_omega_cdm) then 
+
+     chi2 = (omega_cdm - ocdm)**2/((5.d0*sigma_omega_cdm)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
+
+  Else
+
+     continue
+
+  End If
     
   If (abs(chi2).ge.0.d0) then
 
@@ -706,7 +729,7 @@ subroutine compute_ratio_likelihood()
 
     open(16,file='./output/ratio_likelihood_values.dat')
     write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm '!   MG_beta2 '
-    write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl),omega_b,omega_cdm,n_s,A_s,&
+    write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm),omega_b,omega_cdm,n_s,A_s,&
     H0,m_ncdm!,MG_beta2
 
     Do p=1,2
@@ -755,7 +778,7 @@ subroutine compute_ratio_likelihood()
 
                 call read_Cl(Cl_current,11,lensing_flag)
 
-                loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
+                loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,point_parameter_space(1),point_parameter_space(2))
 
                 call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
 
@@ -1615,17 +1638,17 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 end subroutine write_ini_file_for_fisher
 
 subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
-                          param_m_ncdm, param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
+                          param_m_ncdm, param_nc_bias_b0, param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
                            param_deg_ncdm, len_flag,bessel,q,kmaxtau0,job)
     
     use fiducial
     Implicit none
-    Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
+    Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio, param_nc_bias_b0
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
-    character*16 :: string_MG_beta2
+    character*16 :: string_MG_beta2, string_nc_bias_b0
     Character(len=10) :: job
         
     call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
@@ -1638,6 +1661,7 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     write(string_H0,fmt) param_H0
     write(string_m_ncdm,fmt) param_m_ncdm
     write(string_MG_beta2,fmt) param_MG_beta2
+    write(string_nc_bias_b0,fmt) param_nc_bias_b0
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
@@ -1664,6 +1688,8 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
     write(10,'(a11, es16.10)') 'MG_beta2 = ', param_MG_beta2
+
+    write(10,'(a13, es16.10)') 'nc_bias_b0 = ', param_nc_bias_b0
 
     ! Parameters for massive neutrinos                                                                                            
 

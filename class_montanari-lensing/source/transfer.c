@@ -2676,7 +2676,8 @@ int transfer_sources(
           */
 
           if (_index_tt_in_range_(ptr->index_tt_density, ppt->selection_num, ppt->has_nc_density))
-            rescaling = ptr->selection_bias[bin]*selection[index_tau];
+            rescaling = ptr->selection_bias[bin]*selection[index_tau]
+              *ptr->nc_bias_b0;
             //GAL_MAG_BIAS_z uncomment the line below and comment the one above
 /*            rescaling = sqrt(1.+z)*selection[index_tau];*/
 

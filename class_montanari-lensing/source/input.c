@@ -1604,6 +1604,7 @@ int input_init(
                errmsg,
                "the input parameter 's_bias' is obsolete, because you can now pass an independent magnitude bias for each bin/selection function. The new input name is 'selection_magnitude_bias'. It can be set to a single number (common magnitude bias for all bins) or as many numbers as the number of bins");
 
+    class_read_double("nc_bias_b0",ptr->nc_bias_b0);
 
   }
 
@@ -2258,6 +2259,7 @@ int input_default_params(
   /** - transfer structure */
 
   ptr->selection_bias[0] = 1.;
+  ptr->nc_bias_b0 = 1.;
   ptr->selection_magnification_bias[0]=0.;
   ptr->lensing_convergence_rescale = 1.;
   ptr->lcmb_rescale=1.;

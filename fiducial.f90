@@ -19,6 +19,7 @@ Module fiducial
   Real*8,parameter :: N_ncdm = 1.d0
   Real*8,parameter :: deg_ncdm = 1.d0
   Real*8,parameter :: tau = 0.079d0
+  Real*8,parameter :: nc_bias_b0 = 1.0d0
 
   Character(len=*),parameter :: param_name_omega_b = 'omega_b'
   Character(len=*),parameter :: param_name_omega_cdm = 'omega_cdm'
@@ -27,6 +28,7 @@ Module fiducial
   Character(len=*),parameter :: param_name_H0 = 'H0'
   Character(len=*),parameter :: param_name_m_ncdm = 'm_ncdm'
   Character(len=*),parameter :: param_name_MG_beta2 = 'MG_beta2'
+  Character(len=*),parameter :: param_name_nc_bias_b0 = 'nc_bias_b0'
 
   !################################################
   ! 1-SIGMA VALUES FOR PARAMETERS IN FIDUCIAL MODEL
@@ -39,6 +41,7 @@ Module fiducial
   Real*8,parameter :: sigma_H0 = 6.6d-1
   Real*8,parameter :: sigma_m_ncdm = 5.d-3
   Real*8,parameter :: sigma_MG_beta2 = 2.5d-1
+  Real*8,parameter :: sigma_nc_bias_b0 = 1.0d-1
 
   !################################
   ! CLASS AND SURVEY SPECIFICATIONS
@@ -82,16 +85,12 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-<<<<<<< HEAD
-  Integer*4,parameter    :: number_iterations = 110000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
-=======
-  Integer*4,parameter    :: number_iterations = 10000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
->>>>>>> c1b3c2d52e201d16ace7b3a5592bdbcbb7b5516a
-  Integer*4,parameter    :: number_of_parameters = 6       ! NUMBER OF COSMOLOGICAL PARAMETERS
+  Integer*4,parameter    :: number_iterations = 12000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
-  Integer*4,parameter    :: covariance_matrix_update = 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
-  Integer*4,parameter    :: steps_taken_before_definite_run = 10000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
-  Integer*4,parameter    :: number_of_parallel_jobs = 20 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
+  Integer*4,parameter    :: covariance_matrix_update = 0!10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
+  Integer*4,parameter    :: steps_taken_before_definite_run = 0!10000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
+  Integer*4,parameter    :: number_of_parallel_jobs = 9 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
   Integer*4,parameter    :: UNIT_RANGES_FILE = 90        ! UNIT NUMBER FOR RANGES FILE
   Integer*4,parameter    :: UNIT_PARAMNAMES_FILE = 91    ! UNIT NUMBER FOR PARAMMNAMES FILE
   Integer*4,parameter    :: UNIT_MCMC = 92               ! UNIT NUMBER FOR MCMC OUTPUT (CALIBRATING PHASE)
@@ -100,21 +99,23 @@ Module fiducial
   Real*8,parameter       :: step_size_changes = 1.d-2      ! CHANGE IN STEP SIZE
 
   Character*16,parameter :: phrase = 'randomizer'       ! PHRASE NEEDED BY NUMBER RANDOM GENERATOR
-  Character(len=9),dimension(number_of_parameters), parameter :: paramnames = ['omega_b  ','omega_cdm','   n_s   ',&
-       '   A_s   ','   H0    ','  m_ncdm ']!,' MG_beta2']
+  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
+       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0']
   Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-       'A_s         ','H_0         ','m_{\nu}     ']!,'\beta_2     ']
+       'A_s         ','H_0         ','m_{\nu}     ','b_0         ']
 
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
   Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
-  Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
+  Logical,parameter      :: start_from_bestfit = .true.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
-  Logical,parameter      :: adjusting_covariance_matrix = .true.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
+  Logical,parameter      :: adjusting_covariance_matrix = .false.!.true.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: read_covariance_matrix_from_file = .true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
-  Logical,parameter      :: multiple_chains = .false. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
+  Logical,parameter      :: multiple_chains = .true.!.false. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: use_only_autocorrelations = .false. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_prior_omega_b = .false. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_prior_omega_cdm = .false. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
 
   !###############
   ! PATHS TO FILES
