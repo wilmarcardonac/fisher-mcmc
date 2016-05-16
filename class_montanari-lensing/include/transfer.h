@@ -53,12 +53,13 @@ struct transfers {
                           scale */
 
   double selection_bias[_SELECTION_NUM_MAX_];         /**< light-to-mass bias in the transfer function of density number count */
+  double nc_bias_b0;         /**< Constant rescaling of the density transfer function, which may serve as normalization of sources bias at z=0 (e.g., b(z)=b0*sqrt(1+z)) */
   double selection_magnification_bias[_SELECTION_NUM_MAX_]; /**< magnification bias in the transfer function of density number count */
   double lensing_convergence_rescale;   /**< constant rescaling to the number counts lensing convergence term */
 
   short has_nz_file;    /**< Has dN/dz (selection function) input file? */
   short has_nz_analytic_euclid; /**< Use analytic form for dN/dz (selection function) distribution? */
-  short has_nz_analytic_ska;  
+  short has_nz_analytic_ska;
   FileName nz_file_name; /**< dN/dz (selection function) input file name */
   int nz_size;
   double * nz_z;
@@ -75,7 +76,7 @@ struct transfers {
   double * nz_evo_dlog_nz;
   double * nz_evo_dd_dlog_nz;
 
-  short has_el_number_count;          /**< do we need El's for density number count? */    
+  short has_el_number_count;          /**< do we need El's for density number count? */
   double err_El;	/**< Max error fraction on number counts Cl's*/
 
   //@}

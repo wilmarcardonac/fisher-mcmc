@@ -763,12 +763,12 @@ int input_init(
       if (strstr(string1,"rsd") != NULL)
         ppt->has_nc_rsd = _TRUE_;
       if (strstr(string1,"doppler") != NULL)
-        ppt->has_nc_doppler = _TRUE_;        
+        ppt->has_nc_doppler = _TRUE_;
       if (strstr(string1,"lensing") != NULL)
         ppt->has_nc_lens = _TRUE_;
       if (strstr(string1,"gr") != NULL)
         ppt->has_nc_gr = _TRUE_;
-        
+
 
       class_test((ppt->has_nc_density == _FALSE_) && (ppt->has_nc_rsd == _FALSE_) && (ppt->has_nc_doppler == _FALSE_) && (ppt->has_nc_lens == _FALSE_) && (ppt->has_nc_gr == _FALSE_),
                  errmsg,
@@ -794,7 +794,7 @@ int input_init(
       /* default: only the density contribution */
       ppt->has_nc_density = _TRUE_;
     }
-    
+
     if (strstr(string1,"lensing") != NULL)
       class_read_double("lensing convergence rescale",ptr->lensing_convergence_rescale);
   }
@@ -899,7 +899,7 @@ int input_init(
         ppt->gauge = synchronous;
       }
     }
-    
+
   /* Modified Gravity parameters */
   class_call(parser_read_double(pfc,"MG_beta2",&param1,&flag1,errmsg),
              errmsg,
@@ -1480,7 +1480,7 @@ int input_init(
         }
         free(pointer1);
       }
-      
+
       /* same for galaxy bias (it would be better to define a 'class' doing this) */
       class_call(parser_read_list_of_doubles(pfc,
                                              "selection_bias",
@@ -1509,7 +1509,7 @@ int input_init(
                      ppt->selection_num,int1,ppt->selection_num);
         }
         free(pointer1);
-      }        
+      }
 
       class_call(parser_read_list_of_doubles(pfc,
                                              "selection_magnification_bias",
@@ -1539,7 +1539,7 @@ int input_init(
         }
         free(pointer1);
       }
-          
+
     }
 
     if (ppt->selection_num>1) {
@@ -1562,7 +1562,7 @@ int input_init(
       if ((strstr(string1,"analytic_euclid") != NULL))
         ptr->has_nz_analytic_euclid = _TRUE_;
       else if ((strstr(string1,"analytic_ska") != NULL))
-        ptr->has_nz_analytic_ska = _TRUE_;             
+        ptr->has_nz_analytic_ska = _TRUE_;
       else{
         ptr->has_nz_file = _TRUE_;
         class_read_string("dNdz_selection",ptr->nz_file_name);
@@ -1604,6 +1604,7 @@ int input_init(
                errmsg,
                "the input parameter 's_bias' is obsolete, because you can now pass an independent magnitude bias for each bin/selection function. The new input name is 'selection_magnitude_bias'. It can be set to a single number (common magnitude bias for all bins) or as many numbers as the number of bins");
 
+    class_read_double("nc_bias_b0",ptr->nc_bias_b0);
 
   }
 
@@ -1899,13 +1900,15 @@ int input_init(
   class_read_double("transfer_neglect_late_source",ppr->transfer_neglect_late_source);
 
   class_read_double("l_switch_limber",ppr->l_switch_limber);
-  class_read_double("l_switch_limber_for_cl_density_over_z",ppr->l_switch_limber_for_cl_density_over_z);
+  class_read_double("l_switch_limber_for_nc_local_over_z",ppr->l_switch_limber_for_nc_local_over_z);
+  class_read_double("l_switch_limber_for_nc_los_over_z",ppr->l_switch_limber_for_nc_los_over_z);
   class_read_double("selection_cut_at_sigma",ppr->selection_cut_at_sigma);
   class_read_double("selection_sampling",ppr->selection_sampling);
   class_read_double("selection_sampling_bessel",ppr->selection_sampling_bessel);
+  class_read_double("selection_sampling_bessel_los",ppr->selection_sampling_bessel_los);
   class_read_double("selection_tophat_edge",ppr->selection_tophat_edge);
   class_read_double("selection_rounding_tolerance",ppr->selection_rounding_tolerance);
-  
+
   /** h.7. parameters related to nonlinear calculations */
 
   class_read_double("halofit_dz",ppr->halofit_dz);
@@ -2139,7 +2142,7 @@ int input_default_params(
 
   ppt->has_nc_density = _FALSE_;
   ppt->has_nc_rsd = _FALSE_;
-  ppt->has_nc_doppler = _FALSE_;  
+  ppt->has_nc_doppler = _FALSE_;
   ppt->has_nc_lens = _FALSE_;
   ppt->has_nc_gr = _FALSE_;
 
@@ -2255,8 +2258,9 @@ int input_default_params(
 
   /** - transfer structure */
 
-  ptr->selection_bias[0] = 1.;  
-  ptr->selection_magnification_bias[0]=1.;
+  ptr->selection_bias[0] = 1.;
+  ptr->nc_bias_b0 = 1.;
+  ptr->selection_magnification_bias[0]=0.;
   ptr->lensing_convergence_rescale = 1.;
   ptr->lcmb_rescale=1.;
   ptr->lcmb_pivot=0.1;
@@ -2266,10 +2270,10 @@ int input_default_params(
   ptr->has_nz_analytic_ska = _FALSE_;
   ptr->has_nz_file = _FALSE_;
   ptr->has_nz_evo_analytic_euclid = _FALSE_;
-  ptr->has_nz_evo_analytic_ska = _FALSE_; 
+  ptr->has_nz_evo_analytic_ska = _FALSE_;
   ptr->has_nz_evo_file = _FALSE_;
-  ptr->has_el_number_count = _FALSE_;  
-  
+  ptr->has_el_number_count = _FALSE_;
+
   /** - output structure */
 
   pop->z_pk_num = 1;
@@ -2281,7 +2285,7 @@ int input_default_params(
   pop->write_thermodynamics = _FALSE_;
   pop->write_primordial = _FALSE_;
   pop->has_el_number_count = _FALSE_;
-  
+
   /** - spectra structure */
 
   psp->z_max_pk = pop->z_pk[0];
@@ -2512,11 +2516,13 @@ int input_default_precision ( struct precision * ppr ) {
   ppr->transfer_neglect_late_source = 400.;
 
   ppr->l_switch_limber=10.;
-  ppr->l_switch_limber_for_cl_density_over_z=30.;
+  ppr->l_switch_limber_for_nc_local_over_z=10000.;
+  ppr->l_switch_limber_for_nc_los_over_z=2000.;
 
   ppr->selection_cut_at_sigma=5.;
   ppr->selection_sampling=50;
-  ppr->selection_sampling_bessel=20;
+  ppr->selection_sampling_bessel=2.;
+  ppr->selection_sampling_bessel_los=ppr->selection_sampling_bessel;
   ppr->selection_tophat_edge=0.1;
   ppr->selection_rounding_tolerance=0.000001;
 
