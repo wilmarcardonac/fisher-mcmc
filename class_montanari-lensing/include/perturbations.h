@@ -137,7 +137,7 @@ struct perturbs
 
   short has_nc_density;  /**< in dCl, do we want density terms ? */
   short has_nc_rsd;      /**< in dCl, do we want redshift space distorsion terms ? */
-  short has_nc_doppler;  /**< in dCl, do we want doppler terms ? */    
+  short has_nc_doppler;  /**< in dCl, do we want doppler terms ? */
   short has_nc_lens;     /**< in dCl, do we want lensing terms ? */
   short has_nc_gr;       /**< in dCl, do we want gravity terms ? */
 
@@ -329,11 +329,11 @@ struct perturbs
   /** @name - physical parameters */
 
   //@{
-  
+
   short has_mg;		/**< Modified Gravity flag */
   double mg_eta; /* Modified Gravity parametrization eta=phi/psi */
   double mg_beta2; /* Modified Gravity parametrization following arXiv:1106.4543 */
-  
+
   //@}
 
   /** @name - technical parameters */

@@ -171,14 +171,14 @@ Program fisher
 
               Covguess(6,6) = sigma_m_ncdm**2
 
-!              Covguess(7,7) = sigma_MG_beta2**2
+              Covguess(7,7) = sigma_nc_bias_b0**2
 
            End If
 
         End If
         ! COVARIANCE MATRIX SET
 
-        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-2 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
+        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-1 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
 
         ! COVARIANCE MATRIX ADJUSTED 
         Covguess = jumping_factor*Covguess
@@ -575,7 +575,7 @@ Program fisher
 
         write(UNIT_RANGES_FILE,*) 'm_ncdm    N    N '
 
-!        write(UNIT_RANGES_FILE,*) 'MG_beta2    N    N ' 
+        write(UNIT_RANGES_FILE,*) 'nc_bias_b0    N    N ' 
 
         close(UNIT_RANGES_FILE)
 
@@ -603,19 +603,19 @@ Program fisher
 
         open(UNIT_RANGES_FILE,file = PATH_TO_RANGES_FILE )    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    3.e-3    3.9e-2 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    3.e-3    1.e-1 '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(2))//'    1.e-2    1.e0 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(2))//'    1.e-3    1. '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(3))//'    9.e-2    2.e0 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(3))//'    9.e-2    2. '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-9    6.0e-9 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-11    1.e-7 '
 
         write(UNIT_RANGES_FILE,*) ''//trim(paramnames(5))//'    30    90 '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    1.e-4    1.e0 '
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    0.    2. '
 
-!        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    10.'
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    2.'
 
         close(UNIT_RANGES_FILE)
 
@@ -633,7 +633,7 @@ Program fisher
 
            old_point(6) = m_ncdm
 
-!           old_point(7) = MG_beta2
+           old_point(7) = nc_bias_b0
     
            Do m=1,number_of_parameters
 
@@ -683,7 +683,7 @@ Program fisher
 
            x_old(6) = genunf(real(m_ncdm-sigma_m_ncdm),real(m_ncdm+sigma_m_ncdm))             ! m_ncdm
 
-!           x_old(7) = genunf(real(MG_beta2-sigma_MG_beta2),real(MG_beta2+sigma_MG_beta2))     ! MG_beta2
+           x_old(7) = genunf(real(nc_bias_b0-sigma_nc_bias_b0),real(nc_bias_b0+sigma_nc_bias_b0))     ! MG_beta2
 
            Do m=1,number_of_parameters
 
@@ -722,7 +722,7 @@ Program fisher
         End If
 
         call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
-             MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_mcmc,&
+             old_point(7),MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_mcmc,&
              q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
         !###############################################
@@ -833,19 +833,19 @@ Program fisher
 
            End If
 
-           plausibility(1) = (x_new(1) .lt. real(3.d-3)) .or. (x_new(1) .gt. real(3.9d-2))
+           plausibility(1) = (x_new(1) .lt. real(3.d-3)) .or. (x_new(1) .gt. real(1.d-1))
 
-           plausibility(2) = (x_new(2) .lt. real(1.d-2)) .or. (x_new(2) .gt. real(1.d0))
+           plausibility(2) = (x_new(2) .lt. real(1.d-3)) .or. (x_new(2) .gt. real(1.d0))
            
            plausibility(3) = (x_new(3) .lt. real(9.d-2)) .or. (x_new(3) .gt. real(2.d0))
 
-           plausibility(4) = (x_new(4) .lt. real(log(10.d0))) .or. (x_new(4) .gt. real(log(60.d0))) ! limit As<3.d-9 but using log(10^10As)
+           plausibility(4) = (x_new(4) .lt. real(log(1.d-1))) .or. (x_new(4) .gt. real(log(1.d3))) ! limit As<3.d-9 but using log(10^10As)
 
            plausibility(5) = (x_new(5) .lt. real(30.d0)).or.(x_new(5).gt.real(90.d0))
 
-           plausibility(6) = (x_new(6) .lt. real(1.d-4)) .or. (x_new(6) .gt. real(1.d0))
+           plausibility(6) = (x_new(6) .lt. real(0.d0)) .or. (x_new(6) .gt. real(2.d0))
 
-!           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .gt. real(10.d0))
+           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .ge. real(2.d0))
 
            Do n=1,number_of_parameters
 
@@ -900,7 +900,7 @@ Program fisher
            Else
 
               call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
-                   current_point(5),current_point(6),MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+                   current_point(5),current_point(6),current_point(7),MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,&
                    selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
               !################################

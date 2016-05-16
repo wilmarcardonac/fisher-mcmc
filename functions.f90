@@ -1554,17 +1554,17 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 end subroutine write_ini_file_for_fisher
 
 subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
-                          param_m_ncdm, param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
+                          param_m_ncdm, param_nc_bias_b0,param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
                            param_deg_ncdm, len_flag,bessel,q,kmaxtau0,job)
     
     use fiducial
     Implicit none
-    Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
+    Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio,param_nc_bias_b0
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
-    character*16 :: string_MG_beta2
+    character*16 :: string_MG_beta2,string_nc_bias_b0
     Character(len=10) :: job
         
     call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
@@ -1577,6 +1577,7 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     write(string_H0,fmt) param_H0
     write(string_m_ncdm,fmt) param_m_ncdm
     write(string_MG_beta2,fmt) param_MG_beta2
+    write(string_nc_bias_b0,fmt) param_nc_bias_b0
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
@@ -1603,6 +1604,8 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
     write(10,'(a11, es16.10)') 'MG_beta2 = ', param_MG_beta2
+
+    write(10,'(a13, es16.10)') 'nc_bias_b0 = ', param_nc_bias_b0
 
     ! Parameters for massive neutrinos                                                                                            
 
