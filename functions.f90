@@ -322,7 +322,8 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.false.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm,n_s,A_s,H0)-&
+                 euclid_galaxy_cl_likelihood(Cl_current,omega_b,omega_cdm,n_s,A_s,H0)),&
                  qls,kmt_fid,ssb_fid
     
         Else If ((index .gt. number_of_q) .and. (index .lt. (number_of_q+number_of_kmax) )) then
@@ -331,7 +332,8 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.false.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm,n_s,A_s,H0)-&
+                 euclid_galaxy_cl_likelihood(Cl_current,omega_b,omega_cdm,n_s,A_s,H0)),&
                  qls_fid,kmt,ssb_fid
     
         Else If ( (index .gt. (number_of_q+number_of_kmax)) .and. (index .le. (number_of_q+number_of_kmax+number_of_bessel) ) )then
@@ -340,7 +342,8 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.false.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm,n_s,A_s,H0)-&
+                 euclid_galaxy_cl_likelihood(Cl_current,omega_b,omega_cdm,n_s,A_s,H0)),&
                  qls_fid,kmt_fid,ssb
     
         End If
@@ -366,7 +369,7 @@ function log_Gaussian_likelihood(array)
     log_Gaussian_likelihood = -log_Gaussian_likelihood/2.d0
 end function log_Gaussian_likelihood
 
-function euclid_galaxy_cl_likelihood(Cl)
+function euclid_galaxy_cl_likelihood(Cl,ob,ocdm,nss,ass,h00)
 
   use fiducial
   use arrays
@@ -378,8 +381,8 @@ function euclid_galaxy_cl_likelihood(Cl)
   Real*8,parameter :: epsilon_max = 1.d2
   Real*8,dimension(lmin:lmax,0:nbins,0:nbins) :: Clth,Cl,Elth
   Real*8,dimension(1:nbins,1:nbins) :: Cov_mix,Cov_obs,Cov_the,Cov_the_El,Cov_mix_new
-  Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l
-   
+  Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l,ob,ocdm
+  Real*8 :: nss,ass,h00   
   
   Do indexl=lmin,lmax
 
@@ -590,6 +593,56 @@ function euclid_galaxy_cl_likelihood(Cl)
      End if
 
   End Do
+
+  If (use_gaussian_prior_omega_b) then 
+
+     chi2 = (omega_b - ob)**2/((sigma_omega_b)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_b)**2)
+
+  Else
+
+     continue
+
+  End If
+
+  If (use_gaussian_prior_omega_cdm) then 
+
+     chi2 = (omega_cdm - ocdm)**2/((sigma_omega_cdm)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
+
+  Else
+
+     continue
+
+  End If
+
+  If (use_gaussian_prior_n_s) then 
+
+     chi2 = (n_s - nss)**2/((sigma_n_s)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
+
+  Else
+
+     continue
+
+  End If
+
+  If (use_gaussian_prior_A_s) then 
+
+     chi2 = (A_s - ass)**2/((sigma_A_s)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
+
+  Else
+
+     continue
+
+  End If
+
+  If (use_gaussian_prior_H0) then 
+
+     chi2 = (H0 - h00)**2/((sigma_H0)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
+
+  Else
+
+     continue
+
+  End If
     
   If (abs(chi2).ge.0.d0) then
 
@@ -658,7 +711,7 @@ subroutine compute_ratio_likelihood()
 
     open(16,file='./output/ratio_likelihood_values.dat')
     write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm '!    MG_beta2 '
-    write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl),omega_b,omega_cdm,n_s,A_s,&
+    write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm,n_s,A_s,H0),omega_b,omega_cdm,n_s,A_s,&
     H0,m_ncdm!,MG_beta2
 
     Do p=1,2
@@ -707,7 +760,8 @@ subroutine compute_ratio_likelihood()
 
                 call read_Cl(Cl_current,11,lensing_flag)
 
-                loglikelihood = euclid_galaxy_cl_likelihood(Cl_current)
+                loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,point_parameter_space(1),point_parameter_space(2),&
+                     point_parameter_space(3),point_parameter_space(4),point_parameter_space(5))
 
                 call system('rm ./output/current_euclid_galaxy_cl.dat')    ! Remove Cl file
 

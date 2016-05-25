@@ -84,7 +84,7 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 20000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_iterations = 30000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
   Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0!2000 ! 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
@@ -113,6 +113,11 @@ Module fiducial
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
   Logical,parameter      :: multiple_chains = .true. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: use_only_autocorrelations = .false. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_prior_omega_b = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_prior_omega_cdm = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_prior_n_s = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_prior_A_s = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_prior_H0 = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
 
   !###############
   ! PATHS TO FILES
