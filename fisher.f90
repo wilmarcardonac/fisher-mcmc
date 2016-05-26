@@ -182,7 +182,7 @@ Program fisher
         End If
         ! COVARIANCE MATRIX SET
 
-        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*5.d-2 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
+        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-1 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
 
         ! COVARIANCE MATRIX ADJUSTED 
         Covguess = jumping_factor*Covguess
@@ -325,10 +325,10 @@ Program fisher
      call compute_observed_Cl()
 
      write(job_number,*) '-ln(L/L_{max}) AT THE FIDUCIAL POINT (NOT INCLUDING LENSING) IS : ',&
-          -euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm)
+          -euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm,n_s,A_s,H0)
 
      write(job_number,*), '-ln(L/L_{max}) AT THE FIDUCIAL POINT (INCLUDING LENSING) IS : ', &
-          -euclid_galaxy_cl_likelihood(Cl_fid,omega_b,omega_cdm)
+          -euclid_galaxy_cl_likelihood(Cl_fid,omega_b,omega_cdm,n_s,A_s,H0)
 
      ! ALLOCATING MEMORY FOR COVARIANCE MATRIX
      allocate (cov(lmin:lmax,1:nbins,1:nbins,1:nbins,1:nbins),stat = status4)
@@ -619,7 +619,7 @@ Program fisher
 
         write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    0.    2. '
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    2.'
+        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    3.'
 
         close(UNIT_RANGES_FILE)
 
@@ -745,7 +745,8 @@ Program fisher
 
               call read_Cl_mcmc(Cl_current,11,lensing,string)
 
-              old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,old_point(1),old_point(2))
+              old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,old_point(1),old_point(2),old_point(3),&
+                   exp(old_point(4))/(1.d1**1.d1),old_point(5))
 
               call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
 
@@ -849,7 +850,7 @@ Program fisher
 
            plausibility(6) = (x_new(6) .lt. real(0.d0)) .or. (x_new(6) .gt. real(2.d0))
 
-           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .ge. real(2.d0))
+           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .ge. real(3.d0))
 
            Do n=1,number_of_parameters
 
@@ -923,7 +924,8 @@ Program fisher
 
                     call read_Cl_mcmc(Cl_current,11,lensing,string)
 
-                    current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,current_point(1),current_point(2))
+                    current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,current_point(1),current_point(2),&
+                         current_point(3),exp(current_point(4))/(1.d1**1.d1),current_point(5))
 
                     call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE
 
