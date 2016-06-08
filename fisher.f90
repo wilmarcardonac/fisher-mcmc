@@ -925,7 +925,7 @@ Program fisher
                     call read_Cl_mcmc(Cl_current,11,lensing,string)
 
                     current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,current_point(1),current_point(2),&
-                         current_point(3),exp(current_point(4))/(1.d1**1.d1),current_point(5))
+                         current_point(3),current_point(4),current_point(5))
 
                     call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE
 
