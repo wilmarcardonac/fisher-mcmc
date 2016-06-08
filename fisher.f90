@@ -643,7 +643,7 @@ Program fisher
 
               If (m .eq. 4) then
 
-                 x_old(m) = real(log(1.d1**1.d1*old_point(m)))
+                 x_old(m) = real(dlog(1.d1**1.d1*old_point(m)))
 
               else
 
@@ -663,7 +663,7 @@ Program fisher
 
               If (m .eq. 4) then
 
-                 x_old(m) = real(log(1.d1**1.d1*old_point(m)))
+                 x_old(m) = real(dlog(1.d1**1.d1*old_point(m)))
 
               else
 
@@ -693,7 +693,7 @@ Program fisher
 
               If (m .eq. 4) then
 
-                 old_point(m) = exp(dble(x_old(m)))/(1.d1**1.d1)
+                 old_point(m) = dexp(dble(x_old(m)))/(1.d1**1.d1)
 
               Else
                  
@@ -746,7 +746,7 @@ Program fisher
               call read_Cl_mcmc(Cl_current,11,lensing,string)
 
               old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,old_point(1),old_point(2),old_point(3),&
-                   exp(old_point(4))/(1.d1**1.d1),old_point(5))
+                   old_point(4),old_point(5))
 
               call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
 

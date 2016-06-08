@@ -697,7 +697,7 @@ function euclid_galaxy_cl_likelihood(Cl,ob,ocdm,nss,ass,h00)
      continue
 
   End If
-    
+
   If (abs(chi2).ge.0.d0) then
 
      euclid_galaxy_cl_likelihood = -chi2/2.d0   
