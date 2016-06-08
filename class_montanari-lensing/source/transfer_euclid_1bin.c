@@ -2610,7 +2610,7 @@ int transfer_sources(
               (_index_tt_in_range_(ptr->index_tt_d1,      ppt->selection_num, ppt->has_nc_doppler)) ||
               (_index_tt_in_range_(ptr->index_tt_nc_g2,   ppt->selection_num, ppt->has_nc_gr))) {
 
-            if((ptr->has_nz_evo_file == _TRUE_) || (ptr->has_nz_evo_analytic == _TRUE_)){
+            if((ptr->has_nz_evo_file == _TRUE_) || (ptr->has_nz_evo_analytic_euclid == _TRUE_)){
 
               f_evo = 2./pvecback[pba->index_bg_H]/pvecback[pba->index_bg_a]/tau0_minus_tau[index_tau]
                     + pvecback[pba->index_bg_H_prime]/pvecback[pba->index_bg_H]/pvecback[pba->index_bg_H]/pvecback[pba->index_bg_a];
@@ -2927,7 +2927,7 @@ int transfer_sources(
 
                   /* Source evolution at time tau_lensing_source */
 
-                  if ((ptr->has_nz_evo_file == _TRUE_) || (ptr->has_nz_evo_analytic == _TRUE_)) {
+                  if ((ptr->has_nz_evo_file == _TRUE_) || (ptr->has_nz_evo_analytic_euclid == _TRUE_)) {
 
                     f_evo = 2./pvecback[pba->index_bg_H]/pvecback[pba->index_bg_a]/tau0_minus_tau[index_tau]
                       + pvecback[pba->index_bg_H_prime]/pvecback[pba->index_bg_H]/pvecback[pba->index_bg_H]/pvecback[pba->index_bg_a];
@@ -3098,7 +3098,7 @@ int transfer_selection_function(
     *selection = exp(-0.5*pow(x/ppt->selection_width[bin],2))
       /ppt->selection_width[bin]/sqrt(2.*_PI_);
 
-    if ((ptr->has_nz_file == _TRUE_) || (ptr->has_nz_analytic == _TRUE_)) {
+    if ((ptr->has_nz_file == _TRUE_) || (ptr->has_nz_analytic_euclid == _TRUE_)) {
 
       if (ptr->has_nz_file == _TRUE_) {
 
@@ -3158,7 +3158,7 @@ int transfer_selection_function(
     */
     *selection=(1.-tanh((x-ppt->selection_width[bin])/(ppr->selection_tophat_edge*ppt->selection_width[bin])))/2.;
 
-    if ((ptr->has_nz_file == _TRUE_) || (ptr->has_nz_analytic == _TRUE_)) {
+    if ((ptr->has_nz_file == _TRUE_) || (ptr->has_nz_analytic_euclid == _TRUE_)) {
 
       if (ptr->has_nz_file == _TRUE_) {
 
@@ -3226,15 +3226,17 @@ int transfer_dNdz_analytic(
 
   double z0,alpha,beta;
 
-  /* euclid */
-  z0 = 0.9/1.412;
-  alpha = 2.0;
-  beta = 1.5;
+  if ((ptr->has_nz_analytic_euclid == _TRUE_) || (ptr->has_nz_evo_analytic_euclid == _TRUE_)){
+    z0 = 0.9/1.412;
+    alpha = 2.0;
+    beta = 1.5;
+  }
 
-  /* ska  */
-  //z0 = 1./6.6874;
-  //alpha = 2.1757;
-  //beta = 1.;
+  if ((ptr->has_nz_analytic_ska == _TRUE_) || (ptr->has_nz_evo_analytic_ska == _TRUE_)){
+    z0 = 1./6.6874;
+    alpha = 2.1757;
+    beta = 1.;
+  }
 
   *dNdz = pow(z/z0,alpha) * exp(-pow(z/z0,beta));
 

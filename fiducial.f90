@@ -34,11 +34,11 @@ Module fiducial
   ! 1-SIGMA VALUES FOR PARAMETERS IN FIDUCIAL MODEL
   !################################################
 
-  Real*8,parameter :: sigma_omega_b = 1.6d-4
+  Real*8,parameter :: sigma_omega_b = 1.7d-4
   Real*8,parameter :: sigma_omega_cdm = 1.5d-3
   Real*8,parameter :: sigma_n_s = 4.9d-3
-  Real*8,parameter :: sigma_A_s = 1.541d-11
-  Real*8,parameter :: sigma_H0 = 6.6d-1
+  Real*8,parameter :: sigma_A_s = 7.60d-11
+  Real*8,parameter :: sigma_H0 = 1.68d0
   Real*8,parameter :: sigma_m_ncdm = 5.d-3
   Real*8,parameter :: sigma_MG_beta2 = 2.5d-1
   Real*8,parameter :: sigma_nc_bias_b0 = 1.0d-1
@@ -84,7 +84,7 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 20000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_iterations = 30000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
   Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0!2000 ! 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
