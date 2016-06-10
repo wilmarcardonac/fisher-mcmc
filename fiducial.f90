@@ -113,11 +113,7 @@ Module fiducial
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
   Logical,parameter      :: multiple_chains = .true. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: use_only_autocorrelations = .true. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
-  Logical,parameter      :: use_gaussian_prior_omega_b = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
-  Logical,parameter      :: use_gaussian_prior_omega_cdm = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
-  Logical,parameter      :: use_gaussian_prior_n_s = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
-  Logical,parameter      :: use_gaussian_prior_A_s = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
-  Logical,parameter      :: use_gaussian_prior_H0 = .true. ! USE GAUSSIAN PRIOR BASED ON TABLE 3 PAPER XIII (2015) IF SET IT TRUE
+  Logical,parameter      :: use_gaussian_planck_prior = .true. ! USE GAUSSIAN PRIOR BASED ON PAPER XIII (2015) IF SET IT TRUE
 
   !###############
   ! PATHS TO FILES

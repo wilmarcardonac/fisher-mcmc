@@ -500,7 +500,12 @@ Program fisher
      If (do_mcmc_analysis) then
 
         allocate (El(lmin:lmax,0:nbins,0:nbins),Cl_fid(lmin:lmax,0:nbins,0:nbins),Cl_fid_nl(lmin:lmax,0:nbins,0:nbins),&
-          Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),bestfit(number_of_parameters),stat = status3)
+          Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),bestfit(number_of_parameters),prior_cov(5,5),&
+          inv_prior_cov(5,5),stat = status3)
+
+        call read_covariance_matrix_prior(prior_cov)
+
+        call compute_inverse_matrix_prior()
 
         call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
