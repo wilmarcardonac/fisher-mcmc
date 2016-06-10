@@ -442,6 +442,14 @@ function euclid_galaxy_cl_likelihood(Cl,ob,ocdm,nss,ass,h00)
   Real*8,dimension(1:nbins,1:nbins) :: Cov_mix,Cov_obs,Cov_the,Cov_the_El,Cov_mix_new
   Real*8 :: euclid_galaxy_cl_likelihood,chi2,det_obs,det_the,det_mix,det_the_El,det_the_El_mix,epsilon_l,ob,ocdm
   Real*8 :: nss,ass,h00
+  Real*8,dimension(5) :: param_vector
+  Real*8,parameter,dimension(5) :: fiducial_vector = [omega_b,omega_cdm,n_s,dlog(1.d10*A_s),H0]
+
+  param_vector(1) = ob
+  param_vector(2) = ocdm
+  param_vector(3) = nss
+  param_vector(4) = dlog(1.d10*ass)
+  param_vector(5) = h00
 
   Do indexl=lmin,lmax
 
@@ -648,49 +656,18 @@ function euclid_galaxy_cl_likelihood(Cl,ob,ocdm,nss,ass,h00)
 
   End Do
 
-  If (use_gaussian_prior_omega_b) then 
+  If (use_gaussian_planck_prior) then 
 
-     chi2 = (omega_b - ob)**2/((sigma_omega_b)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_b)**2)
+     Do indexbin_i=1,5
+        
+        Do indexbin_j=1,5
 
-  Else
+           chi2 = (fiducial_vector(indexbin_i)-param_vector(indexbin_i))*inv_prior_cov(indexbin_i,&
+                indexbin_j)*(fiducial_vector(indexbin_j) - param_vector(indexbin_j)) + chi2 
 
-     continue
+        End Do
 
-  End If
-
-  If (use_gaussian_prior_omega_cdm) then 
-
-     chi2 = (omega_cdm - ocdm)**2/((sigma_omega_cdm)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
-
-  Else
-
-     continue
-
-  End If
-
-  If (use_gaussian_prior_n_s) then 
-
-     chi2 = (n_s - nss)**2/((sigma_n_s)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
-
-  Else
-
-     continue
-
-  End If
-
-  If (use_gaussian_prior_A_s) then 
-
-     chi2 = (A_s - ass)**2/((sigma_A_s)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
-
-  Else
-
-     continue
-
-  End If
-
-  If (use_gaussian_prior_H0) then 
-
-     chi2 = (H0 - h00)**2/((sigma_H0)**2) + chi2 !+ log(2.d0*Pi*(5.d0*sigma_omega_cdm)**2)
+     End Do
 
   Else
 
@@ -2649,6 +2626,119 @@ subroutine read_covariance_matrix_mcmc(matrix1)
     End If
 
 end subroutine read_covariance_matrix_mcmc
+
+subroutine read_covariance_matrix_prior(matrix1)
+    use fiducial
+    Implicit none
+    Real*8,dimension(5,5) :: matrix,matrix1
+    Integer*4 :: index1,INFO
+    Integer*4,parameter :: LWORK = max(1,3*5-1)
+    Real*8,dimension(max(1,LWORK)) :: WORK
+    Real*8,dimension(number_of_parameters) :: W
+    Character*1,parameter :: JOBZ = 'N'
+    Character*1,parameter :: UPLO = 'U'
+    Logical :: pos_def,exist 
+ 
+    inquire(file='./data/planck_covariance_matrix.txt',exist=exist)
+
+    If (exist) then
+
+       open(12,file='./data/planck_covariance_matrix.txt')
+
+       read(12,*)
+
+    Else
+
+       print *, 'NO COVARIANCE MATRIX FOUND IN DATA FOLDER'
+
+       stop
+
+    End If
+
+    Do index1=1,5
+
+        read(12,*) matrix(index1,1:5)
+
+    End Do
+
+    close(12)
+
+    call dsyev(JOBZ,UPLO,5,matrix,5,W,WORK,LWORK,INFO)
+
+    If (INFO .eq. 0) then
+ 
+        pos_def = .true.
+        
+        Do index1=1,5
+         
+            If (W(index1) .le. 0.d0) then
+
+                pos_def = .false.
+
+                exit
+
+            End If
+
+        End Do
+      
+        If (pos_def) then
+
+            open(12,file='./data/planck_covariance_matrix.txt')
+
+            read(12,*)
+
+            Do index1=1,5
+
+                read(12,*) matrix1(index1,1:5)
+
+            End Do
+
+            close(12)
+
+        Else
+
+            print *,'COVARIANCE MATRIX IS NOT POSITIVE DEFINITE, KEEPING CURRENT COVARIANCE MATRIX'
+            
+        End If
+
+    Else
+
+        print *,'EIGENVALUES WERE NOT COMPUTED'
+
+    End If
+
+end subroutine read_covariance_matrix_prior
+
+subroutine compute_inverse_matrix_prior()
+    use fiducial
+    use arrays
+    Implicit none
+    Integer*4 :: M,N,LDA,INFO,LWORK,i,j
+    Real*8,dimension(max(1,5),5) :: A
+    Integer*4,dimension(min(5,5)) :: IPIV
+    Real*8,dimension(max(1,max(1,5))) :: WORK
+    M = 5
+    N = M
+    LDA = max(1,M)
+    LWORK = max(1,N)
+
+    Do i=1,M
+        Do j=1,M
+            A(i,j) = prior_cov(i,j)
+        End Do
+    End Do
+
+    call dgetrf(M,N,A,LDA,IPIV,INFO)
+
+    call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
+
+    Do i=1,M
+        Do j=1,M
+            inv_prior_cov(i,j) = A(i,j)
+        End Do
+    End Do
+    
+end subroutine compute_inverse_matrix_prior
 
 subroutine read_bestfit_mcmc(vector)
     use fiducial
