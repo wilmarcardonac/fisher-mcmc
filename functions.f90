@@ -2634,7 +2634,7 @@ subroutine read_covariance_matrix_prior(matrix1)
     Integer*4 :: index1,INFO
     Integer*4,parameter :: LWORK = max(1,3*5-1)
     Real*8,dimension(max(1,LWORK)) :: WORK
-    Real*8,dimension(number_of_parameters) :: W
+    Real*8,dimension(5) :: W
     Character*1,parameter :: JOBZ = 'N'
     Character*1,parameter :: UPLO = 'U'
     Logical :: pos_def,exist 
