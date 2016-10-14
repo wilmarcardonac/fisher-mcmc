@@ -173,7 +173,7 @@ subroutine run_class_testing_precision(Cl_flag,index)
     
     write(string,fmt) index
 
-    If (.not.lensing_flag) then
+    If (lensing_flag) then
 
         print *, 'TESTING PRECISION HAS ONLY BEEN IMPLEMENTED WITHOUT LENSING'
 
@@ -303,7 +303,7 @@ subroutine testing_precision_cl()
 
     End If
 
-    call read_data(El,10,filetype,ElCl,.false.,.true.,.false.)
+    call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
 
     call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
 
@@ -381,8 +381,9 @@ function euclid_galaxy_cl_likelihood(Cl)
     Do indexl=lmin,lmax
         Do indexbin_i=1,nbins
             Do indexbin_j=1,nbins
-                Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/&
-                dble(indexl)/(dble(indexl) + 1.d0) + Nl(indexbin_i,indexbin_j)
+                Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*(Cl(indexl,indexbin_i,indexbin_j) + &
+                El(indexl,indexbin_i,indexbin_j) )/dble(indexl)/(dble(indexl) + 1.d0) + &
+                     Nl(indexbin_i,indexbin_j)
                 Elth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*El(indexl,indexbin_i,indexbin_j)/&
                 dble(indexl)/(dble(indexl) + 1.d0)*sqrt(dble(L))
             End Do

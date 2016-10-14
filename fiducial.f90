@@ -13,11 +13,11 @@ Module fiducial
   Real*8,parameter :: n_s = 9.645d-1
   Real*8,parameter :: A_s = 2.20652d-9
   Real*8,parameter :: H0 = 6.727d1
-  Real*8,parameter :: m_ncdm = 0.0d0
+  Real*8,parameter :: m_ncdm = 6.0d-2
   Real*8,parameter :: MG_beta2 = 1.00d0
-  Real*8,parameter :: N_ur = 3.046d0
-  Real*8,parameter :: N_ncdm = 0.d0
-  Real*8,parameter :: deg_ncdm = 0.d0
+  Real*8,parameter :: N_ur = 2.0328d0
+  Real*8,parameter :: N_ncdm = 1.d0
+  Real*8,parameter :: deg_ncdm = 1.d0
   Real*8,parameter :: tau = 0.079d0
 
   Character(len=*),parameter :: param_name_omega_b = 'omega_b'
