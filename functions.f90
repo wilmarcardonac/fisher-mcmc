@@ -73,7 +73,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
         End If
 
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(10,'(a50)') 'number count contributions = density              '
 
     End if
     
@@ -738,7 +738,7 @@ subroutine compute_shot_noise()
             If (m .ne. n) then
                 Nl(m,n) = 0.d0
             else
-                Nl(m,n) = real(nbins)*(1.d0/(3600.d0*gal_per_sqarcmn*(180.d0/Pi)**2))
+                Nl(m,n) = 1.d-6 !real(nbins)*(1.d0/(3600.d0*gal_per_sqarcmn*(180.d0/Pi)**2))
             End If
         End Do
     End Do
@@ -1189,7 +1189,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Bl_bestfit_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
 
                 write(10,*) 'root = ../data/Bl_bestfit_lensing_'
 
@@ -1197,7 +1197,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
 
                 write(10,*) 'root = ../data/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
@@ -1207,7 +1207,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              open(10, file='./ini_files/Bl.ini')
 
-             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+             write(10,'(a59)') 'number count contributions = density     , lensing         '
 
              write(10,*) 'root = ../data/Bl_'
 
@@ -1223,7 +1223,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Bl_bestfit_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(10,'(a50)') 'number count contributions = density              '
 
                 write(10,*) 'root = ../data/Bl_bestfit_no_lensing_'
 
@@ -1231,7 +1231,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(10,'(a50)') 'number count contributions = density              '
 
                 write(10,*) 'root = ../data/Bl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
 
@@ -1241,7 +1241,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              open(10, file='./ini_files/Bl_nl.ini')
 
-             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(10,'(a50)') 'number count contributions = density              '
 
              write(10,*) 'root = ../data/Bl_nl_'
 
@@ -1353,7 +1353,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_fiducial_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
 
                 write(10,*) 'root = ../data/Cl_fiducial_lensing_'
 
@@ -1361,7 +1361,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
 
                 write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
@@ -1371,7 +1371,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              open(10, file='./ini_files/El.ini')
 
-             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+             write(10,'(a59)') 'number count contributions = density,      lensing         '
 
              write(10,*) 'root = ../data/El_'
 
@@ -1387,7 +1387,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_fiducial_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(10,'(a50)') 'number count contributions = density              '
 
                 write(10,*) 'root = ../data/Cl_fiducial_no_lensing_'
 
@@ -1395,7 +1395,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(10,'(a50)') 'number count contributions = density              '
 
                 write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
 
@@ -1405,7 +1405,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              open(10, file='./ini_files/El_nl.ini')
 
-             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(10,'(a50)') 'number count contributions = density              '
 
              write(10,*) 'root = ../data/El_nl_'
 
@@ -1582,11 +1582,11 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
-        write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+        write(10,'(a59)') 'number count contributions = density      ,lensing         '
         write(10,*) 'root = ../output/current_euclid_galaxy_lensing_'//trim(job)//'_'
     else 
         open(10, file='./ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(10,'(a50)') 'number count contributions = density              '
         write(10,*) 'root = ../output/current_euclid_galaxy_cl_'//trim(job)//'_'
     End if
     
@@ -1700,11 +1700,11 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing.ini')
-        write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+        write(10,'(a59)') 'number count contributions = density     , lensing         '
         write(10,*) 'root = ../output/current_euclid_galaxy_lensing_'
     else 
         open(10, file='./ini_files/current_euclid_galaxy_cl_.ini')
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(10,'(a50)') 'number count contributions = density              '
         write(10,*) 'root = ../output/current_euclid_galaxy_'
     End if
     
