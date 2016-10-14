@@ -9,32 +9,47 @@ import matplotlib.pyplot as py
 # Fiducial model 
 Clfid = np.loadtxt('../data/Cl_fiducial_lensing_cl.dat',unpack=True)
 # Error file
-Clbest = np.loadtxt('../data/Cl_bestfit_no_lensing_cl.dat',unpack=True)
+#Clbest = np.loadtxt('../data/Cl_bestfit_no_lensing_cl.dat',unpack=True)
+Clnmnu = np.loadtxt('../data/Cl_fiducial_lensing_cl-without-massive-nu.dat',unpack=True)
 
 # Fiducial model without lensing
 Clfidnl = np.loadtxt('../data/Cl_fiducial_no_lensing_cl.dat',unpack=True) 
 
 # 1-1
 
-py.loglog(Clfid[0],abs(Clfid[1]-Clfidnl[1]),label='fiducial with lensing - fiducial without lensing')
+py.loglog(Clfid[0],abs((Clfid[1]-Clfidnl[1])/Clfid[1])*100.,label='1-1',color='blue')
 
 #py.loglog(Clfidnl[0],abs(Clfidnl[1]),label='fiducial without lensing')
 
-py.loglog(Clbest[0],abs(Clfid[1]-Clbest[1]),label='fiducial with lensing - bestfit without lensing')
+py.loglog(Clfid[0],abs((Clfid[1]-Clnmnu[1])/Clfid[1])*100.,label='1-1',color='green')
+
+#py.loglog(Clfid[0],abs((Clfid[1]-Clfidnl[1])/Clfid[1])*100.,label='1-1',color='blue')
+
+#py.loglog(Clfidnl[0],abs(Clfidnl[1]),label='fiducial without lensing')
+
+py.loglog(Clfid[0],abs((Clfid[5]-Clfidnl[5])/Clfid[5])*100.,label='1-5',color='blue',linestyle='dotted')
+
+py.loglog(Clfid[0],abs((Clfid[5]-Clnmnu[5])/Clfid[5])*100.,label='1-5',color='green',linestyle='dotted')
+
+py.loglog(Clfid[0],abs((Clfid[15]-Clfidnl[15])/Clfid[15])*100.,label='5-5',color='blue',linestyle='dashed')
+
+py.loglog(Clfid[0],abs((Clfid[15]-Clnmnu[15])/Clfid[15])*100.,label='5-5',color='green',linestyle='dashed')
 
 py.xlabel(r'$\ell$')
 
-py.ylabel(r'$|\Delta C_\ell|$')
+py.ylabel(r'$|\Delta C_\ell/C_\ell^{\mathrm{fid}}|*100$')
 
 py.xlim(1,450)
 
 py.legend(loc=0)
 
-py.title('Correlation bins 1-1')
+#py.title('Correlation bins 1-1')
 
-py.savefig('correlation_1_1.pdf')
+py.savefig('correlation_comparison.pdf')
 
 py.close()
+
+exit()
 
 # 1-2
 
