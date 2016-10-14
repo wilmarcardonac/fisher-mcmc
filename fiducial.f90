@@ -55,12 +55,12 @@ Module fiducial
   Real*8,parameter    :: Pi = 3.141592653589793d0
   Real*8,parameter    :: fsky = 1.5d4/4.1253d4
   Real*8,parameter    :: theoreticalerror = 0.d0 !5.d-2
-  Real*8,parameter    :: l_switch_limber_for_cl_density_over_z = 20000.d0
-  Real*8,parameter    :: selection_sampling_bessel_fid = 3.d0 ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
-  Real*8,parameter    :: q_linstep_fid = 0.3d0                ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
-  Real*8,parameter    :: k_max_tau0_over_l_max_fid = 20.d0    ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
-  Real*8,parameter    :: selection_sampling_bessel_mcmc = 1.2d0 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
-  Real*8,parameter    :: q_linstep_mcmc = 40.d0                 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
+  Real*8,parameter    :: l_switch_limber_for_cl_density_over_z = 10000.d0
+  Real*8,parameter    :: selection_sampling_bessel_fid = 0.5d0!3.d0 ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: q_linstep_fid = 1.d0!0.3d0                ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: k_max_tau0_over_l_max_fid = 2.d0!20.d0    ! FIDUCIAL PRECISION PARAMETER FOR FISHER ANALYSIS
+  Real*8,parameter    :: selection_sampling_bessel_mcmc = 0.5d0!1.2d0 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
+  Real*8,parameter    :: q_linstep_mcmc = 1.d0!40.d0                 ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
   Real*8,parameter    :: k_max_tau0_over_l_max_mcmc = 2.d0      ! FIDUCIAL PRECISION PARAMETER FOR MCMC ANALYSIS (WITHOUT LENSING)
 
   !##################
@@ -81,7 +81,7 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 12000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_iterations = 20000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
   Integer*4,parameter    :: number_of_parameters = 6       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0 ! 10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
@@ -103,7 +103,7 @@ Module fiducial
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
   Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
-  Logical,parameter      :: start_from_bestfit = .true.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
+  Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
   Logical,parameter      :: adjusting_covariance_matrix = .false.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: read_covariance_matrix_from_file = .true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE

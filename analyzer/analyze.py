@@ -5,7 +5,7 @@ number_of_parameters = 6
 
 samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':0.2})
 
-samples2 = loadMCSamples('../../fisher-mcmc/output/chains/previous_runs/three-massive-nu-tau-0.089/mcmc_final_output',settings={'ignore_rows':0.2})
+#samples2 = loadMCSamples('../../fisher-mcmc/output/chains/previous_runs/three-massive-nu-tau-0.089/mcmc_final_output',settings={'ignore_rows':0.2})
 
 g = plots.getSinglePlotter()
 
@@ -15,9 +15,9 @@ g.triangle_plot(samples,filled=True)
 
 g.export('../output/chains/triangle_figure.pdf')
 
-g.triangle_plot([samples,samples2],filled=True,legend_labels=['Only auto-correlations','Auto and cross-correlations'])
+#g.triangle_plot([samples,samples2],filled=True,legend_labels=['Only auto-correlations','Auto and cross-correlations'])
 
-g.export('../output/chains/triangle_figure_joint.pdf')
+#g.export('../output/chains/triangle_figure_joint.pdf')
 
 print 'TRIANGLE PLOT CREATED'
 

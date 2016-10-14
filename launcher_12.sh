@@ -1,6 +1,6 @@
 #!/bin/sh
 #SBATCH --cpus-per-task=12
-#SBATCH --job-name=fisher-MCMC
+#SBATCH --job-name=tophat-only-auto
 #SBATCH --ntasks=1
 #SBATCH --time=07-00:00:00
 #SBATCH --mail-user=wilmar.cardona@unige.ch
