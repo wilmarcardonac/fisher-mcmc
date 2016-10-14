@@ -9,7 +9,7 @@ import matplotlib.pyplot as py
 # Fiducial model 
 Clfid = np.loadtxt('../data/Cl_fiducial_lensing_cl.dat',unpack=True)
 # Error file
-Clbest = np.loadtxt('../data/Cl_bestfit_no_lensing_cl.dat',unpack=True)
+#Clbest = np.loadtxt('../data/Cl_bestfit_no_lensing_cl.dat',unpack=True)
 
 # Fiducial model without lensing
 Clfidnl = np.loadtxt('../data/Cl_fiducial_no_lensing_cl.dat',unpack=True) 

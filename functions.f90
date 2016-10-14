@@ -67,7 +67,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
         End If
 
-        write(10,'(a59)') 'number count contributions = density, rsd, doppler, lensing'
+        write(10,'(a59)') 'number count contributions = density,               lensing'
 
     Else 
 
@@ -108,7 +108,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
         End If
 
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(10,'(a50)') 'number count contributions = density,             '
 
     End if
     
@@ -144,26 +144,26 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
     
 !    write(10,'(a20)') 'non linear = halofit'
  
-    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+    write(10,'(a32)') 'dNdz_selection =                '
 
-    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
+    write(10,'(a32)') 'dNdz_evolution =                '
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(10,'(a20)') 'selection = tophat  '
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(10,'(a17, 3(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
+    z_bin_centers(4)!,',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
     !z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+    write(10,'(a18, 3(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
+    z_bin_widths(4)!,',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
 !    z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(10,'(a17, 3(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
+    z_bin_bias(4)!,',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
-         s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(10,'(a31, 3(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+         s_z_mag_bias(3),',',s_z_mag_bias(4)!,',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
     write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
@@ -274,16 +274,16 @@ subroutine compute_data_for_testing_precision()
     Implicit none
 
     Integer*4,parameter :: number_of_q = 10
-    Integer*4,parameter :: number_of_kmax = 0
-    Integer*4,parameter :: number_of_bessel = 0
+    Integer*4,parameter :: number_of_kmax = 10
+    Integer*4,parameter :: number_of_bessel = 10
     Integer*4           :: index
-    Real*8,parameter    :: step_q = 10.0d0
-    Real*8,parameter    :: step_kmax = 2.d0
-    Real*8,parameter    :: step_bessel = 0.3d0
+    Real*8,parameter    :: step_q = 0.2d0
+    Real*8,parameter    :: step_kmax = 1.d0
+    Real*8,parameter    :: step_bessel = 0.2d0
     Real*8              :: ssb,qls,kmt
-    Real*8,parameter    :: kmt_fid = 2.d0 ! = k_max_tau0_over_l_max_fid
-    Real*8,parameter    :: ssb_fid = 1.2d0 ! = selection_sampling_bessel_fid
-    Real*8,parameter    :: qls_fid = 2.3d0 != q_linstep_fid
+    Real*8,parameter    :: kmt_fid = k_max_tau0_over_l_max_fid
+    Real*8,parameter    :: ssb_fid = selection_sampling_bessel_fid
+    Real*8,parameter    :: qls_fid =  q_linstep_fid
 
     ! UNCOMMENT TO COMPUTE ERROR FILE
 !    call write_ini_file_for_testing_precision(.false.,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid,0)
@@ -332,16 +332,16 @@ subroutine testing_precision_cl()
     Character*16                           :: ElCl         ! ALLOWS TO CHOOSE EITHER EL OR CL
 
     Integer*4,parameter :: number_of_q = 10
-    Integer*4,parameter :: number_of_kmax = 0
-    Integer*4,parameter :: number_of_bessel = 0
+    Integer*4,parameter :: number_of_kmax = 10
+    Integer*4,parameter :: number_of_bessel = 10
     Integer*4           :: index
-    Real*8,parameter    :: step_q = 10.0d0
-    Real*8,parameter    :: step_kmax = 2.d0
-    Real*8,parameter    :: step_bessel = 0.3d0
+    Real*8,parameter    :: step_q = 0.2d0
+    Real*8,parameter    :: step_kmax = 1.d0
+    Real*8,parameter    :: step_bessel = 0.2d0
     Real*8              :: ssb,qls,kmt
-    Real*8,parameter    :: kmt_fid = 2.d0 ! = k_max_tau0_over_l_max_fid
-    Real*8,parameter    :: ssb_fid = 1.2d0 ! = selection_sampling_bessel_fid
-    Real*8,parameter    :: qls_fid = 2.3d0 != q_linstep_fid
+    Real*8,parameter    :: kmt_fid = k_max_tau0_over_l_max_fid
+    Real*8,parameter    :: ssb_fid = selection_sampling_bessel_fid
+    Real*8,parameter    :: qls_fid = q_linstep_fid
 
 
     ! ALLOCATING MEMORY FOR EL, FIDUCIAL CL (LENSING), FIDUCIAL CL (NOT LENSING), OBSERVED CL, SHOT NOISE, SYSTEMATIC CL
@@ -379,7 +379,7 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls,kmt_fid,ssb_fid
     
         Else If ((index .gt. number_of_q) .and. (index .lt. (number_of_q+number_of_kmax) )) then
@@ -388,7 +388,7 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls_fid,kmt,ssb_fid
     
         Else If ( (index .gt. (number_of_q+number_of_kmax)) .and. (index .le. (number_of_q+number_of_kmax+number_of_bessel) ) )then
@@ -397,14 +397,14 @@ subroutine testing_precision_cl()
 
             call read_cl(Cl_current,index,.true.)
 
-            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid_nl)-euclid_galaxy_cl_likelihood(Cl_current)),&
+            write(16,*) abs(euclid_galaxy_cl_likelihood(Cl_fid)-euclid_galaxy_cl_likelihood(Cl_current)),&
                  qls_fid,kmt_fid,ssb
     
         End If
 
     End Do
 
-    deallocate(El,Cl_fid_nl,Cl_obs,Nl,Cl_current)
+    deallocate(El,Cl_fid,Cl_obs,Nl,Cl_current)
 
     close(16)
 
@@ -1034,18 +1034,18 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
         if (len_flag) then
             open(10, file='./ini_files/fiducial_euclid_galaxy.ini')
             write(10,'(a40)') 'root = ../output/fiducial_euclid_galaxy_'
-            write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+            write(10,'(a59)') 'number count contributions = density,      lensing         '
         else
             open(10, file='./ini_files/fiducial_euclid_galaxy_no_lensing.ini')
             write(10,'(a51)') 'root = ../output/fiducial_euclid_galaxy_no_lensing_'
-            write(10,'(a50)') 'number count contributions = density, rsd, doppler' 
+            write(10,'(a50)') 'number count contributions = density              ' 
         end if
     else if (fiducial_model .and. .not.Cl_El_flag) then
         if (len_flag) then
             open(10, file='./ini_files/El_fiducial_euclid_galaxy.ini')
             write(10,'(a43)') 'root = ../output/El_fiducial_euclid_galaxy_'
             write(10,'(a25)') 'number count error = 0.10'   
-            write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'     
+            write(10,'(a59)') 'number count contributions = density,      lensing         '     
         else
             !print *, 'Error files are only computed for the fiducial model which includes lensing in our project'
             !print *, 'Turn on lensing flag '
@@ -1054,17 +1054,17 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
         if ((.not.f1 .and. f2) .and. (f3 .and. f4) .and. (f5 .and. f6)) then 
             if (len_flag) then 
                 open(10, file='./ini_files/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_lensing.ini')
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
                 write(10,*) 'root = ../output/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_lensing_'
             else 
                 open(10, file='./ini_files/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'.ini')
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(10,'(a50)') 'number count contributions = density              '
                 write(10,*) 'root = ../output/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_'
             end if
         else if ((f1 .and. .not.f2) .and. (f3 .and. f4) .and. (f5 .and. f6)) then
             if (len_flag) then
                 open(10, file='./ini_files/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_lensing.ini')
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
                 write(10,*) 'root = ../output/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_lensing_'
             else 
                 open(10, file='./ini_files/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'.ini')
@@ -1244,7 +1244,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_bestfit_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
 
                 write(10,*) 'root = ../data/Cl_bestfit_lensing_'
 
@@ -1284,7 +1284,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              open(10, file='./ini_files/Cl_bestfit_no_lensing.ini')
 
-             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(10,'(a50)') 'number count contributions = density,             '
 
              write(10,*) 'root = ../data/Cl_bestfit_no_lensing_'
 
@@ -1406,7 +1406,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_fiducial_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
 
                 write(10,*) 'root = ../data/Cl_fiducial_lensing_'
 
@@ -1414,7 +1414,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(10,'(a59)') 'number count contributions = density,      lensing         '
 
                 write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
@@ -1424,7 +1424,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              open(10, file='./ini_files/El.ini')
 
-             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+             write(10,'(a59)') 'number count contributions = density,      lensing         '
 
              write(10,*) 'root = ../data/El_'
 
@@ -1440,7 +1440,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_fiducial_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(10,'(a50)') 'number count contributions = density              '
 
                 write(10,*) 'root = ../data/Cl_fiducial_no_lensing_'
 
@@ -1448,7 +1448,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(10,'(a50)') 'number count contributions = density              '
 
                 write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
 
@@ -1458,7 +1458,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              open(10, file='./ini_files/El_nl.ini')
 
-             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(10,'(a50)') 'number count contributions = density              '
 
              write(10,*) 'root = ../data/El_nl_'
 
@@ -1635,11 +1635,11 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
-        write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+        write(10,'(a59)') 'number count contributions = density     , lensing         '
         write(10,*) 'root = ../output/current_euclid_galaxy_lensing_'//trim(job)//'_'
     else 
         open(10, file='./ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(10,'(a50)') 'number count contributions = density              '
         write(10,*) 'root = ../output/current_euclid_galaxy_cl_'//trim(job)//'_'
     End if
     
@@ -1753,11 +1753,11 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing.ini')
-        write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+        write(10,'(a59)') 'number count contributions = density,      lensing         '
         write(10,*) 'root = ../output/current_euclid_galaxy_lensing_'
     else 
         open(10, file='./ini_files/current_euclid_galaxy_cl_.ini')
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(10,'(a50)') 'number count contributions = density              '
         write(10,*) 'root = ../output/current_euclid_galaxy_'
     End if
     
@@ -2691,9 +2691,8 @@ subroutine read_Cl(Cl,u,lensing_flag)
         If (m .le. 1) then
             read(u,*)
         else
-            read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
-            Cl(m,2,2),Cl(m,2,3),Cl(m,2,4),Cl(m,2,5),Cl(m,3,3),Cl(m,3,4),Cl(m,3,5),&
-            Cl(m,4,4),Cl(m,4,5),Cl(m,5,5)
+            read(u,*) Cl(m,0,0),Cl(m,1,1:nbins),Cl(m,2,2:nbins),Cl(m,3,3:nbins),&
+            Cl(m,4,4)!,Cl(m,4,5),Cl(m,5,5)
 
 !            read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,1,2),Cl(m,1,3),Cl(m,1,4),Cl(m,1,5),&
 !            Cl(m,1,6),Cl(m,1,7),Cl(m,1,8),Cl(m,1,9),Cl(m,1,10),Cl(m,2,2),Cl(m,2,3),&

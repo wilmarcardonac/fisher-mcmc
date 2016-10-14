@@ -71,10 +71,10 @@ Module fiducial
   Integer*4,parameter :: lmax = 400   ! HIGHEST MULTIPOLE
 
   Logical,parameter   :: compute_data_fisher_analysis = .false.   ! COMPUTE DATA FOR FISHER ANALYSIS IF SET IT TRUE
-  Logical,parameter   :: do_fisher_analysis = .false. ! DO FISHER MATRIX ANALYSIS IF SET IT TRUE
+  Logical,parameter   :: do_fisher_analysis = .true. ! DO FISHER MATRIX ANALYSIS IF SET IT TRUE
   Logical,parameter   :: fisher_analysis_at_bestfit = .false. !.true.  ! DO FISHER MATRIX ANALYSIS AT THE BEST FIT IF SET IT TRUE, OTHERWISE AT THE FIDUCIAL MODEL
-  Logical,parameter   :: testing_precision = .false. ! PERFORM PRECISION TEST IF SET IT TRUE
-  Logical,parameter   :: compute_data_testing_precision = .false. ! COMPUTE DATA FOR PRECISION TEST IF SET IT TRUE
+  Logical,parameter   :: testing_precision = .true. ! PERFORM PRECISION TEST IF SET IT TRUE
+  Logical,parameter   :: compute_data_testing_precision = .true. ! COMPUTE DATA FOR PRECISION TEST IF SET IT TRUE
   Logical,parameter   :: compute_likelihood_along_bias_vector = .false. 
   
   !################
@@ -108,7 +108,7 @@ Module fiducial
   Logical,parameter      :: adjusting_covariance_matrix = .false.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: read_covariance_matrix_from_file = .true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
-  Logical,parameter      :: multiple_chains = .true. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
+  Logical,parameter      :: multiple_chains = .false. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: use_only_autocorrelations = .false. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
 
   !###############

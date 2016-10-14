@@ -111,7 +111,7 @@ Program fisher
      call phrtsd(phrase,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
 
      call set_initial_seed(seed1,seed2) ! SET INITIAL SEEDS FOR RANDOM NUMBER GENERATOR 
-     
+
      If (testing_Gaussian_likelihood) then
 
         write(job_number,*) 'SETTING JUMPING FACTOR AND COVARIANCE MATRIX FOR GAUSSIAN LIKELIHOOD'
@@ -240,7 +240,7 @@ Program fisher
         Else
 
            write(job_number,*) 'USING EXISTING DATA FOR TESTING PRECISION'
-                
+
            call testing_precision_cl()
 
            stop
