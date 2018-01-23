@@ -1576,6 +1576,46 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
+       If (parameter_name .ne. param_name_nc_bias_b0) then
+
+          write(10,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
+
+       Else
+
+          write(10,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_e_pi) then
+
+          write(10,'(a7, es16.10)') 'e_pi = ', e_pi
+
+       Else
+
+          write(10,'(a7, es16.10)') 'e_pi = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_f_pi) then
+
+          write(10,'(a7, es16.10)') 'f_pi = ', f_pi
+
+       Else
+
+          write(10,'(a7, es16.10)') 'f_pi = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_g_pi) then
+
+          write(10,'(a7, es16.10)') 'g_pi = ', g_pi
+
+       Else
+
+          write(10,'(a7, es16.10)') 'g_pi = ', parameter_value
+
+       End If
+
     End If
     
     write(10,'(a11, es16.10)') 'tau_reio = ', tau
@@ -2038,18 +2078,25 @@ subroutine write_sh_file(name_ini_file)
 
     open(12,file='./class_montanari-lensing/'//trim(name_ini_file)//'.sh')
 
-    write(12,'(a9)') '#!/bin/sh'
-    write(12,'(a26)') '#SBATCH --cpus-per-task=12'
-    write(12,'(a24)') '#SBATCH --job-name=CLASS'
-    write(12,'(a18)') '#SBATCH --ntasks=1'
-    write(12,'(a25)') '#SBATCH --time=7-00:00:00'
-    write(12,'(a43)') '#SBATCH --mail-user=wilmar.cardona@unige.ch'
-    write(12,'(a23)') '#SBATCH --mail-type=ALL'
-    write(12,'(a23)') '#SBATCH --partition=dpt'
-    write(12,'(a25)') '#SBATCH --clusters=baobab'
-    write(12,'(a29)') '#SBATCH --output=slurm-%J.out'
+!    write(12,'(a9)') '#!/bin/sh'
+    write(12,'(a11)') '#!/bin/bash'
+!    write(12,'(a26)') '#SBATCH --cpus-per-task=12'
+!    write(12,'(a24)') '#SBATCH --job-name=CLASS'
+    write(12,'(a16)') '#SBATCH -J CLASS'
+!    write(12,'(a18)') '#SBATCH --ntasks=1'
+    write(12,'(a13)') '#SBATCH -n  1'
+    write(12,'(a13)') '#SBATCH -N  1'
+!    write(12,'(a25)') '#SBATCH --time=7-00:00:00'
+    write(12,'(a20)') '#SBATCH -t 4-00:00:00'
+!    write(12,'(a43)') '#SBATCH --mail-user=wilmar.cardona@unige.ch'
+!    write(12,'(a23)') '#SBATCH --mail-type=ALL'
+!    write(12,'(a23)') '#SBATCH --partition=dpt'
+!    write(12,'(a25)') '#SBATCH --clusters=baobab'
+!    write(12,'(a29)') '#SBATCH --output=slurm-%J.out'
+    write(12,'(a21)') '#SBATCH -o job.%J.out'
     write(12,*) 
-    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
+!    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
+    write(12,*)'prun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
 
     close(12)
 end subroutine write_sh_file
@@ -2208,7 +2255,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_fiducial_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_fiducial_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_fiducial_lensing.sh')
 
                 End If
 
@@ -2220,8 +2267,8 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-                        '_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_'//trim(parameter_name)//&
+                        '_'//trim(string_par_value)//'_lensing.sh')
 
                 End If
 
@@ -2235,7 +2282,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                 call write_sh_file('El')
 
-                call system('cd class_montanari-lensing ; sbatch El.sh')
+                call system('cd class_montanari-lensing ; sbatch --exclusive El.sh')
 
              End If
 
@@ -2253,7 +2300,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_fiducial_no_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_fiducial_no_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_fiducial_no_lensing.sh')
 
                 End If
 
@@ -2265,8 +2312,8 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-                        '_no_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_'//trim(parameter_name)//&
+                        '_'//trim(string_par_value)//'_no_lensing.sh')
 
                 End If
 
@@ -2280,7 +2327,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                 call write_sh_file('El_nl')
 
-                call system('cd class_montanari-lensing ; sbatch El_nl.sh')
+                call system('cd class_montanari-lensing ; sbatch --exclusive El_nl.sh')
 
              End If
 

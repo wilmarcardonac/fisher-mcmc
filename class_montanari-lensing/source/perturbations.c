@@ -4595,9 +4595,9 @@ int perturb_total_stress_energy(
     if (pba->has_fld == _TRUE_) {
 
       w = pba->w0_fld + pba->wa_fld * (1. - a / pba->a_today);
-      pi_fld = ppt->e_phi*(y[ppw->pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2 )
-	+ ppt->f_phi*( y[ppw->pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[ppw->pv->index_pt_theta_fld]/k2  )/(1. 
-	+ ppt->g_phi*ppt->g_phi*a_prime_over_a*a_prime_over_a/k2);
+      pi_fld = ppt->e_pi*(y[ppw->pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2 )
+	+ ppt->f_pi*( y[ppw->pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[ppw->pv->index_pt_theta_fld]/k2  )/(1. 
+	+ ppt->g_pi*ppt->g_pi*a_prime_over_a*a_prime_over_a/k2);
       shear_fld = 2.*pi_fld/3./(1.+w);
 
       ppw->delta_rho += ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_delta_fld];
@@ -5992,9 +5992,9 @@ int perturb_derivs(double tau,
       w_prime = - pba->wa_fld * a / pba->a_today * a_prime_over_a;
       ca2 = w - w_prime / 3. / (1.+w) / a_prime_over_a;
       cs2 = pba->cs2_fld;
-      pi_fld = ppt->e_phi*(y[pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[pv->index_pt_theta_cdm]/k2 ) 
-	+ ppt->f_phi*( y[pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[pv->index_pt_theta_fld]/k2  )/(1. 
-	+ ppt->g_phi*ppt->g_phi*a_prime_over_a*a_prime_over_a/k2) ;
+      pi_fld = ppt->e_pi*(y[pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[pv->index_pt_theta_cdm]/k2 ) 
+	+ ppt->f_pi*( y[pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[pv->index_pt_theta_fld]/k2  )/(1. 
+	+ ppt->g_pi*ppt->g_pi*a_prime_over_a*a_prime_over_a/k2) ;
 
       /** ---> fluid density */
 

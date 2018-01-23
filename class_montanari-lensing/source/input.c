@@ -530,9 +530,9 @@ int input_init(
     class_read_double("w0_fld",pba->w0_fld);
     class_read_double("wa_fld",pba->wa_fld);
     class_read_double("cs2_fld",pba->cs2_fld);
-    class_read_double("e_phi",ppt->e_phi);
-    class_read_double("f_phi",ppt->f_phi);
-    class_read_double("g_phi",ppt->g_phi);
+    class_read_double("e_pi",ppt->e_pi);
+    class_read_double("f_pi",ppt->f_pi);
+    class_read_double("g_pi",ppt->g_pi);
   }
 
   /* scale factor today (arbitrary) */
@@ -2182,9 +2182,9 @@ int input_default_params(
 
   ppt->mg_beta2=1.;
   ppt->has_mg=_FALSE_;
-  ppt->e_phi=0.; 
-  ppt->f_phi=0.; 
-  ppt->g_phi=0.; 
+  ppt->e_pi=0.; 
+  ppt->f_pi=0.; 
+  ppt->g_pi=0.; 
 
   ppt->selection_num=1;
   ppt->selection=gaussian;

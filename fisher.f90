@@ -177,6 +177,12 @@ Program fisher
 
               Covguess(7,7) = sigma_nc_bias_b0**2
 
+              Covguess(8,8) = sigma_e_pi**2
+
+              Covguess(9,9) = sigma_f_pi**2
+
+              Covguess(10,10) = sigma_g_pi**2
+
            End If
 
         End If
