@@ -4470,7 +4470,8 @@ int perturb_total_stress_energy(
 
   /** - define local variables */
 
-  double a,a2;
+  double a,a2,a_prime_over_a;
+  double k2;
   double delta_g=0.;
   double theta_g=0.;
   double shear_g=0.;
@@ -4487,6 +4488,9 @@ int perturb_total_stress_energy(
   double epsilon,q,q2,cg2_ncdm,w_ncdm,rho_ncdm_bg,p_ncdm_bg,pseudo_p_ncdm;
   double rho_m,delta_rho_m,rho_plus_p_m,rho_plus_p_theta_m;
   double w;
+  double rho_plus_p_shear_fld=0.;
+  double pi_fld;
+  double shear_fld=0.;
   double gwncdm;
   double rho_relativistic;
 
@@ -4494,7 +4498,9 @@ int perturb_total_stress_energy(
 
   a = ppw->pvecback[pba->index_bg_a];
   a2 = a * a;
-
+  a_prime_over_a = ppw->pvecback[pba->index_bg_H] * a;
+  k2=k*k;
+  
   if (_scalars_) {
 
     /** (a) deal with approximation schemes */
@@ -4589,10 +4595,16 @@ int perturb_total_stress_energy(
     if (pba->has_fld == _TRUE_) {
 
       w = pba->w0_fld + pba->wa_fld * (1. - a / pba->a_today);
+      pi_fld = ppt->e_phi*(y[ppw->pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2 )
+	+ ppt->f_phi*( y[ppw->pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[ppw->pv->index_pt_theta_fld]/k2  )/(1. 
+	+ ppt->g_phi*ppt->g_phi*a_prime_over_a*a_prime_over_a/k2);
+      shear_fld = 2.*pi_fld/3./(1.+w);
 
       ppw->delta_rho += ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_delta_fld];
       ppw->rho_plus_p_theta += (1.+w)*ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_theta_fld];
-      ppw->delta_p = ppw->delta_p + pba->cs2_fld * ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_delta_fld];
+      ppw->delta_p = ppw->delta_p + pba->cs2_fld * ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_delta_fld]
+	+ 3.*(1.+w)*(pba->cs2_fld - w)*ppw->pvecback[pba->index_bg_rho_fld]*a_prime_over_a*y[ppw->pv->index_pt_theta_fld]/k2;
+      ppw->rho_plus_p_shear = ppw->rho_plus_p_shear  + (1.+w)*ppw->pvecback[pba->index_bg_rho_fld]*shear_fld;
     }
 
     /* ultra-relativistic neutrino/relics contribution */
@@ -5621,7 +5633,7 @@ int perturb_derivs(double tau,
   double P2;
 
   /* for use with fluid (fld): */
-  double w,w_prime;
+  double w,w_prime,pi_fld;
 
   /* for use with non-cold dark matter (ncdm): */
   int index_q,n_ncdm,idx;
@@ -5980,6 +5992,9 @@ int perturb_derivs(double tau,
       w_prime = - pba->wa_fld * a / pba->a_today * a_prime_over_a;
       ca2 = w - w_prime / 3. / (1.+w) / a_prime_over_a;
       cs2 = pba->cs2_fld;
+      pi_fld = ppt->e_phi*(y[pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[pv->index_pt_theta_cdm]/k2 ) 
+	+ ppt->f_phi*( y[pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[pv->index_pt_theta_fld]/k2  )/(1. 
+	+ ppt->g_phi*ppt->g_phi*a_prime_over_a*a_prime_over_a/k2) ;
 
       /** ---> fluid density */
 
@@ -5991,9 +6006,10 @@ int perturb_derivs(double tau,
       /** ---> fluid velocity */
 
       dy[pv->index_pt_theta_fld] = /* fluid velocity */
-        -(1.-3.*cs2)*a_prime_over_a*y[pv->index_pt_theta_fld]
+        -(1.-3.*ca2)*a_prime_over_a*y[pv->index_pt_theta_fld]
         +cs2*k2/(1.+w)*y[pv->index_pt_delta_fld]
-        +metric_euler;
+        +metric_euler
+	-2.*pi_fld*k2/3./(1.+w);
 
     }
 
