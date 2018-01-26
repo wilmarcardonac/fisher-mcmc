@@ -2078,25 +2078,25 @@ subroutine write_sh_file(name_ini_file)
 
     open(12,file='./class_montanari-lensing/'//trim(name_ini_file)//'.sh')
 
-!    write(12,'(a9)') '#!/bin/sh'
-    write(12,'(a11)') '#!/bin/bash'
-!    write(12,'(a26)') '#SBATCH --cpus-per-task=12'
+    write(12,'(a9)') '#!/bin/sh'
+!    write(12,'(a11)') '#!/bin/bash'
+    write(12,'(a26)') '#SBATCH --cpus-per-task=12'
 !    write(12,'(a24)') '#SBATCH --job-name=CLASS'
     write(12,'(a16)') '#SBATCH -J CLASS'
 !    write(12,'(a18)') '#SBATCH --ntasks=1'
     write(12,'(a13)') '#SBATCH -n  1'
     write(12,'(a13)') '#SBATCH -N  1'
 !    write(12,'(a25)') '#SBATCH --time=7-00:00:00'
-    write(12,'(a20)') '#SBATCH -t 4-00:00:00'
-!    write(12,'(a43)') '#SBATCH --mail-user=wilmar.cardona@unige.ch'
-!    write(12,'(a23)') '#SBATCH --mail-type=ALL'
+    write(12,'(a20)') '#SBATCH -t 5-20:00:00'
+    write(12,'(a42)') '#SBATCH --mail-user=wilmar.cardona@csic.es'
+    write(12,'(a23)') '#SBATCH --mail-type=ALL'
 !    write(12,'(a23)') '#SBATCH --partition=dpt'
 !    write(12,'(a25)') '#SBATCH --clusters=baobab'
 !    write(12,'(a29)') '#SBATCH --output=slurm-%J.out'
     write(12,'(a21)') '#SBATCH -o job.%J.out'
     write(12,*) 
-!    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
-    write(12,*)'prun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
+    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
+!    write(12,*)'prun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
 
     close(12)
 end subroutine write_sh_file
