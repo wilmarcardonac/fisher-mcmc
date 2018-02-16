@@ -1588,21 +1588,21 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        If (parameter_name .ne. param_name_e_pi) then
 
-          write(10,'(a7, es16.10)') 'e_pi = ', e_pi
+          write(10,'(a7, es17.10)') 'e_pi = ', e_pi
 
        Else
 
-          write(10,'(a7, es16.10)') 'e_pi = ', parameter_value
+          write(10,'(a7, es17.10)') 'e_pi = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_f_pi) then
 
-          write(10,'(a7, es16.10)') 'f_pi = ', f_pi
+          write(10,'(a7, es17.10)') 'f_pi = ', f_pi
 
        Else
 
-          write(10,'(a7, es16.10)') 'f_pi = ', parameter_value
+          write(10,'(a7, es17.10)') 'f_pi = ', parameter_value
 
        End If
 
@@ -1613,6 +1613,36 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
        Else
 
           write(10,'(a7, es16.10)') 'g_pi = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_cs2_fld) then
+
+          write(10,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
+
+       Else
+
+          write(10,'(a10, es17.10)') 'cs2_fld = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_w0_fld) then
+
+          write(10,'(a9, es17.10)') 'w0_fld = ', w0_fld
+
+       Else
+
+          write(10,'(a9, es17.10)') 'w0_fld = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_wa_fld) then
+
+          write(10,'(a9, es17.10)') 'wa_fld = ', wa_fld
+
+       Else
+
+          write(10,'(a9, es17.10)') 'wa_fld = ', parameter_value
 
        End If
 

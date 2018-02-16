@@ -183,6 +183,12 @@ Program fisher
 
               Covguess(10,10) = sigma_g_pi**2
 
+              Covguess(11,11) = sigma_cs2_fld**2
+
+              Covguess(12,12) = sigma_w0_fld**2
+
+              Covguess(13,13) = sigma_wa_fld**2
+
            End If
 
         End If

@@ -21,8 +21,11 @@ Module fiducial
   Real*8,parameter :: tau = 5.96d-2
   Real*8,parameter :: nc_bias_b0 = 1.0d0
   Real*8,parameter :: e_pi = 0.0d0
-  Real*8,parameter :: f_pi = 0.0d0
-  Real*8,parameter :: g_pi = 0.0d0
+  Real*8,parameter :: f_pi = 0.0d0 ! 0.d0 ; 5.d0
+  Real*8,parameter :: g_pi = 0.0d0 ! 0.d0 ; 1.d1
+  Real*8,parameter :: cs2_fld = 1.d0 ! 1.d0 ; 1.d-4 ; 1.d-6 ; 3.333334d0 ; 3.3334d0 ; 4.3d0 
+  Real*8,parameter :: w0_fld = -8.0d-1 
+  Real*8,parameter :: wa_fld = 0.d0 
 
   Character(len=*),parameter :: param_name_omega_b = 'omega_b'
   Character(len=*),parameter :: param_name_omega_cdm = 'omega_cdm'
@@ -36,6 +39,9 @@ Module fiducial
   Character(len=*),parameter :: param_name_e_pi = 'e_pi'
   Character(len=*),parameter :: param_name_f_pi = 'f_pi'
   Character(len=*),parameter :: param_name_g_pi = 'g_pi'
+  Character(len=*),parameter :: param_name_cs2_fld = 'cs2_fld'
+  Character(len=*),parameter :: param_name_w0_fld = 'w0_fld'
+  Character(len=*),parameter :: param_name_wa_fld = 'wa_fld'
 
   !################################################
   ! 1-SIGMA VALUES FOR PARAMETERS IN FIDUCIAL MODEL
@@ -53,6 +59,9 @@ Module fiducial
   Real*8,parameter :: sigma_e_pi = 1.0d-1
   Real*8,parameter :: sigma_f_pi = 1.0d-1
   Real*8,parameter :: sigma_g_pi = 1.0d-1
+  Real*8,parameter :: sigma_cs2_fld = 1.0d-1
+  Real*8,parameter :: sigma_w0_fld = 2.2d-1
+  Real*8,parameter :: sigma_wa_fld = 2.2d-1
 
   !################################
   ! CLASS AND SURVEY SPECIFICATIONS
@@ -97,7 +106,7 @@ Module fiducial
   !################
 
   Integer*4,parameter    :: number_iterations = 12000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
-  Integer*4,parameter    :: number_of_parameters = 10       ! NUMBER OF COSMOLOGICAL PARAMETERS
+  Integer*4,parameter    :: number_of_parameters = 13       ! NUMBER OF COSMOLOGICAL PARAMETERS
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0!10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
   Integer*4,parameter    :: steps_taken_before_definite_run = 0!10000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
@@ -111,9 +120,11 @@ Module fiducial
 
   Character*16,parameter :: phrase = 'randomizer'       ! PHRASE NEEDED BY NUMBER RANDOM GENERATOR
   Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
-       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','   e_pi   ','   f_pi   ','   g_pi   ']
+       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','   e_pi   ','   f_pi   ','   g_pi   ','cs2_fld   ','w0_fld    ',&
+       'wa_fld    ']
   Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','e_{\pi}     ','f_{\pi}     ','g_{\pi}     ']
+       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','e_{\pi}     ','f_{\pi}     ','g_{\pi}     ','c_s^2       ',&
+       'w_0         ','w_a         ']
 
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
