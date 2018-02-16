@@ -9,9 +9,11 @@ import matplotlib.pyplot as py
 # Fiducial model 
 Clfid = np.loadtxt('./output/Cl_fiducial_lensing_cl.dat',unpack=True)
 mPkfid = np.loadtxt('./output/Cl_fiducial_lensing_pk.dat',unpack=True)
+pertfid = np.loadtxt('./output/Cl_fiducial_lensing_perturbations_k0_s.dat',unpack=True) 
 
 Cl = np.loadtxt('./output/Cl_fiducial_lensing_ADE_cl.dat',unpack=True)
 mPk = np.loadtxt('./output/Cl_fiducial_lensing_ADE_pk.dat',unpack=True)
+pert = np.loadtxt('./output/Cl_fiducial_lensing_ADE_perturbations_k0_s.dat',unpack=True) 
 
 # Error file
 #Clbest = np.loadtxt('../data/Cl_bestfit_no_lensing_cl.dat',unpack=True)
@@ -52,6 +54,16 @@ py.xlim(1.e-4,1.e0)
 py.ylim(1.e1,1.e5)
 py.legend(loc=0)
 py.savefig('./output/DEA_pk.pdf')
+py.close()
+
+py.loglog(pertfid[1],abs(pertfid[15]),label=r'$\Lambda CDM$')
+py.loglog(pert[1],abs(pert[15]),label='Including anisotropic stress')
+py.xlabel(r'$a$')
+py.ylabel(r'$\delta$')
+#py.xlim(1.e-4,1.e0)
+#py.ylim(1.e1,1.e5)
+py.legend(loc=0)
+py.savefig('./output/perturbations_evolution.pdf')
 py.close()
 
 exit()
