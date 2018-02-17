@@ -3,9 +3,11 @@ output/*.txt
 output/*.pdf
 output/*.py_mcsamples
 output/*.ranges
+output/*.py~
 class_montanari-lensing/*.sh
 analyzer/*.txt
 analyzer/*.pdf
+analyzer/*.py~
 *.mod
 *.o
 *.zip
