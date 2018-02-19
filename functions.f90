@@ -1708,7 +1708,8 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
-    character*16 :: string_cs2_fld, string_nc_bias_b0, string_w0_fld, string_e_pi, string_f_pi, string_g_pi
+    character*16 :: string_nc_bias_b0, string_g_pi
+    Character*17 :: string_cs2_fld, string_w0_fld, string_e_pi, string_f_pi
     Character(len=10) :: job
     Integer*4 :: m
         
