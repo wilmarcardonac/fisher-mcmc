@@ -8,4 +8,4 @@
 #SBATCH --mail-type=ALL
 #SBATCH -o job-%J.out
 
-srun ./fisher
+ srun ./fisher

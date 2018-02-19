@@ -695,7 +695,7 @@ function compute_determinant(A)
 
     Real*8 :: det,sgn,compute_determinant
 
-    call dgetrf(nbins,nbins,A,nbins,IPIV,INFO)
+!    call dgetrf(nbins,nbins,A,nbins,IPIV,INFO)
 
     det = 1.d0
     Do index=1,nbins
@@ -2675,55 +2675,56 @@ subroutine read_covariance_matrix_mcmc(matrix1)
 
     Do index1=1,number_of_parameters
 
-        read(12,*) matrix(index1,1:number_of_parameters)
+!!$        read(12,*) matrix(index1,1:number_of_parameters)
+       read(12,*) matrix1(index1,1:number_of_parameters)
 
     End Do
 
     close(12)
 
-    call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
-
-    If (INFO .eq. 0) then
- 
-        pos_def = .true.
-        
-        Do index1=1,number_of_parameters
-         
-            If (W(index1) .le. 0.d0) then
-
-                pos_def = .false.
-
-                exit
-
-            End If
-
-        End Do
-      
-        If (pos_def) then
-
-            open(12,file='./output/chains/covariance_matrix.txt')
-
-            read(12,*)
-
-            Do index1=1,number_of_parameters
-
-                read(12,*) matrix1(index1,1:number_of_parameters)
-
-            End Do
-
-            close(12)
-
-        Else
-
-            print *,'COVARIANCE MATRIX IS NOT POSITIVE DEFINITE, KEEPING CURRENT COVARIANCE MATRIX'
-            
-        End If
-
-    Else
-
-        print *,'EIGENVALUES WERE NOT COMPUTED'
-
-    End If
+!!$    call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
+!!$
+!!$    If (INFO .eq. 0) then
+!!$ 
+!!$        pos_def = .true.
+!!$        
+!!$        Do index1=1,number_of_parameters
+!!$         
+!!$            If (W(index1) .le. 0.d0) then
+!!$
+!!$                pos_def = .false.
+!!$
+!!$                exit
+!!$
+!!$            End If
+!!$
+!!$        End Do
+!!$      
+!!$        If (pos_def) then
+!!$
+!!$            open(12,file='./output/chains/covariance_matrix.txt')
+!!$
+!!$            read(12,*)
+!!$
+!!$            Do index1=1,number_of_parameters
+!!$
+!!$                read(12,*) matrix1(index1,1:number_of_parameters)
+!!$
+!!$            End Do
+!!$
+!!$            close(12)
+!!$
+!!$        Else
+!!$
+!!$            print *,'COVARIANCE MATRIX IS NOT POSITIVE DEFINITE, KEEPING CURRENT COVARIANCE MATRIX'
+!!$            
+!!$        End If
+!!$
+!!$    Else
+!!$
+!!$        print *,'EIGENVALUES WERE NOT COMPUTED'
+!!$
+!!$    End If
 
 end subroutine read_covariance_matrix_mcmc
 
@@ -2757,55 +2758,56 @@ subroutine read_covariance_matrix_prior(matrix1)
 
     Do index1=1,5
 
-        read(12,*) matrix(index1,1:5)
+!        read(12,*) matrix(index1,1:5)
+       read(12,*) matrix1(index1,1:5)
 
     End Do
 
     close(12)
 
-    call dsyev(JOBZ,UPLO,5,matrix,5,W,WORK,LWORK,INFO)
-
-    If (INFO .eq. 0) then
- 
-        pos_def = .true.
-        
-        Do index1=1,5
-         
-            If (W(index1) .le. 0.d0) then
-
-                pos_def = .false.
-
-                exit
-
-            End If
-
-        End Do
-      
-        If (pos_def) then
-
-            open(12,file='./data/planck_covariance_matrix.txt')
-
-            read(12,*)
-
-            Do index1=1,5
-
-                read(12,*) matrix1(index1,1:5)
-
-            End Do
-
-            close(12)
-
-        Else
-
-            print *,'COVARIANCE MATRIX IS NOT POSITIVE DEFINITE, KEEPING CURRENT COVARIANCE MATRIX'
-            
-        End If
-
-    Else
-
-        print *,'EIGENVALUES WERE NOT COMPUTED'
-
-    End If
+!!$    call dsyev(JOBZ,UPLO,5,matrix,5,W,WORK,LWORK,INFO)
+!!$
+!!$    If (INFO .eq. 0) then
+!!$ 
+!!$        pos_def = .true.
+!!$        
+!!$        Do index1=1,5
+!!$         
+!!$            If (W(index1) .le. 0.d0) then
+!!$
+!!$                pos_def = .false.
+!!$
+!!$                exit
+!!$
+!!$            End If
+!!$
+!!$        End Do
+!!$      
+!!$        If (pos_def) then
+!!$
+!!$            open(12,file='./data/planck_covariance_matrix.txt')
+!!$
+!!$            read(12,*)
+!!$
+!!$            Do index1=1,5
+!!$
+!!$                read(12,*) matrix1(index1,1:5)
+!!$
+!!$            End Do
+!!$
+!!$            close(12)
+!!$
+!!$        Else
+!!$
+!!$            print *,'COVARIANCE MATRIX IS NOT POSITIVE DEFINITE, KEEPING CURRENT COVARIANCE MATRIX'
+!!$            
+!!$        End If
+!!$
+!!$    Else
+!!$
+!!$        print *,'EIGENVALUES WERE NOT COMPUTED'
+!!$
+!!$    End If
 
 end subroutine read_covariance_matrix_prior
 
@@ -2828,9 +2830,9 @@ subroutine compute_inverse_matrix_prior()
         End Do
     End Do
 
-    call dgetrf(M,N,A,LDA,IPIV,INFO)
+!    call dgetrf(M,N,A,LDA,IPIV,INFO)
 
-    call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
+!    call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
 
     Do i=1,M
         Do j=1,M
@@ -3292,9 +3294,9 @@ subroutine inverting_matrix()
             End Do
         End Do
 
-        call dgetrf(M,N,A,LDA,IPIV,INFO)
+!        call dgetrf(M,N,A,LDA,IPIV,INFO)
 
-        call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
+!        call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
 
         Do i=1,M
             Do j=1,M
@@ -3325,9 +3327,9 @@ subroutine inverting_matrix_oa()
             End Do
         End Do
 
-        call dgetrf(M,N,A,LDA,IPIV,INFO)
+!        call dgetrf(M,N,A,LDA,IPIV,INFO)
 
-        call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
+!        call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
 
         Do i=1,M
             Do j=1,M
@@ -3357,9 +3359,9 @@ subroutine compute_inverse_fisher_matrix()
         End Do
     End Do
 
-    call dgetrf(M,N,A,LDA,IPIV,INFO)
+!    call dgetrf(M,N,A,LDA,IPIV,INFO)
 
-    call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
+!    call dgetri(N,A,LDA,IPIV,WORK,LWORK,INFO)
 
     Do i=1,M
         Do j=1,M
@@ -3413,57 +3415,58 @@ subroutine read_inverse_fisher_matrix(matrix1)
 
     Do index1=1,number_of_parameters
 
-        read(12,'(7es25.10)') matrix(index1,1:number_of_parameters)
+!        read(12,'(7es25.10)') matrix(index1,1:number_of_parameters)
+       read(12,'(7es25.10)') matrix1(index1,1:number_of_parameters)
 
     End Do
 
     close(12)
 
-    call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
-
-    If (INFO .eq. 0) then
- 
-        pos_def = .true.
-        
-        Do index1=1,number_of_parameters
-         
-            If (W(index1) .le. 0.d0) then
-
-                pos_def = .false.
-
-                exit
-
-            End If
-
-        End Do
-      
-        If (pos_def) then
-
-            open(12,file='./output/inverse_fisher_matrix.dat')
-
-            read(12,*)
-
-            read(12,*)
-
-            Do index1=1,number_of_parameters
-
-                read(12,'(7es25.10)') matrix1(index1,1:number_of_parameters)
-
-            End Do
-
-            close(12)
-
-        Else
-
-            print *,'INVERSE OF FISHER MATRIX IS NOT POSITIVE DEFINITE '
-            
-        End If
-
-    Else
-
-        print *,'EIGENVALUES WERE NOT COMPUTED FOR INVERSE OF FISHER MATRIX'
-
-    End If
+!!$    call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
+!!$
+!!$    If (INFO .eq. 0) then
+!!$ 
+!!$        pos_def = .true.
+!!$        
+!!$        Do index1=1,number_of_parameters
+!!$         
+!!$            If (W(index1) .le. 0.d0) then
+!!$
+!!$                pos_def = .false.
+!!$
+!!$                exit
+!!$
+!!$            End If
+!!$
+!!$        End Do
+!!$      
+!!$        If (pos_def) then
+!!$
+!!$            open(12,file='./output/inverse_fisher_matrix.dat')
+!!$
+!!$            read(12,*)
+!!$
+!!$            read(12,*)
+!!$
+!!$            Do index1=1,number_of_parameters
+!!$
+!!$                read(12,'(7es25.10)') matrix1(index1,1:number_of_parameters)
+!!$
+!!$            End Do
+!!$
+!!$            close(12)
+!!$
+!!$        Else
+!!$
+!!$            print *,'INVERSE OF FISHER MATRIX IS NOT POSITIVE DEFINITE '
+!!$            
+!!$        End If
+!!$
+!!$    Else
+!!$
+!!$        print *,'EIGENVALUES WERE NOT COMPUTED FOR INVERSE OF FISHER MATRIX'
+!!$
+!!$    End If
 
 end subroutine read_inverse_fisher_matrix
 
