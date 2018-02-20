@@ -59,6 +59,8 @@ struct background
 		     not [delta p/delta rho] in the synchronous or
 		     newtonian gauge!!!) */
 
+  double b_pi; /* Dark Energy Anisotropic stress parameter */
+
   double Omega0_ur; /**< \f$ \Omega_{0 \nu r} \f$ : ultra-relativistic neutrinos */
 
   double Omega0_k; /**< \f$ \Omega_{0_k} \f$ : curvature contribution */

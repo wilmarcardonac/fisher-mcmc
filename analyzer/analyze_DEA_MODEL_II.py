@@ -1,7 +1,7 @@
 from getdist import loadMCSamples,plots,covmat
 import numpy as np
 
-number_of_parameters = 10
+number_of_parameters = 11
 
 samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':0.})
 
@@ -20,6 +20,8 @@ print 'TRIANGLE PLOT CREATED'
 p = samples.getParams()
 
 samples.addDerived(np.log(1.e1**10*p.A_s),name='ln1010As',label='\ln 10^{10}A_s')
+
+samples.addDerived(np.log10(p.g_pi),name='log10g_pi',label='\log g_\pi')
 
 bestfit = samples.getLikeStats()
 
@@ -53,13 +55,13 @@ f = plots.getSubplotPlotter()
 
 f.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
 
-f.plots_1d(samples,['omega_b','omega_cdm','n_s','A_s','H0','m_ncdm','nc_bias_b0','cs2_fld','w0_fld','e_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
+f.plots_1d(samples,['omega_b','omega_cdm','n_s','A_s','H0','m_ncdm','nc_bias_b0','cs2_fld','w0_fld','f_pi','g_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
 
 f.export('../output/chains/1D_plots.pdf')
 
 print '1D PLOTS CREATED'
 
-covariance_matrix = samples.getCov(pars=[0,1,2,10,4,5,6,7,8,9])#nparam=number_of_parameters)
+covariance_matrix = samples.getCov(pars=[0,1,2,11,4,5,6,7,8,9,12])#nparam=number_of_parameters)
 
 covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
 

@@ -1,11 +1,11 @@
 #!/bin/sh
 #SBATCH --cpus-per-task=12
-#SBATCH --job-name=m-nu-no-lensing
-#SBATCH --ntasks=1
-#SBATCH --time=07-00:00:00
-#SBATCH --mail-user=wilmar.cardona@unige.ch
+#SBATCH -J MCMC-no-lensing
+#SBATCH -n 1
+#SBATCH -N 1
+#SBATCH -t 5-20:00:00
+#SBATCH --mail-user=wilmar.cardona@csic.es
 #SBATCH --mail-type=ALL
-#SBATCH --partition=dpt
-#SBATCH --output=slurm-%J.out
+#SBATCH -o job-%J.out
 
-srun ./fisher
+ srun ./fisher

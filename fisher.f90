@@ -159,19 +159,81 @@ Program fisher
 
               write(job_number,*) 'USING DIAGONAL MATRIX AS COVARIANCE MATRIX'
 
-              Covguess(1,1) = sigma_omega_b**2 
+              Do m=1,number_of_parameters
 
-              Covguess(2,2) = sigma_omega_cdm**2
+                 If (m .eq. 1) then
 
-              Covguess(3,3)= sigma_n_s**2
+                    Covguess(m,m) = sigma_omega_b**2 
 
-              Covguess(4,4) = (sigma_A_s/A_s)**2
+                 Else if (m .eq. 2) then
 
-              Covguess(5,5) = sigma_H0**2
+                    Covguess(m,m) = sigma_omega_cdm**2
 
-              Covguess(6,6) = sigma_m_ncdm**2
+                 Else if (m .eq. 3) then
 
-              Covguess(7,7) = sigma_nc_bias_b0**2
+                    Covguess(m,m)= sigma_n_s**2
+
+                 Else if (m .eq. 4) then
+
+                    Covguess(m,m) = (sigma_A_s/A_s)**2
+
+                 Else if (m .eq. 5) then
+
+                    Covguess(m,m) = sigma_H0**2
+
+                 Else if (m .eq. 6) then
+
+                    Covguess(m,m) = sigma_m_ncdm**2
+
+                 Else if (m .eq. 7) then
+
+                    Covguess(m,m) = sigma_nc_bias_b0**2
+
+                 Else if (m .eq. 8) then
+
+                    Covguess(m,m) = sigma_cs2_fld**2
+
+                 Else if (m .eq. 9) then
+
+                    Covguess(m,m) = sigma_w0_fld**2
+
+                 Else if ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)  ) .and. (m .eq. 10) ) then
+
+                    Covguess(m,m) = sigma_e_pi**2
+
+                 Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 10) ) then
+
+                    write(job_number,*) 'CURRENTLY CARRYING OUT ANALYSIS FOR DEA MODEL 2'
+
+                    Covguess(m,m) = sigma_f_pi**2
+
+                 Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 11) ) then
+
+                    Covguess(m,m) = sigma_g_pi**2
+
+                 Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 11) ) then
+
+                    write(job_number,*) 'CURRENTLY CARRYING OUT ANALYSIS FOR DEA MODEL 3'
+
+                    Covguess(m,m) = sigma_f_pi**2
+
+                 Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 12) ) then
+
+                    Covguess(m,m) = sigma_g_pi**2
+
+                 Else
+
+                    write(job_number,*) '"DEA_MODEL" PARAMETER IN FIDUCIAL MODULE MUST BE 1,2, OR 3'
+
+                    write(job_number,*) 'NUMBER OF PARAMETERS IN FIDUCIAL MODULE MUST BE 10,11, OR 12, RESPECTIVELY'
+
+                    write(job_number,*) 'USER GAVE A DIFFERENT VALUE. CODE STOPPED'
+
+                    stop
+
+                 End If
+
+              End Do
 
            End If
 
@@ -503,9 +565,19 @@ Program fisher
           Cl_obs(lmin:lmax,0:nbins,0:nbins), Nl(1:nbins,1:nbins),bestfit(number_of_parameters),prior_cov(5,5),&
           inv_prior_cov(5,5),stat = status3)
 
-        call read_covariance_matrix_prior(prior_cov)
+        If (use_gaussian_planck_prior) then 
 
-        call compute_inverse_matrix_prior()
+           call read_covariance_matrix_prior(prior_cov)
+
+           call compute_inverse_matrix_prior()
+
+           write(job_number,*) 'CURRENT ANALYSIS TAKES INTO ACCOUNT PLANCK PRIOR'
+
+        Else
+
+           write(job_number,*) 'CURRENT ANALYSIS DOES NOT TAKE INTO ACCOUNT PLANCK PRIOR'
+
+        End If
 
         call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
 
@@ -608,43 +680,147 @@ Program fisher
 
         open(UNIT_RANGES_FILE,file = PATH_TO_RANGES_FILE )    !    FILE WITH HARD BOUNDS NEEDED BY GETDIST 
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(1))//'    3.e-3    1.e-1 '
+        Do i=1,number_of_parameters
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(2))//'    1.e-3    1. '
+           If (i .eq. 1) then
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(3))//'    9.e-2    2. '
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    3.e-3    1.e-1 '  ! omega_b
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(4))//'    1.e-11    1.e-7 '
+           Else if (i .eq. 2) then
+ 
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-3    1. '     ! omega_cdm 
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(5))//'    30    90 '
+           Else if (i .eq. 3) then
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(6))//'    0.    2. '
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    9.e-2    2. '     ! n_s
 
-        write(UNIT_RANGES_FILE,*) ''//trim(paramnames(7))//'    0.    3.'
+           Else if (i .eq. 4) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-11    1.e-7 ' ! A_s
+
+           Else if (i .eq. 5) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    30    90 '        ! H_0
+
+           Else if (i .eq. 6) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    0.    2. '        ! m_ncdm 
+
+           Else if (i .eq. 7) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    0.    3.'         ! b_0
+
+           Else if (i .eq. 8) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -1.e1    1.e1'    ! cs2_fld
+
+           Else if (i .eq. 9) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -2.e0    0.'      ! w0_fld
+
+           Else If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ) .and. (i .eq. 10) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -2.    2.'      ! e_pi
+
+           Else if ( (DEA_MODEL .eq. 2) .and. (i .eq. 10) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -5.    1.e1'      ! f_pi
+
+           Else if ( (DEA_MODEL .eq. 2) .and. (i .eq. 11) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-15    1.e15' ! g_pi
+
+           Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 11) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -5.    1.e1'      ! f_pi
+
+           Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 12) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-15    1.e15' ! g_pi
+
+           End If
+
+        End Do
 
         close(UNIT_RANGES_FILE)
 
         If (start_from_fiducial) then
 
-           old_point(1) = omega_b
+           Do m=1,number_of_parameters
 
-           old_point(2) = omega_cdm
+              If ( m .eq. 1) then
 
-           old_point(3) = n_s
+                 old_point(m) = omega_b
 
-           old_point(4) = A_s
+              Else if ( m .eq. 2) then
 
-           old_point(5) = H0
+                 old_point(m) = omega_cdm
 
-           old_point(6) = m_ncdm
+              Else if ( m .eq. 3) then
+              
+                 old_point(m) = n_s
 
-           old_point(7) = nc_bias_b0
-    
+              Else if ( m .eq. 4) then
+
+                 old_point(m) = A_s
+
+              Else if ( m .eq. 5) then
+
+                 old_point(m) = H0
+
+              Else if ( m .eq. 6) then
+                    
+                 old_point(m) = m_ncdm
+
+              Else if ( m .eq. 7) then
+
+                 old_point(m) = nc_bias_b0
+
+              Else if ( m .eq. 8) then
+
+                 old_point(m) = cs2_fld 
+
+              Else if ( m .eq. 9) then
+
+                 old_point(m) = w0_fld
+
+              Else if ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)) .and. (m .eq. 10) ) then
+
+                 old_point(m) = e_pi
+
+              Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 10)) then
+
+                 old_point(m) = f_pi
+
+              Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 11)) then
+
+                 old_point(m) = 1.d1**g_pi ! ALTHOUGH IT MIGHT BE CONFUSING, THIS IS g_pi
+
+              Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 11) ) then
+
+                 old_point(m) = f_pi
+
+              Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 12) ) then
+
+                 old_point(m) = 1.d1**g_pi ! ALTHOUGH IT MIGHT BE CONFUSING, THIS IS g_pi
+
+              End If
+
+           End Do
+
            Do m=1,number_of_parameters
 
               If (m .eq. 4) then
 
                  x_old(m) = real(log(1.d1**1.d1*old_point(m)))
+
+              Else if ( (m .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
+
+                 x_old(m) = real(g_pi) ! log10 g_pi
+
+              Else if ( (m .eq. 12) .and. (DEA_MODEL .eq. 3) ) then
+
+                 x_old(m) = real(g_pi) ! log10 g_pi
 
               else
 
@@ -660,11 +836,19 @@ Program fisher
 
            Do m=1,number_of_parameters
 
-              old_point(m) = bestfit(m)
+              old_point(m) = bestfit(m) ! THIS ASSUMES old_point CONTAINS g_pi
 
               If (m .eq. 4) then
 
                  x_old(m) = real(log(1.d1**1.d1*old_point(m)))
+
+              Else if ( (m .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
+
+                 x_old(m) = real(log10(old_point(m))) ! log10 g_pi 
+
+              Else if ( (m .eq. 12) .and. (DEA_MODEL .eq. 3) ) then
+
+                 x_old(m) = real(log10(old_point(m))) ! log10 g_pi 
 
               else
 
@@ -676,25 +860,81 @@ Program fisher
              
         Else
 
-           x_old(1) = genunf(real(omega_b-sigma_omega_b),real(omega_b+sigma_omega_b))         ! omega_b
+           Do m=1,number_of_parameters
 
-           x_old(2) = genunf(real(omega_cdm-sigma_omega_cdm),real(omega_cdm+sigma_omega_cdm)) ! omega_cdm
+              If ( m .eq. 1) then
 
-           x_old(3) = genunf(real(n_s-sigma_n_s),real(n_s+sigma_n_s))                         ! n_s
+                 x_old(m) = genunf(real(omega_b-sigma_omega_b),real(omega_b+sigma_omega_b))         ! omega_b
 
-           x_old(4) = log((1.d1**10)*genunf(real(A_s-sigma_A_s),real(A_s+sigma_A_s)))         ! log(10^10*A_s)
+              Else if ( m .eq. 2) then
+
+                 x_old(m) = genunf(real(omega_cdm-sigma_omega_cdm),real(omega_cdm+sigma_omega_cdm)) ! omega_cdm
+
+              Else if ( m .eq. 3) then
+
+                 x_old(m) = genunf(real(n_s-sigma_n_s),real(n_s+sigma_n_s))                         ! n_s
+
+              Else if ( m .eq. 4) then
+
+                 x_old(m) = log((1.d1**10)*genunf(real(A_s-sigma_A_s),real(A_s+sigma_A_s)))         ! log(10^10*A_s)
            
-           x_old(5) = genunf(real(H0-sigma_H0),real(H0+sigma_H0))                             ! H0
+              Else if ( m .eq. 5) then
 
-           x_old(6) = genunf(real(m_ncdm-sigma_m_ncdm),real(m_ncdm+sigma_m_ncdm))             ! m_ncdm
+                 x_old(m) = genunf(real(H0-sigma_H0),real(H0+sigma_H0))                             ! H0
 
-           x_old(7) = genunf(real(nc_bias_b0-sigma_nc_bias_b0),real(nc_bias_b0+sigma_nc_bias_b0))     ! nc_bias_b0
+              Else if ( m .eq. 6) then
+
+                 x_old(m) = genunf(real(m_ncdm-sigma_m_ncdm),real(m_ncdm+sigma_m_ncdm))             ! m_ncdm
+
+              Else if ( m .eq. 7) then
+
+                 x_old(m) = genunf(real(nc_bias_b0-sigma_nc_bias_b0),real(nc_bias_b0+sigma_nc_bias_b0))     ! nc_bias_b0
+
+              Else if ( m .eq. 8) then
+
+                 x_old(m) = genunf(real(cs2_fld-sigma_cs2_fld),real(cs2_fld+sigma_cs2_fld))     ! cs2_fld
+
+              Else if ( m .eq. 9 ) then
+
+                 x_old(m) = genunf(real(w0_fld-sigma_w0_fld),real(w0_fld+sigma_w0_fld))     ! w0_fld
+
+              Else if ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ).and. (m .eq. 10)) then
+
+                 x_old(m) = genunf(real(e_pi-sigma_e_pi),real(e_pi+sigma_e_pi))     ! e_pi
+
+              Else If ((DEA_MODEL .eq. 2) .and. (m .eq. 10)) then
+
+                 x_old(m) = genunf(real(f_pi-sigma_f_pi),real(f_pi+sigma_f_pi))     ! f_pi
+
+              Else If ((DEA_MODEL .eq. 2) .and. (m .eq. 11)) then
+
+                 x_old(m) = genunf(real(g_pi-sigma_g_pi),real(g_pi+sigma_g_pi))     ! log10 g_pi
+
+              Else If ((DEA_MODEL .eq. 3) .and. (m .eq. 11)) then
+
+                 x_old(m) = genunf(real(f_pi-sigma_f_pi),real(f_pi+sigma_f_pi))     ! f_pi
+
+              Else If ((DEA_MODEL .eq. 3) .and. (m .eq. 12)) then
+
+                 x_old(m) = genunf(real(g_pi-sigma_g_pi),real(g_pi+sigma_g_pi))     ! log10(g_pi)
+
+              End If
+
+           End Do
 
            Do m=1,number_of_parameters
 
               If (m .eq. 4) then
 
                  old_point(m) = exp(dble(x_old(m)))/(1.d1**1.d1)
+
+              Else If ( (m .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
+
+                 old_point(m) = 1.d1**(dble(x_old(m))) ! g_pi
+
+              Else If ( (m .eq. 12) .and. (DEA_MODEL .eq. 3) ) then
+
+                 old_point(m) = 1.d1**(dble(x_old(m))) ! g_pi
 
               Else
                  
@@ -727,8 +967,8 @@ Program fisher
         End If
 
         call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
-             old_point(7),MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_mcmc,&
-             q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+             old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,&
+             lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
         !###############################################
         ! RUN CLASS FOR CURRENT POINT IN PARAMETER SPACE
@@ -839,19 +1079,67 @@ Program fisher
 
            End If
 
-           plausibility(1) = (x_new(1) .lt. real(3.d-3)) .or. (x_new(1) .gt. real(1.d-1))
+           Do n=1,number_of_parameters
+              
+              If (n .eq. 1) then
 
-           plausibility(2) = (x_new(2) .lt. real(1.d-3)) .or. (x_new(2) .gt. real(1.d0))
-           
-           plausibility(3) = (x_new(3) .lt. real(9.d-2)) .or. (x_new(3) .gt. real(2.d0))
+                 plausibility(n) = (x_new(n) .lt. real(3.d-3)) .or. (x_new(n) .gt. real(1.d-1)) ! omega_b
 
-           plausibility(4) = (x_new(4) .lt. real(log(1.d-1))) .or. (x_new(4) .gt. real(log(1.d3))) ! limit As<3.d-9 but using log(10^10As)
+              Else if (n .eq. 2) then
 
-           plausibility(5) = (x_new(5) .lt. real(30.d0)).or.(x_new(5).gt.real(90.d0))
+                 plausibility(n) = (x_new(n) .lt. real(1.d-3)) .or. (x_new(n) .gt. real(1.d0))  ! omega_cdm
 
-           plausibility(6) = (x_new(6) .lt. real(0.d0)) .or. (x_new(6) .gt. real(2.d0))
+              Else if (n .eq. 3) then
 
-           plausibility(7) = (x_new(7) .le. real(0.d0)) .or. (x_new(7) .ge. real(3.d0))
+                 plausibility(n) = (x_new(n) .lt. real(9.d-2)) .or. (x_new(n) .gt. real(2.d0))  ! n_s
+
+              Else if (n .eq. 4) then
+
+                 plausibility(n) = (x_new(n) .lt. real(log(1.d-1))) .or. (x_new(n) .gt. real(log(1.d3))) ! limit As<3.d-9 but using log(10^10As)
+
+              Else if (n .eq. 5) then
+
+                 plausibility(n) = (x_new(n) .lt. real(30.d0)).or.(x_new(n).gt.real(90.d0))     ! H_0 
+
+              Else if (n .eq. 6) then
+
+                 plausibility(n) = (x_new(n) .lt. real(0.d0)) .or. (x_new(n) .gt. real(2.d0))   ! m_ncdm
+
+              Else if (n .eq. 7) then
+
+                 plausibility(n) = (x_new(n) .le. real(0.d0)) .or. (x_new(n) .ge. real(3.d0))   ! b_0
+
+              Else if (n .eq. 8) then
+
+                 plausibility(n) = (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(1.d1))  ! cs2_fld
+
+              Else if (n .eq. 9) then
+
+                 plausibility(n) = (x_new(n) .le. real(-2.d0)) .or. (x_new(n) .ge. real(0.d0))  ! w0_fld
+
+              Else if ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ).and. (n .eq. 10) ) then
+
+                 plausibility(n) =  (x_new(n) .le. real(-2.d0)) .or. (x_new(n) .ge. real(2.d0)) ! e_pi
+
+              Else If ( (DEA_MODEL .eq. 2) .and. (n .eq. 10)) then
+
+                 plausibility(n) =  (x_new(n) .le. real(-5.d0)) .or. (x_new(n) .ge. real(1.d1)) ! f_pi
+
+              Else If ( (DEA_MODEL .eq. 2) .and. (n .eq. 11)) then
+
+                 plausibility(n) =  (x_new(n) .le. real(-1.5d1)) .or. (x_new(n) .ge. real(1.5d1)) ! log10 g_pi
+
+              Else if ( (DEA_MODEL .eq. 3) .and. (n .eq. 11) ) then
+
+                 plausibility(n) =  (x_new(n) .le. real(-5.d0)) .or. (x_new(n) .ge. real(1.d1)) ! f_pi
+
+              Else if ( (DEA_MODEL .eq. 3) .and. (n .eq. 12) ) then
+
+                 plausibility(n) =  (x_new(n) .le. real(-1.5d1)) .or. (x_new(n) .ge. real(1.5d1)) ! log10 g_pi
+
+              End If
+
+           End Do
 
            Do n=1,number_of_parameters
 
@@ -885,6 +1173,14 @@ Program fisher
 
               End If
 
+           Else If ( (n .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
+
+              current_point(n) = 1.d1**(dble(x_new(m))) ! g_pi
+
+           Else If ( (m .eq. 12) .and. (DEA_MODEL .eq. 3) ) then
+
+              current_point(n) = 1.d1**(dble(x_new(m))) ! g_pi
+
            Else
 
               current_point(n) = dble(x_new(n))
@@ -906,7 +1202,8 @@ Program fisher
            Else
 
               call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
-                   current_point(5),current_point(6),current_point(7),MG_beta2,tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+                   current_point(5),current_point(6),current_point(7),current_point(8),current_point(9),&
+                   current_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
                    selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
               !################################
@@ -995,6 +1292,14 @@ Program fisher
 
                  End If
 
+              Else if ( (i.eq. 11) .and. (DEA_MODEL .eq. 2) ) then
+
+                 x_old(i) = real(log10(old_point(i))) ! log10 g_pi
+
+              Else if ( (i.eq. 12) .and. (DEA_MODEL .eq. 3) ) then
+
+                 x_old(i) = real(log10(old_point(i))) ! log10 g_pi
+
               Else
 
                  x_old(i) = real(old_point(i))
@@ -1043,6 +1348,14 @@ Program fisher
 
                     End If
 
+                 Else if ( (i.eq. 11) .and. (DEA_MODEL .eq. 2) ) then
+
+                    x_old(i) = real(log10(old_point(i))) ! log10 g_pi
+
+                 Else if ( (i.eq. 12) .and. (DEA_MODEL .eq. 3) ) then
+
+                    x_old(i) = real(log10(old_point(i))) ! log10 g_pi
+
                  Else
 
                     x_old(i) = real(old_point(i))
@@ -1076,6 +1389,14 @@ Program fisher
                        x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! convert A_s to log(10**10*A_s)
 
                     End If
+
+                 Else if ( (i.eq. 11) .and. (DEA_MODEL .eq. 2) ) then
+
+                    x_old(i) = real(log10(old_point(i))) ! log10 g_pi
+
+                 Else if ( (i.eq. 12) .and. (DEA_MODEL .eq. 3) ) then
+
+                    x_old(i) = real(log10(old_point(i))) ! log10 g_pi
 
                  Else
 
@@ -1152,8 +1473,20 @@ Program fisher
 
                  Else
 
-                    call system('cd output; python compute_covariance_matrix.py')
+                    If (DEA_MODEL .eq. 2) then
+
+                       call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
+
+                    Else if (DEA_MODEL .eq. 3) then
+
+                       call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
+                       
+                    Else
+
+                       call system('cd output; python compute_covariance_matrix.py')
      
+                    End If
+                    
                     call read_covariance_matrix_mcmc(Covguess)
 
                     close(UNIT_MCMC)
@@ -1193,15 +1526,41 @@ Program fisher
 
         If (adjusting_covariance_matrix) then
 
-           call system('cd output; python compute_covariance_matrix.py')
+           If (DEA_MODEL .eq. 2) then
 
-           call system('cd analyzer; python analyze_adjusting.py')
+              call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
+
+              call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
+
+           Else if (DEA_MODEL .eq. 3) then
+
+              call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
+
+              call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
+
+           Else
+
+              call system('cd output; python compute_covariance_matrix.py')
+
+              call system('cd analyzer; python analyze_adjusting.py')
+
+           End If
 
         Else
 
-           !call system('cd output; python compute_covariance_matrix_final.py')
+           If (DEA_MODEL .eq. 2) then
 
-           call system('cd analyzer; python analyze.py')
+              call system('cd analyzer; python analyze_DEA_MODEL_II.py')
+
+           Else if (DEA_MODEL .eq. 3) then
+
+              call system('cd analyzer; python analyze_DEA_MODEL_III.py')
+
+           Else
+
+              call system('cd analyzer; python analyze.py')
+
+           End If
 
         End If
 

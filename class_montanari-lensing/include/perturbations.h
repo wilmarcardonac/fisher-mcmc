@@ -333,6 +333,10 @@ struct perturbs
   short has_mg;		/**< Modified Gravity flag */
   double mg_eta; /* Modified Gravity parametrization eta=phi/psi */
   double mg_beta2; /* Modified Gravity parametrization following arXiv:1106.4543 */
+  double e_pi; /* Dark Energy Anisotropic stress parameter */
+  double f_pi; /* Dark Energy Anisotropic stress parameter */
+  double g_pi; /* Dark Energy Anisotropic stress parameter */
+
 
   //@}
 

@@ -1,6 +1,6 @@
 from getdist import loadMCSamples,plots
 
-number_of_parameters = 10
+number_of_parameters = 11
 
 samples = loadMCSamples('../output/mcmc_output',settings={'ignore_rows':2})
 

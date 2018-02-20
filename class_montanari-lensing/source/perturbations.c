@@ -2005,6 +2005,10 @@ int perturb_prepare_output_file(struct background * pba,
     class_fprintf_columntitle(ppw->perturb_output_file,"delta_ur",pba->has_ur);
     class_fprintf_columntitle(ppw->perturb_output_file,"theta_ur",pba->has_ur);
     class_fprintf_columntitle(ppw->perturb_output_file,"shear_ur",pba->has_ur);
+    /* fluid */
+    class_fprintf_columntitle(ppw->perturb_output_file,"delta_fld",pba->has_fld);
+    class_fprintf_columntitle(ppw->perturb_output_file,"theta_fld",pba->has_fld);
+    //    class_fprintf_columntitle(ppw->perturb_output_file,"shear_fld",pba->has_fld);
     /* Cold dark matter */
     class_fprintf_columntitle(ppw->perturb_output_file,"delta_cdm",pba->has_cdm);
     class_fprintf_columntitle(ppw->perturb_output_file,"theta_cdm",pba->has_cdm);
@@ -2905,6 +2909,7 @@ int perturb_vector_init(
 
         ppv->y[ppv->index_pt_theta_fld] =
           ppw->pv->y[ppw->pv->index_pt_theta_fld];
+
       }
 
       if (ppt->gauge == synchronous)
@@ -4470,7 +4475,8 @@ int perturb_total_stress_energy(
 
   /** - define local variables */
 
-  double a,a2;
+  double a,a2,a_prime_over_a;//,H_over_H0;//,H_over_H0_2;
+  double k2;
   double delta_g=0.;
   double theta_g=0.;
   double shear_g=0.;
@@ -4486,7 +4492,10 @@ int perturb_total_stress_energy(
   int index_q,n_ncdm,idx;
   double epsilon,q,q2,cg2_ncdm,w_ncdm,rho_ncdm_bg,p_ncdm_bg,pseudo_p_ncdm;
   double rho_m,delta_rho_m,rho_plus_p_m,rho_plus_p_theta_m;
-  double w;
+  double w,w_prime,ca2;
+  //double rho_plus_p_shear_fld=0.;
+  double pi_fld,pi_HuSa,FR_over_F_HuSa,Omega0_M;
+  double shear_fld=0.;
   double gwncdm;
   double rho_relativistic;
 
@@ -4494,7 +4503,11 @@ int perturb_total_stress_energy(
 
   a = ppw->pvecback[pba->index_bg_a];
   a2 = a * a;
-
+  a_prime_over_a = ppw->pvecback[pba->index_bg_H] * a;
+  k2=k*k;
+  //H_over_H0 = ppw->pvecback[pba->index_bg_H]/pba->H0;
+  //H_over_H0_2 = pow(H_over_H0,2);
+  
   if (_scalars_) {
 
     /** (a) deal with approximation schemes */
@@ -4589,10 +4602,45 @@ int perturb_total_stress_energy(
     if (pba->has_fld == _TRUE_) {
 
       w = pba->w0_fld + pba->wa_fld * (1. - a / pba->a_today);
+      w_prime = - pba->wa_fld * a / pba->a_today * a_prime_over_a;
+      Omega0_M = pba->Omega0_b+pba->Omega0_cdm;
+      //w = -1. - (12.* (pow(a,3)*(pow(a,3)*(-1. + Omega0_M) - Omega0_M)*(-1. + Omega0_M)*Omega0_M*(8.*pow(a,3)*(-1. + Omega0_M) + 
+      // Omega0_M))*pba->b_pi)/pow(-4.*pow(a,3)*(-1. + Omega0_M) + Omega0_M,4); 
+      //w_prime = 36.*(-1. + Omega0_M)*Omega0_M*pba->H0*pba->b_pi*(Omega0_M + 2.*(-1. + Omega0_M)*pow(a,3))*pow(a,4)*(-24.*(-1. + 
+      //     Omega0_M)*Omega0_M*pow(a,3) + 16.*pow(a,6)*pow(-1. + Omega0_M,2) - pow(Omega0_M,2))*pow(1. + Omega0_M*(-1. + 
+      //     pow(a,-3)),0.5)*pow(-Omega0_M + 4.*(-1. + Omega0_M)*pow(a,3),-5);
+      ca2 = w - w_prime / 3. / (1.+w) / a_prime_over_a;
+      //ca2 = w - w_prime*(1.+w) / 3. / (pow((1.+w),2) + 1.E-15) / a_prime_over_a;
+      //printf("CURRENT SCALE FACTOR IS = %10e\n",a);
+      //printf("CURRENT EQUATION OF STATE IS = %10e\n",w);
+      //printf("CURRENT ADIABATIC SOUND SPEED IS = %10e\n",ca2);
+      FR_over_F_HuSa = (4.*pow(1.-Omega0_M,2)*pow(a,9)*pba->b_pi)/(3.*pow(pba->H0,2)*pow(4.*pow(a,3)*(1.-Omega0_M)+
+											 Omega0_M,3));
+      //      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*(Omega0_M*pow(a,-3)/( H_over_H0_2 - 
+											     //		Omega0_M*pow(a,-3)))*(y[ppw->pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2) ;
+      //      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*((ppw->pvecback[pba->index_bg_rho_b]+
+      //ppw->pvecback[pba->index_bg_rho_cdm])/(ppw->pvecback[pba->index_bg_rho_fld] ))*(y[ppw->pv->index_pt_delta_cdm] + 
+      //3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2) ;
+      //      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*(y[ppw->pv->index_pt_delta_cdm] + 
+      //3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2) ;
+      //      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*((ppw->pvecback[pba->index_bg_rho_b]+
+      //ppw->pvecback[pba->index_bg_rho_cdm])/(ppw->pvecback[pba->index_bg_rho_fld] ))*(y[ppw->pv->index_pt_delta_cdm] + 
+      //y[ppw->pv->index_pt_delta_b]) ;
+      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*((ppw->pvecback[pba->index_bg_rho_b]+
+      ppw->pvecback[pba->index_bg_rho_cdm])/(ppw->pvecback[pba->index_bg_rho_fld] ))*(y[ppw->pv->index_pt_delta_cdm] + 
+      y[ppw->pv->index_pt_delta_b] + 3.*a_prime_over_a*(y[ppw->pv->index_pt_theta_cdm]+y[ppw->pv->index_pt_theta_b])/k2 ) ;
+
+      
+      pi_fld = ppt->e_pi*(y[ppw->pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2 )
+	+ ppt->f_pi*( y[ppw->pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[ppw->pv->index_pt_theta_fld]/k2  )/(1. 
+	+ ppt->g_pi*ppt->g_pi*a_prime_over_a*a_prime_over_a/k2) + pi_HuSa;
+      shear_fld = 2.*pi_fld/3./(1.+w);
 
       ppw->delta_rho += ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_delta_fld];
       ppw->rho_plus_p_theta += (1.+w)*ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_theta_fld];
-      ppw->delta_p = ppw->delta_p + pba->cs2_fld * ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_delta_fld];
+      ppw->delta_p = ppw->delta_p + pba->cs2_fld * ppw->pvecback[pba->index_bg_rho_fld]*y[ppw->pv->index_pt_delta_fld]
+	+ 3.*(1.+w)*(pba->cs2_fld - ca2)*ppw->pvecback[pba->index_bg_rho_fld]*a_prime_over_a*y[ppw->pv->index_pt_theta_fld]/k2;
+      ppw->rho_plus_p_shear = ppw->rho_plus_p_shear  + (1.+w)*ppw->pvecback[pba->index_bg_rho_fld]*shear_fld;
     }
 
     /* ultra-relativistic neutrino/relics contribution */
@@ -5268,6 +5316,7 @@ int perturb_print_variables(double tau,
   double delta_ur=0.,theta_ur=0.,shear_ur=0.,l4_ur=0.;
   int n_ncdm;
   double delta_ncdm,theta_ncdm,shear_ncdm;
+  double delta_fld,theta_fld;//,shear_fld;
   double phi=0.,psi=0.;
   double delta_temp=0., delta_chi=0.;
 
@@ -5369,6 +5418,13 @@ int perturb_print_variables(double tau,
       }
     }
 
+    if (pba->has_fld == _TRUE_) {
+      
+      delta_fld = y[ppw->pv->index_pt_delta_fld];
+      theta_fld = y[ppw->pv->index_pt_theta_fld];
+
+    }
+
     /* gravitational potentials */
     if (ppt->gauge == synchronous) {
       psi = pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a] * pvecmetric[ppw->index_mt_alpha] + pvecmetric[ppw->index_mt_alpha_prime];
@@ -5427,6 +5483,10 @@ int perturb_print_variables(double tau,
     class_fprintf_double(ppw->perturb_output_file, delta_ur, pba->has_ur);
     class_fprintf_double(ppw->perturb_output_file, theta_ur, pba->has_ur);
     class_fprintf_double(ppw->perturb_output_file, shear_ur, pba->has_ur);
+    /* fluid */
+    class_fprintf_double(ppw->perturb_output_file, delta_fld, pba->has_fld);
+    class_fprintf_double(ppw->perturb_output_file, theta_fld, pba->has_fld);
+    //    class_fprintf_double(ppw->perturb_output_file, shear_fld, pba->has_fld);
     /* Cold dark matter */
     class_fprintf_double(ppw->perturb_output_file, delta_cdm, pba->has_cdm);
     class_fprintf_double(ppw->perturb_output_file, theta_cdm, pba->has_cdm);
@@ -5584,7 +5644,7 @@ int perturb_derivs(double tau,
   int l;
 
   /* scale factor and other background quantities */
-  double a,a2,a_prime_over_a,R;
+  double a,a2,a_prime_over_a,R,Omega0_M;//,H_over_H0;//,H_over_H0_2;
 
   /* short-cut names for the fields of the input structure */
   struct perturb_parameters_and_workspace * pppaw;
@@ -5621,7 +5681,7 @@ int perturb_derivs(double tau,
   double P2;
 
   /* for use with fluid (fld): */
-  double w,w_prime;
+  double w,w_prime,pi_fld,FR_over_F_HuSa,pi_HuSa;
 
   /* for use with non-cold dark matter (ncdm): */
   int index_q,n_ncdm,idx;
@@ -5691,6 +5751,11 @@ int perturb_derivs(double tau,
   a2 = a*a;
   a_prime_over_a = pvecback[pba->index_bg_H] * a;
   R = 4./3. * pvecback[pba->index_bg_rho_g]/pvecback[pba->index_bg_rho_b];
+  //H_over_H0 = pvecback[pba->index_bg_H]/pba->H0;
+  //H_over_H0_2 = pow(H_over_H0,2);
+  Omega0_M = pba->Omega0_b+pba->Omega0_cdm;
+  FR_over_F_HuSa = (4.*pow(1.-Omega0_M,2)*pow(a,9)*pba->b_pi)/(3.*pow(pba->H0,2)*pow(4.*pow(a,3)*(1.-Omega0_M)+
+								      Omega0_M,3));
 
   /** Compute 'generalised cotK function of argument sqrt(|K|)*tau, for closing hierarchy.
       (see equation 2.34 in arXiv:1305.3261): */
@@ -5978,8 +6043,32 @@ int perturb_derivs(double tau,
 
       w = pba->w0_fld + pba->wa_fld * (1. - a / pba->a_today);
       w_prime = - pba->wa_fld * a / pba->a_today * a_prime_over_a;
+      //w = -1. - (12.* (pow(a,3)*(pow(a,3)*(-1. + Omega0_M) - Omega0_M)*(-1. + Omega0_M)*Omega0_M*(8.*pow(a,3)*(-1. + Omega0_M) + 
+      // Omega0_M))*pba->b_pi)/pow(-4.*pow(a,3)*(-1. + Omega0_M) + Omega0_M,4); 
+      //w_prime = 36.*(-1. + Omega0_M)*Omega0_M*pba->H0*pba->b_pi*(Omega0_M + 2.*(-1. + Omega0_M)*pow(a,3))*pow(a,4)*(-24.*(-1. + 
+      //       Omega0_M)*Omega0_M*pow(a,3) + 16.*pow(a,6)*pow(-1. + Omega0_M,2) - pow(Omega0_M,2))*pow(1. + Omega0_M*(-1. + 
+      //       pow(a,-3)),0.5)*pow(-Omega0_M + 4.*(-1. + Omega0_M)*pow(a,3),-5);
+
       ca2 = w - w_prime / 3. / (1.+w) / a_prime_over_a;
+      //ca2 = w - w_prime*(1.+w) / 3. / (pow((1.+w),2) + 1.E-15) / a_prime_over_a;
       cs2 = pba->cs2_fld;
+      //      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*(Omega0_M*pow(a,-3)/( H_over_H0_2 - 
+      //      	Omega0_M*pow(a,-3)))*(y[pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[pv->index_pt_theta_cdm]/k2) ;
+      //      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*((ppw->pvecback[pba->index_bg_rho_b]+
+      //ppw->pvecback[pba->index_bg_rho_cdm])/(ppw->pvecback[pba->index_bg_rho_fld] ))*(y[ppw->pv->index_pt_delta_cdm] + 
+      //3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2) ;
+      //      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*(y[ppw->pv->index_pt_delta_cdm] + 
+      //3.*a_prime_over_a*y[ppw->pv->index_pt_theta_cdm]/k2) ;
+      //pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*((ppw->pvecback[pba->index_bg_rho_b]+
+      //ppw->pvecback[pba->index_bg_rho_cdm])/(ppw->pvecback[pba->index_bg_rho_fld] ))*(y[ppw->pv->index_pt_delta_cdm] + 
+      //y[ppw->pv->index_pt_delta_b]) ;
+      pi_HuSa = FR_over_F_HuSa*(k2/a2)/(1.+ 3.*(k2/a2)*FR_over_F_HuSa)*((ppw->pvecback[pba->index_bg_rho_b]+
+      ppw->pvecback[pba->index_bg_rho_cdm])/(ppw->pvecback[pba->index_bg_rho_fld] ))*(y[ppw->pv->index_pt_delta_cdm] + 
+      y[ppw->pv->index_pt_delta_b] + 3.*a_prime_over_a*(y[ppw->pv->index_pt_theta_cdm]+y[ppw->pv->index_pt_theta_b])/k2 ) ;
+
+      pi_fld = ppt->e_pi*(y[pv->index_pt_delta_cdm] + 3.*a_prime_over_a*y[pv->index_pt_theta_cdm]/k2 ) 
+	+ ppt->f_pi*( y[pv->index_pt_delta_fld] + 3.*a_prime_over_a*(1.+w)*y[pv->index_pt_theta_fld]/k2  )/(1. 
+	+ ppt->g_pi*ppt->g_pi*a_prime_over_a*a_prime_over_a/k2) + pi_HuSa;
 
       /** ---> fluid density */
 
@@ -5991,9 +6080,10 @@ int perturb_derivs(double tau,
       /** ---> fluid velocity */
 
       dy[pv->index_pt_theta_fld] = /* fluid velocity */
-        -(1.-3.*cs2)*a_prime_over_a*y[pv->index_pt_theta_fld]
+        -(1.-3.*ca2)*a_prime_over_a*y[pv->index_pt_theta_fld]
         +cs2*k2/(1.+w)*y[pv->index_pt_delta_fld]
-        +metric_euler;
+        +metric_euler
+	-2.*pi_fld*k2/3./(1.+w);
 
     }
 
