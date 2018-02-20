@@ -162,6 +162,6 @@ Module fiducial
   Character(len=*),parameter :: PATH_TO_RANGES_FILE = './output/chains/mcmc_final_output.ranges'
   Character(len=*),parameter :: PATH_TO_PARAMNAMES_FILE = './output/chains/mcmc_final_output.paramnames'
   Character(len=*),parameter :: PATH_TO_INI_FILES = './ini_files/current_euclid_galaxy_cl_'
-  Character(len=*),parameter :: PATH_TO_CURRENT_CL = './output/current_euclid_galaxy_'
+  Character(len=*),parameter :: PATH_TO_CURRENT_CL = './output/current_euclid_galaxy_cl_'
     
 End Module fiducial
