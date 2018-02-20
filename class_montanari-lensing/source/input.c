@@ -530,6 +530,17 @@ int input_init(
     class_read_double("w0_fld",pba->w0_fld);
     class_read_double("wa_fld",pba->wa_fld);
     class_read_double("cs2_fld",pba->cs2_fld);
+    class_read_double("e_pi",ppt->e_pi);
+    class_read_double("f_pi",ppt->f_pi);
+    class_read_double("g_pi",ppt->g_pi);
+    class_read_double("b_pi",pba->b_pi);
+    class_test((pba->b_pi !=0.) && ((ppt->e_pi != 0.) || (ppt->f_pi != 0.) || (ppt->g_pi != 0.)),errmsg,
+    "WHEN RUNNING SAVVAS PARAMETRISATION FOR DARK ENERGY ANISOTROPIC STRESS, PARAMETERS OF OTHER PARAMETRISATIONS MUST BE SET TO ZERO"); 
+    if (pba->b_pi != 0.) {
+      printf("THIS PARAMETRISATION OF DARK ENERGY ANISOTROPIC STRESS HAS VARYING SOUND SPEED AND VARYING EQUATION OF STATE\n");
+      printf("'w' IS IN GENERAL DIFFERENT FROM THE USUAL 'w_0 + w_a*(1-a)'\n");
+      printf("THEREFORE THE GIVEN PARAMETERS 'w0_fld', 'wa_fld', and 'cs2_fld' ARE NOT USED\n");
+    }
   }
 
   /* scale factor today (arbitrary) */
@@ -2096,6 +2107,7 @@ int input_default_params(
   pba->w0_fld=-1.;
   pba->wa_fld=0.;
   pba->cs2_fld=1.;
+  pba->b_pi=0.; 
 
   /** - thermodynamics structure */
 
@@ -2179,6 +2191,10 @@ int input_default_params(
 
   ppt->mg_beta2=1.;
   ppt->has_mg=_FALSE_;
+  ppt->e_pi=0.; 
+  ppt->f_pi=0.; 
+  ppt->g_pi=0.; 
+
 
   ppt->selection_num=1;
   ppt->selection=gaussian;

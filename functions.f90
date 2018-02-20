@@ -91,7 +91,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     write(10,'(a11, es16.10)') 'tau_reio = ', tau
 
-    write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
+!    write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
 
     ! Parameters for massive neutrinos                                                                                            
 
@@ -149,7 +149,7 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+!    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -679,13 +679,13 @@ subroutine compute_ratio_likelihood()
     open(16,file='./output/ratio_likelihood_values.dat')
     write(16,*) '# -ln(L/L_max)    omega_b    omega_cdm    n_s    A_s    H0    m_ncdm    MG_beta2 '
     write(16,*) -euclid_galaxy_cl_likelihood(Cl_fid_nl,omega_b,omega_cdm,n_s,A_s,H0),omega_b,omega_cdm,n_s,A_s,&
-    H0,m_ncdm,MG_beta2
+    H0,m_ncdm!,MG_beta2
 
     Do p=1,2
 
         Do m=1,number_of_parameters
 
-            point_parameter_space(m) = fiducial_point(m) + step*dble(p)*sigma_MG_beta2*b_lambda(m)/sqrt(sum(b_lambda(:)**2))
+            point_parameter_space(m) = fiducial_point(m) !+ step*dble(p)*sigma_MG_beta2*b_lambda(m)/sqrt(sum(b_lambda(:)**2))
  
         End Do
      
@@ -708,7 +708,7 @@ subroutine compute_ratio_likelihood()
         End If
 
         call write_ini_file(point_parameter_space(1),point_parameter_space(2),point_parameter_space(3),&
-        point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),MG_beta2,&
+        point_parameter_space(4),point_parameter_space(5),point_parameter_space(6),&
         tau,N_ur,N_ncdm,deg_ncdm,lensing_flag,selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
         inquire(file='./ini_files/current_euclid_galaxy_cl_.ini',exist=ini_file_exist) 
@@ -983,7 +983,7 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
-    logical :: f1,f2,f3,f4,f5,f6,f7,fiducial_model,len_flag,Cl_El_flag
+    logical :: f1,f2,f3,f4,f5,f6,fiducial_model,len_flag,Cl_El_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
     character*16 :: string_MG_beta2
     
@@ -1004,8 +1004,8 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     f4 = (param_A_s == A_s)
     f5 = (param_H0 == H0)
     f6 = (param_m_ncdm == m_ncdm) 
-    f7 = (param_MG_beta2 == MG_beta2)
-    fiducial_model = ((f1 .and. f2) .and. (f3 .and. f4) .and. (f5 .and. f6) .and. f7)
+!    f7 = (param_MG_beta2 == MG_beta2)
+    fiducial_model = ((f1 .and. f2) .and. (f3 .and. f4) .and. (f5 .and. f6) )!.and. f7)
 
     If (Cl_El_flag  .and. fiducial_model) then
         if (len_flag) then
@@ -1168,7 +1168,7 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+!    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1345,7 +1345,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        !If (parameter_name .ne. param_name_MG_beta2) then
 
-       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
+!       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
 
        !Else
 
@@ -1367,9 +1367,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        fid6 = parameter_value .eq. m_ncdm
 
-       !fid7 = parameter_value .eq. MG_beta2
-
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) 
      
        call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
@@ -1497,16 +1495,6 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        End If
 
-       !If (parameter_name .ne. param_name_MG_beta2) then
-
-       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
-
-       !Else
-
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
- 
-!       End If
-
        If (parameter_name .ne. param_name_m_ncdm) then
 
           write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
@@ -1514,6 +1502,74 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
        Else
 
           write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+
+       End If
+
+     If (parameter_name .ne. param_name_nc_bias_b0) then
+ 
+          write(10,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
+
+       Else
+
+          write(10,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_cs2_fld) then
+
+          write(10,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
+
+       Else
+
+          write(10,'(a10, es17.10)') 'cs2_fld = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_w0_fld) then
+
+          write(10,'(a9, es17.10)') 'w0_fld = ', w0_fld
+
+       Else
+
+          write(10,'(a9, es17.10)') 'w0_fld = ', parameter_value
+
+       End If
+
+       If ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ) then
+
+          If (parameter_name .ne. param_name_e_pi) then
+
+             write(10,'(a7, es17.10)') 'e_pi = ', e_pi
+
+          Else
+
+             write(10,'(a7, es17.10)') 'e_pi = ', parameter_value
+
+          End If
+       
+       End If
+
+       If ( (DEA_MODEL .eq. 2) .or. (DEA_MODEL .eq. 3) ) then
+
+          If (parameter_name .ne. param_name_f_pi) then
+
+             write(10,'(a7, es17.10)') 'f_pi = ', f_pi
+
+          Else
+
+             write(10,'(a7, es17.10)') 'f_pi = ', parameter_value
+
+          End If
+
+          If (parameter_name .ne. param_name_g_pi) then
+
+             write(10,'(a7, es16.10)') 'g_pi = ', g_pi
+
+          Else
+
+             write(10,'(a7, es16.10)') 'g_pi = ', parameter_value
+
+          End If
 
        End If
 
@@ -1573,7 +1629,9 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1586,19 +1644,21 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 end subroutine write_ini_file_for_fisher
 
 subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
-                          param_m_ncdm, param_nc_bias_b0,param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
-                           param_deg_ncdm, len_flag,bessel,q,kmaxtau0,job)
+                          param_m_ncdm, param_nc_bias_b0,param_cs2_fld,param_w0_fld,param_ADE_MODEL,&
+                          param_tau_reio, param_N_ur, param_N_ncdm,param_deg_ncdm, len_flag,bessel,q,kmaxtau0,job)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio,param_nc_bias_b0
-    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
+    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_cs2_fld,param_w0_fld,bessel,q,kmaxtau0
+    Real*8,dimension(number_of_parameters-9) :: param_ADE_MODEL 
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
-    character*16 :: string_MG_beta2,string_nc_bias_b0
+    character*16 :: string_g_pi,string_nc_bias_b0
+    Character*17 :: string_cs2_fld, string_w0_fld, string_e_pi, string_f_pi
     Character(len=10) :: job
-        
+    Integer*4 :: m
     call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
     fmt = '(es16.10)' 
@@ -1608,8 +1668,35 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     write(string_A_s,fmt) param_A_s
     write(string_H0,fmt) param_H0
     write(string_m_ncdm,fmt) param_m_ncdm
-    write(string_MG_beta2,fmt) param_MG_beta2
     write(string_nc_bias_b0,fmt) param_nc_bias_b0
+    write(string_cs2_fld,'(es17.10)') param_cs2_fld
+    write(string_w0_fld,'(es17.10)') param_w0_fld
+
+    Do m=1,3
+
+       If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ) .and. (m .eq. 1) ) then
+
+          write(string_e_pi,'(es17.10)') param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 1) ) then
+
+          write(string_f_pi,'(es17.10)') param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 2) ) then
+
+          write(string_g_pi,fmt) param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 2)) then
+
+          write(string_f_pi,'(es17.10)') param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 3)) then
+
+          write(string_g_pi,fmt) param_ADE_MODEL(m)
+
+       End If
+
+    End Do
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
@@ -1635,9 +1722,37 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 
     write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
-    write(10,'(a11, es16.10)') 'MG_beta2 = ', param_MG_beta2
-
     write(10,'(a13, es16.10)') 'nc_bias_b0 = ', param_nc_bias_b0
+
+    write(10,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
+
+    write(10,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
+
+    Do m=1,3
+
+       If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)) .and. (m .eq. 1) ) then
+
+          write(10,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 1) ) then
+
+          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 2) ) then
+
+          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 2) ) then
+
+          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 3) ) then
+
+          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+
+       End If
+
+    End Do
 
     ! Parameters for massive neutrinos                                                                                            
 
@@ -1695,7 +1810,9 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+
+    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1708,17 +1825,16 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 end subroutine write_ini_file_mcmc
 
 subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
-                          param_m_ncdm, param_MG_beta2,param_tau_reio, param_N_ur, param_N_ncdm,&
+                          param_m_ncdm,param_tau_reio, param_N_ur, param_N_ncdm,&
                            param_deg_ncdm, len_flag,bessel,q,kmaxtau0)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
-    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_MG_beta2,bessel,q,kmaxtau0
+    Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
-    character*16 :: string_MG_beta2
         
     call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
@@ -1729,7 +1845,6 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
     write(string_A_s,fmt) param_A_s
     write(string_H0,fmt) param_H0
     write(string_m_ncdm,fmt) param_m_ncdm
-    write(string_MG_beta2,fmt) param_MG_beta2
 
     If (len_flag) then 
         open(10, file='./ini_files/current_euclid_galaxy_cl_lensing.ini')
@@ -1755,8 +1870,6 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
-    write(10,'(a11, es16.10)') 'MG_beta2 = ', param_MG_beta2
-
     ! Parameters for massive neutrinos                                                                                            
 
     write(10,'(a7, f5.3)') 'N_ur = ', real(param_N_ur)
@@ -1813,7 +1926,7 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+!    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
 
     write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
@@ -1977,16 +2090,15 @@ subroutine write_sh_file(name_ini_file)
     write(12,'(a26)') '#SBATCH --cpus-per-task=12'
     write(12,'(a24)') '#SBATCH --job-name=CLASS'
     write(12,'(a18)') '#SBATCH --ntasks=1'
-    write(12,'(a25)') '#SBATCH --time=7-00:00:00'
-    write(12,'(a43)') '#SBATCH --mail-user=wilmar.cardona@unige.ch'
+    write(12,'(a25)') '#SBATCH --time=5-20:00:00'
+    write(12,'(a42)') '#SBATCH --mail-user=wilmar.cardona@csic.es'
     write(12,'(a23)') '#SBATCH --mail-type=ALL'
-    write(12,'(a23)') '#SBATCH --partition=dpt'
-    write(12,'(a25)') '#SBATCH --clusters=baobab'
-    write(12,'(a29)') '#SBATCH --output=slurm-%J.out'
+    write(12,'(a21)') '#SBATCH -o job.%J.out'
     write(12,*) 
     write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
 
     close(12)
+
 end subroutine write_sh_file
 
 subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
@@ -1996,7 +2108,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
     Real*8 ::parameter_value
     character(len=*) :: parameter_name
     character*16 :: string_par_value
-    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag!,fid7
+    logical :: exist,lensing_flag,Cl_flag,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag,bestfit_flag
     character(len=*),parameter :: fmt = '(es16.10)'
 
     If (fisher_analysis_at_bestfit) then
@@ -2013,9 +2125,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        fid6 = parameter_value .eq. bestfit(6) ! m_ncdm
 
-       !fid7 = parameter_value .eq. bestfit(7) ! MG_beta2
-
-       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)! .or. fid7)
+       bestfit_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)
      
        write(string_par_value,fmt) parameter_value
 
@@ -2125,9 +2235,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
        fid6 = parameter_value .eq. m_ncdm
 
-       !fid7 = parameter_value .eq. MG_beta2
-
-       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6) !.or. fid7)
+       fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)
      
        write(string_par_value,fmt) parameter_value
 
@@ -2143,7 +2251,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_fiducial_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_fiducial_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_fiducial_lensing.sh')
 
                 End If
 
@@ -2155,8 +2263,8 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-                        '_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_'//trim(parameter_name)//&
+                        '_'//trim(string_par_value)//'_lensing.sh')
 
                 End If
 
@@ -2170,7 +2278,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                 call write_sh_file('El')
 
-                call system('cd class_montanari-lensing ; sbatch El.sh')
+                call system('cd class_montanari-lensing ; sbatch --exclusive El.sh')
 
              End If
 
@@ -2188,7 +2296,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_fiducial_no_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_fiducial_no_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_fiducial_no_lensing.sh')
 
                 End If
 
@@ -2200,8 +2308,8 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                    call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing')
 
-                   call system('cd class_montanari-lensing ; sbatch Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//&
-                        '_no_lensing.sh')
+                   call system('cd class_montanari-lensing ; sbatch --exclusive Cl_'//trim(parameter_name)//&
+                        '_'//trim(string_par_value)//'_no_lensing.sh')
 
                 End If
 
@@ -2215,7 +2323,7 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
                 call write_sh_file('El_nl')
 
-                call system('cd class_montanari-lensing ; sbatch El_nl.sh')
+                call system('cd class_montanari-lensing ; sbatch --exclusive El_nl.sh')
 
              End If
 
@@ -2461,8 +2569,8 @@ subroutine compute_derivatives()
             h = sigma_H0
         else if (p .eq. 6) then
             h = sigma_m_ncdm
-        else if (p .eq. 7) then
-            h = sigma_MG_beta2
+!        else if (p .eq. 7) then
+!            h = sigma_MG_beta2
         End If
 
         Do l=lmin,lmax
