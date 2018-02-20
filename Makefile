@@ -8,8 +8,8 @@ IDIR	= #/home/wilmar/additional-software/Healpix_3.00/include
 LIBDIR	= ./lapack-3.5.0	
 LDIR	= ./ranlib/lib
 F_FL   	= -O3 -Wall  -fno-second-underscore -fopenmp -fPIC -g
-#LIB_FL 	= -L$(LIBDIR) -llapack -lblas -L$(LDIR) -lranlib -lrnglib # -lhpxgif -l$(LIBFITS) -Wl,-R$(FITSDIR)
-LIB_FL 	= -L$(LDIR) -lranlib -lrnglib # -lhpxgif -l$(LIBFITS) -Wl,-R$(FITSDIR)
+LIB_FL 	= -L$(LIBDIR) -llapack -lblas -L$(LDIR) -lranlib -lrnglib # -lhpxgif -l$(LIBFITS) -Wl,-R$(FITSDIR)
+#LIB_FL 	= -L$(LDIR) -lranlib -lrnglib # -lhpxgif -l$(LIBFITS) -Wl,-R$(FITSDIR)
 #####################
 OBJ   =  arrays.o fiducial.o functions.o fisher.o
 
