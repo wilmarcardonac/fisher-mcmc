@@ -45,7 +45,7 @@ Program fisher
   Real*4                                 :: average_acceptance_probability
   Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
 
-  Logical                                :: cl_file_exist,ini_file_exist,exe_file ! CHECK EXISTENCE OF FILES
+  Logical                                :: cl_file_exist,ini_file_exist,exe_file,dir_exist ! CHECK EXISTENCE OF FILES
   Logical,parameter                      :: lensing = .true. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
   Logical                                :: not_good_app,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
   Logical,dimension(number_of_parameters) :: plausibility  
@@ -55,6 +55,44 @@ Program fisher
   !##########################################################
   ! ASSIGNMENTS AND INITIALIZATION OF RANDOM NUMBER GENERATOR
   !##########################################################
+
+  inquire(file='./output/chains',exist=dir_exist)
+
+  If (dir_exist) then
+
+     continue
+
+  Else
+
+     call system('mkdir ./output/chains')
+
+  End if
+
+  inquire(file='./ini_files',exist=dir_exist)
+
+  If (dir_exist) then
+
+     continue
+
+  Else
+
+     call system('mkdir ./ini_files')
+
+  End if
+
+  inquire(file='./data',exist=dir_exist)
+
+  If (dir_exist) then
+
+     continue
+
+  Else
+
+     call system('mkdir ./data')
+
+  End if
+
+  stop
 
   If (multiple_chains) then
 
