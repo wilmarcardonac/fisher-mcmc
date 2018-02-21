@@ -92,8 +92,6 @@ Program fisher
 
   End if
 
-  stop
-
   If (multiple_chains) then
 
      Do m=1,number_of_parallel_jobs
