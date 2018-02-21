@@ -1635,6 +1635,10 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
 
+    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+
+    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+
     ! Number counts in the output                                                                                            
 
     write(10,'(a12)') 'output = nCl'
@@ -1817,6 +1821,10 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     write(10,'(a11, f5.3)') 'deg_ncdm = ', real(param_deg_ncdm)
 
     write(10,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
+
+    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+
+    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
 
     ! Number counts in the output                                                                                            
 
