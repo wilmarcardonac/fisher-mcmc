@@ -8,7 +8,8 @@ Module arrays
     Real*8, allocatable, dimension(:,:,:) :: cov_l_IP,inv_cov_l_IP,cov_l_IP_oa,inv_cov_l_IP_oa
     Real*8, allocatable, dimension(:,:,:,:,:) :: cov,inv_cov,inv_cov_oa
     Real*8, allocatable, dimension(:,:,:) :: El, Cl_fid, Cl_fid_nl, Cl_obs,Cl_1, Cl_2, Cl_3, Cl_4, dCl,d1,d2,d3,d4,d5,d6,d7
-    Real*8, allocatable, dimension(:,:,:) :: Cl_5, Cl_6, Cl_7, Cl_8, dCl_nl,Cl_syst,Cl_current
+    Real*8, allocatable, dimension(:,:,:) :: Cl_5, Cl_6, Cl_7, Cl_8, dCl_nl,Cl_syst,Cl_current,Cl_fid_cmb,Cl_obs_cmb,Nl_cmb
+    Real*8, allocatable, dimension(:,:,:) :: Cl_current_cmb
     Real*8, allocatable, dimension(:,:) :: Nl,F_ab,F_ab_nl,inv_F_ab,prior_cov,inv_prior_cov
     Real*4, allocatable, dimension(:) :: acceptance_probability
 
