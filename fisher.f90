@@ -50,7 +50,8 @@ Program fisher
   Logical                                :: not_good_app,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
   Logical,dimension(number_of_parameters) :: plausibility  
 
-  Character(len=10) :: string ! STORES STRINGS FOR INTEGERS
+!  Character(len=10) :: string ! STORES STRINGS FOR INTEGERS
+  Character(len=32) :: string,string2
 
   !##########################################################
   ! ASSIGNMENTS AND INITIALIZATION OF RANDOM NUMBER GENERATOR
@@ -94,31 +95,43 @@ Program fisher
 
   If (multiple_chains) then
 
-     Do m=1,number_of_parallel_jobs
+     call get_command_argument(1,string)
 
-        job_number = m + 20
+     call get_command_argument(2,string2)
 
-        write(string,'(i1.1)') m 
+     read(string2,'(I32)') job_number
 
-        inquire(file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt',exist=exe_file) 
+     open(job_number,file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt')
 
-        If (exe_file) then
+     number_rnd = job_number 
 
-           continue
-
-        Else
-
-           open(job_number,file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt')
-
-           exit
-           
-        End If
-
-     End Do
+!!$     Do m=1,number_of_parallel_jobs
+!!$
+!!$        job_number = m + 20
+!!$
+!!$        write(string,'(i1.1)') m 
+!!$
+!!$        inquire(file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt',exist=exe_file) 
+!!$
+!!$        If (exe_file) then
+!!$
+!!$           continue
+!!$
+!!$        Else
+!!$
+!!$           open(job_number,file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt')
+!!$
+!!$           exit
+!!$           
+!!$        End If
+!!$
+!!$     End Do
 
   Else
 
      job_number = 15
+
+     number_rnd = job_number
 
      write(string,'(i2.2)') job_number 
 
@@ -138,7 +151,7 @@ Program fisher
 
      call initialize() ! INITIALIZE RANDOM NUMBER GENERATORS 
      
-     call setcgn(job_number)
+     call setcgn(number_rnd)
 
      call phrtsd(phrase,seed1,seed2) ! GENERATE SEEDS FOR RANDOM NUMBERS FROM PHRASE
 
@@ -243,9 +256,17 @@ Program fisher
 
                     Covguess(m,m) = sigma_f_pi**2
 
+                 Else if ( (DEA_MODEL .eq. 1) .and. (m .eq. 11) ) then
+
+                    Covguess(m,m) = sigma_tau**2
+
                  Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 11) ) then
 
                     Covguess(m,m) = sigma_g_pi**2
+
+                 Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 12) ) then
+
+                    Covguess(m,m) = sigma_tau**2
 
                  Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 11) ) then
 
@@ -257,11 +278,15 @@ Program fisher
 
                     Covguess(m,m) = sigma_g_pi**2
 
+                 Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 13) ) then
+
+                    Covguess(m,m) = sigma_tau**2
+
                  Else
 
                     write(job_number,*) '"DEA_MODEL" PARAMETER IN FIDUCIAL MODULE MUST BE 1,2, OR 3'
 
-                    write(job_number,*) 'NUMBER OF PARAMETERS IN FIDUCIAL MODULE MUST BE 10,11, OR 12, RESPECTIVELY'
+                    write(job_number,*) 'NUMBER OF PARAMETERS IN FIDUCIAL MODULE MUST BE 10,11, 12 OR 13, RESPECTIVELY'
 
                     write(job_number,*) 'USER GAVE A DIFFERENT VALUE. CODE STOPPED'
 
@@ -304,6 +329,14 @@ Program fisher
              selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
         call run_class('omega_b',omega_b,.true.,.false.) ! COMPUTES EL FIDUCIAL INCLUDING LENSING
+
+        If (include_fake_planck_likelihood) then
+
+           call write_ini_file_for_cmb('omega_b',omega_b)
+
+           call run_class_cmb('omega_b',omega_b)
+
+        End if
 
      End If
 
@@ -611,7 +644,20 @@ Program fisher
 
         Else
 
-           write(job_number,*) 'CURRENT ANALYSIS DOES NOT TAKE INTO ACCOUNT PLANCK PRIOR'
+           If (include_fake_planck_likelihood) then
+
+              allocate (Cl_fid_cmb(lmin:lmax_class_cmb,0:2,0:2),Cl_obs_cmb(lmin:lmax_class_cmb,0:2,0:2),&
+                   Nl_cmb(lmin:lmax_class_cmb,1:2,1:2),stat = status3)
+
+              write(job_number,*) 'CURRENT ANALYSIS INCLUDES FAKE PLANCK LIKELIHOOD'
+
+              call read_data_cmb(Cl_fid_cmb,10,.true.)
+
+           Else
+
+              write(job_number,*) 'CURRENT ANALYSIS DOES NOT TAKE INTO ACCOUNT PLANCK PRIOR'
+
+           End if
 
         End If
 
@@ -650,6 +696,12 @@ Program fisher
      !ALLOCATING MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND CURRENT SPECTRA
      allocate (old_point(1:number_of_parameters),current_point(1:number_of_parameters),&
           acceptance_probability(number_iterations),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status1)
+
+     If (include_fake_planck_likelihood) then
+
+        allocate (Cl_current_cmb(lmin:lmax_class_cmb,0:2,0:2))
+        
+     End if
 
      If (status1 .eq. 0) then 
 
@@ -758,6 +810,10 @@ Program fisher
 
               write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -2.    2.'      ! e_pi
 
+           Else If ( (DEA_MODEL .eq. 1) .and. (i .eq. 11) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     0.    1.'      ! tau
+
            Else if ( (DEA_MODEL .eq. 2) .and. (i .eq. 10) ) then
 
               write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -5.    1.e1'      ! f_pi
@@ -766,6 +822,10 @@ Program fisher
 
               write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-15    1.e15' ! g_pi
 
+           Else if ( (DEA_MODEL .eq. 2) .and. (i .eq. 12) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     0.    1.'      ! tau
+
            Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 11) ) then
 
               write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -5.    1.e1'      ! f_pi
@@ -773,6 +833,10 @@ Program fisher
            Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 12) ) then
 
               write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-15    1.e15' ! g_pi
+
+           Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 13) ) then
+
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     0.    1.'      ! tau
 
            End If
 
@@ -824,6 +888,10 @@ Program fisher
 
                  old_point(m) = e_pi
 
+              Else if ( (DEA_MODEL .eq. 1) .and. (m .eq. 11) ) then
+
+                 old_point(m) = tau
+
               Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 10)) then
 
                  old_point(m) = f_pi
@@ -832,6 +900,10 @@ Program fisher
 
                  old_point(m) = 1.d1**g_pi ! ALTHOUGH IT MIGHT BE CONFUSING, THIS IS g_pi
 
+              Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 12) ) then
+
+                 old_point(m) = tau
+
               Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 11) ) then
 
                  old_point(m) = f_pi
@@ -839,6 +911,10 @@ Program fisher
               Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 12) ) then
 
                  old_point(m) = 1.d1**g_pi ! ALTHOUGH IT MIGHT BE CONFUSING, THIS IS g_pi
+
+              Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 13) ) then
+
+                 old_point(m) = tau
 
               End If
 
@@ -938,6 +1014,10 @@ Program fisher
 
                  x_old(m) = genunf(real(e_pi-sigma_e_pi),real(e_pi+sigma_e_pi))     ! e_pi
 
+              Else if ( (DEA_MODEL .eq. 1) .and. (m .eq. 11) ) then
+
+                 x_old(m) = genunf(real(tau-sigma_tau),real(tau+sigma_tau))         ! tau
+
               Else If ((DEA_MODEL .eq. 2) .and. (m .eq. 10)) then
 
                  x_old(m) = genunf(real(f_pi-sigma_f_pi),real(f_pi+sigma_f_pi))     ! f_pi
@@ -946,6 +1026,10 @@ Program fisher
 
                  x_old(m) = genunf(real(g_pi-sigma_g_pi),real(g_pi+sigma_g_pi))     ! log10 g_pi
 
+              Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 12) ) then
+
+                 x_old(m) = genunf(real(tau-sigma_tau),real(tau+sigma_tau))         ! tau
+
               Else If ((DEA_MODEL .eq. 3) .and. (m .eq. 11)) then
 
                  x_old(m) = genunf(real(f_pi-sigma_f_pi),real(f_pi+sigma_f_pi))     ! f_pi
@@ -953,6 +1037,10 @@ Program fisher
               Else If ((DEA_MODEL .eq. 3) .and. (m .eq. 12)) then
 
                  x_old(m) = genunf(real(g_pi-sigma_g_pi),real(g_pi+sigma_g_pi))     ! log10(g_pi)
+
+              Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 13) ) then
+
+                 x_old(m) = genunf(real(tau-sigma_tau),real(tau+sigma_tau))         ! tau
 
               End If
 
@@ -1002,10 +1090,44 @@ Program fisher
 
         End If
 
-        call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
-             old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,&
-             lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+        If (include_fake_planck_likelihood) then
 
+           call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
+                old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters),old_point(number_of_parameters)&
+                ,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+
+        Else
+
+           call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
+                old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,&
+                lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+
+        End if
+
+        If (include_fake_planck_likelihood) then
+
+           inquire(file= PATH_TO_INI_FILES_CMB//trim(string)//'.ini',exist=ini_file_exist)
+
+           inquire(file= PATH_TO_CURRENT_CL_CMB//trim(string)//'_cl.dat',exist=cl_file_exist)
+
+           If (cl_file_exist) then
+
+              call system('rm '//trim(PATH_TO_CURRENT_CL_CMB)//''//trim(string)//'_cl.dat')
+
+           End If
+
+           If (ini_file_exist) then
+
+              call system('rm '//trim(PATH_TO_INI_FILES_CMB)//''//trim(string)//'.ini')
+
+           End If
+
+           call write_ini_file_mcmc_for_cmb(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),&
+                old_point(6),old_point(8),old_point(9),old_point(10:number_of_parameters),&
+                old_point(number_of_parameters),string)
+
+        End if
+           
         !###############################################
         ! RUN CLASS FOR CURRENT POINT IN PARAMETER SPACE
         !###############################################
@@ -1044,6 +1166,46 @@ Program fisher
            write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
     
            old_loglikelihood = -1.d10
+
+        End if
+
+        If ( include_fake_planck_likelihood ) then
+
+           inquire(file= PATH_TO_INI_FILES_CMB//trim(string)//'.ini',exist=ini_file_exist) 
+
+           If (ini_file_exist) then
+
+              call run_current_model_mcmc_cmb(string) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
+
+              inquire(file= PATH_TO_CURRENT_CL_CMB//trim(string)//'_cl.dat',exist=cl_file_exist)
+
+              If (cl_file_exist) then
+
+                 call read_Cl_mcmc_cmb(Cl_current_cmb,11,string)
+
+                 old_loglikelihood = old_loglikelihood + fake_planck_likelihood(Cl_current_cmb)
+
+                 call system('rm '//trim(PATH_TO_CURRENT_CL_CMB)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
+
+              Else
+
+                 write(job_number,*) 'SOMETHING WENT WRONG WITH CLASS FOR CURRENT MODEL. LOW LIKELIHOOD ASSIGNED FOR CURRENT POINT'
+
+                 old_loglikelihood = -1.d10 + old_loglikelihood 
+
+              End If
+
+              call system('rm '//trim(PATH_TO_INI_FILES_CMB)//''//trim(string)//'.ini')    ! REMOVE INI FILE
+
+           Else
+
+              write(job_number,*) 'NOT INI FILE FOR CURRENT MODEL. SOMETHING WENT WRONG WITH SUBROUTINE "write_ini_file" '
+
+              write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
+
+              old_loglikelihood = -1.d10 + old_loglikelihood
+
+           End if
 
         End if
 
