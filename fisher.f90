@@ -1068,9 +1068,19 @@ Program fisher
 
         End If
 
-        call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
+        If (include_fake_planck_likelihood) then
+
+           call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
+             old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters-1),old_point(number_of_parameters),&
+             N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+
+        Else
+
+           call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
              old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,&
              lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+
+        End if
 
         If (include_fake_planck_likelihood) then
 
@@ -1379,16 +1389,24 @@ Program fisher
 
            Else
 
-              call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
-                   current_point(5),current_point(6),current_point(7),current_point(8),current_point(9),&
-                   current_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
-                   selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
-
               If (include_fake_planck_likelihood) then
+
+                 call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
+                   current_point(5),current_point(6),current_point(7),current_point(8),current_point(9),&
+                   current_point(10:number_of_parameters-1),current_point(number_of_parameters),N_ur,N_ncdm,&
+                   deg_ncdm,lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
                  call write_ini_file_mcmc_for_cmb(current_point(1),current_point(2),current_point(3),&
                       current_point(4),current_point(5),current_point(6),current_point(8),current_point(9),&
-                      current_point(10:number_of_parameters),current_point(number_of_parameters),string)
+                      current_point(10:number_of_parameters-1),current_point(number_of_parameters),string)
+
+              Else
+
+                 call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
+                      current_point(5),current_point(6),current_point(7),current_point(8),current_point(9),&
+                      current_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+                      selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+
 
               End if
 
