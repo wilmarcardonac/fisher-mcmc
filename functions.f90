@@ -369,6 +369,93 @@ function log_Gaussian_likelihood(array)
     log_Gaussian_likelihood = -log_Gaussian_likelihood/2.d0
 end function log_Gaussian_likelihood
 
+function fake_planck_likelihood(Cl)
+
+  use fiducial
+  use arrays
+  Implicit none
+
+  Integer*4,parameter :: L = lmax - lmin + 1
+  Integer*4 :: indexl,indexbin_i,indexbin_j,indexbin_k,indexbin_p
+  Real*8,dimension(lmin:lmax_class_cmb,0:2,0:2) :: Clth,Cl
+  Real*8,dimension(1:2,1:2) :: Cov_mix,Cov_obs,Cov_the
+  Real*8 :: fake_planck_likelihood,chi2,det_obs,det_the,det_mix
+
+  Do indexl=lmin,lmax_class_cmb
+
+     Do indexbin_i=1,2
+
+        Do indexbin_j=1,2
+
+           Clth(indexl,indexbin_i,indexbin_j) = 2.d0*Pi*Cl(indexl,indexbin_i,indexbin_j)/dble(indexl)/(dble(indexl)&
+                + 1.d0) + Nl_cmb(indexl,indexbin_i,indexbin_j)
+
+        End Do
+
+     End Do
+
+  End Do
+
+  chi2 = 0.d0
+
+  Do indexl=lmin,lmax_class_cmb
+
+     Do indexbin_i=1,2
+
+        Do indexbin_j=1,2
+
+           Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
+
+           Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+
+        End Do
+
+     End Do
+        
+     det_obs = compute_determinant_cmb(Cov_obs)
+
+     det_the = compute_determinant_cmb(Cov_the)
+
+     det_mix = 0.d0
+        
+     Do  indexbin_k=1,2
+
+        Do indexbin_i=1,2
+
+           Do indexbin_j=1,2
+
+              Cov_mix(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
+
+           End Do
+
+        End Do
+            
+        Do indexbin_p=1,2
+
+           Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
+
+        End Do
+                
+        det_mix = compute_determinant_cmb(Cov_mix) + det_mix
+
+     End Do
+
+     chi2 = fsky_planck*(2.d0*dble(indexl)+1.d0)*(log(det_the/det_obs) + det_mix/det_the - 2.d0) + chi2
+
+  End Do
+
+  If (abs(chi2).ge.0.d0) then
+
+     fake_planck_likelihood = -chi2/2.d0   
+
+  Else
+
+     fake_planck_likelihood = -1.d10     
+   
+  End If
+
+end function fake_planck_likelihood
+
 function euclid_galaxy_cl_likelihood(Cl,ob,ocdm,nss,ass,h00)
 
   use fiducial
@@ -656,6 +743,43 @@ function compute_determinant(A)
     compute_determinant = sgn*det
 end function compute_determinant
 
+function compute_determinant_cmb(A)
+
+  use fiducial
+  Implicit none
+
+  Integer*4 :: INFO,index
+  Real*8,dimension(max(1,2),2) :: A
+  Integer*4,dimension(min(2,2)) :: IPIV
+  !Real*8,dimension(max(1,max(1,nbins))) :: WORK
+  Real*8 :: det,sgn,compute_determinant_cmb
+
+  call dgetrf(2,2,A,2,IPIV,INFO)
+
+  det = 1.d0
+
+  Do index=1,2
+     
+     det = det*A(index,index)
+  
+  End Do
+
+  sgn = 1.d0
+
+  Do index=1,2
+
+     If (IPIV(index) .ne. index) then
+
+        sgn = -sgn
+
+     End If
+
+  End Do
+
+  compute_determinant_cmb = sgn*det
+
+end function compute_determinant_cmb
+
 subroutine compute_ratio_likelihood()
     use fiducial
     use arrays
@@ -761,37 +885,101 @@ subroutine compute_ratio_likelihood()
 end subroutine compute_ratio_likelihood
 
 subroutine compute_shot_noise()
-    use fiducial
-    use arrays
-    Implicit none
-    Integer*4 :: m,n
-    Do m = 1,nbins
-        Do n = 1,nbins
-            If (m .ne. n) then
-                Nl(m,n) = 0.d0
-            else
-                Nl(m,n) = real(nbins)*(1.d0/(3600.d0*gal_per_sqarcmn*(180.d0/Pi)**2))
-            End If
+
+  use fiducial
+  use arrays
+  Implicit none
+  Integer*4 :: m,n,p,q
+
+  Do m = 1,nbins
+
+     Do n = 1,nbins
+
+        If (m .ne. n) then
+
+           Nl(m,n) = 0.d0
+
+        else
+
+           Nl(m,n) = real(nbins)*(1.d0/(3600.d0*gal_per_sqarcmn*(180.d0/Pi)**2))
+
+        End If
+
+     End Do
+
+  End Do
+
+  If (include_fake_planck_likelihood) then
+     
+     Nl_cmb = 0.d0
+     
+     Do p=lmin,lmax_class_cmb
+
+        Do q=1,number_of_channels
+
+           Nl_cmb(p,1,1) = Nl_cmb(p,1,1) + exp(-p*(p+1.d0)*theta_fwhm(q)**2/(8.d0*log(2.d0)))/sigma_T(q)**2 ! TT
+
+           Nl_cmb(p,2,2) = Nl_cmb(p,2,2) + exp(-p*(p+1.d0)*theta_fwhm(q)**2/(8.d0*log(2.d0)))/sigma_P(q)**2 ! EE
+
         End Do
-    End Do
+
+        Nl_cmb(p,1,1) = 1.d0/Nl_cmb(p,1,1) 
+
+        Nl_cmb(p,2,2) = 1.d0/Nl_cmb(p,2,2) 
+
+     End Do
+  
+  End if
+
 end subroutine compute_shot_noise
 
 subroutine compute_observed_Cl()
-    use arrays
-    use fiducial
-    Implicit none
-    Integer*4 :: m,p,i
-    Do m=lmin,lmax
-        Do p=1,nbins
-            Do i=1,nbins
-               If (testing_precision) then
-                  Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid_nl(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
-               Else
-                  Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
-               End If
-            End Do
+
+  use arrays
+  use fiducial
+  Implicit none
+  Integer*4 :: m,p,i
+
+  Do m=lmin,lmax
+
+     Do p=1,nbins
+
+        Do i=1,nbins
+
+           If (testing_precision) then
+
+              Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid_nl(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
+
+           Else
+
+              Cl_obs(m,p,i) = 2.d0*Pi*(Cl_fid(m,p,i) + El(m,p,i))/real(m)/(real(m)+1.d0) + Nl(p,i) 
+
+           End If
+
         End Do
-    End Do 
+
+     End Do
+
+  End Do
+
+  If (include_fake_planck_likelihood) then
+
+     Do m=lmin,lmax_class_cmb
+
+        Do p=1,2
+
+           Do i=1,2
+
+              Cl_obs_cmb(m,p,i) = 2.d0*Pi*( Cl_fid_cmb(m,p,i) )/real(m)/(real(m)+1.d0) + Nl_cmb(m,p,i)
+
+           End Do
+
+        End Do
+
+     End Do
+
+  End if
+
 end subroutine compute_observed_Cl
 
 subroutine compute_systematic_error()
@@ -1179,6 +1367,317 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     close(10)
 
 end subroutine ini_file_generator
+
+subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
+    use fiducial
+    use arrays
+    Implicit none
+    Real*8:: parameter_value
+    logical :: fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag
+    character(len=*) :: parameter_name
+    character(len=*),parameter :: fmt = '(es16.10)' 
+    character*16 :: string_par_value
+
+    fid1 = parameter_value .eq. omega_b
+
+    fid2 = parameter_value .eq. omega_cdm
+
+    fid3 = parameter_value .eq. n_s
+
+    fid4 = parameter_value .eq. A_s
+
+    fid5 = parameter_value .eq. H0
+
+    fid6 = parameter_value .eq. m_ncdm
+
+    fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)
+     
+    write(string_par_value,fmt) parameter_value
+
+    If (fiducial_flag) then
+
+       open(10, file='./ini_files/Cl_fiducial_fake_planck.ini')
+
+       write(10,*) 'root = ../data/Cl_fiducial_fake_planck_'
+
+    Else 
+
+       stop
+!       open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
+
+!       write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
+
+    End If
+
+    ! Background parameters and anisotropic stress
+    
+    If (parameter_name .ne. param_name_A_s) then 
+
+       write(10,'(a6, es16.10)') 'A_s = ', A_s  
+
+    else
+
+       write(10,'(a6, es16.10)') 'A_s = ', parameter_value  
+
+    End If
+
+    If (parameter_name .ne. param_name_n_s) then
+
+       write(10,'(a6, es16.10)') 'n_s = ', n_s
+
+    else
+
+       write(10,'(a6, es16.10)') 'n_s = ', parameter_value
+
+    End If
+
+    If (parameter_name .ne. param_name_H0) then
+
+       write(10,'(a5, es16.10)') 'H0 = ', H0
+
+    Else
+
+       write(10,'(a5, es16.10)') 'H0 = ', parameter_value
+
+    End If
+
+    If (parameter_name .ne. param_name_omega_b) then
+
+       write(10,'(a10, es16.10)') 'omega_b = ', omega_b
+
+    Else
+
+       write(10,'(a10, es16.10)') 'omega_b = ', parameter_value
+
+    End If
+
+    If (parameter_name .ne. param_name_omega_cdm) then
+
+       write(10,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
+
+    Else
+
+       write(10,'(a12, es16.10)') 'omega_cdm = ', parameter_value
+
+    End If
+
+    If (parameter_name .ne. param_name_m_ncdm) then
+
+       write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+
+    Else
+
+       write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+
+    End If
+
+!!$    If (parameter_name .ne. param_name_nc_bias_b0) then
+!!$
+!!$       write(10,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
+!!$
+!!$    Else
+!!$
+!!$       write(10,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
+!!$
+!!$    End If
+
+    If (parameter_name .ne. param_name_cs2_fld) then
+
+       write(10,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
+
+    Else
+
+       write(10,'(a10, es17.10)') 'cs2_fld = ', parameter_value
+
+    End If
+
+    If (parameter_name .ne. param_name_w0_fld) then
+
+       write(10,'(a9, es17.10)') 'w0_fld = ', w0_fld
+
+    Else
+
+       write(10,'(a9, es17.10)') 'w0_fld = ', parameter_value
+
+    End If
+
+!!$       If (parameter_name .ne. param_name_wa_fld) then
+!!$
+!!$          write(10,'(a9, es17.10)') 'wa_fld = ', wa_fld
+!!$
+!!$       Else
+!!$
+!!$          write(10,'(a9, es17.10)') 'wa_fld = ', parameter_value
+!!$
+!!$       End If
+
+    If ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ) then
+
+       If (parameter_name .ne. param_name_e_pi) then
+
+          write(10,'(a7, es17.10)') 'e_pi = ', e_pi
+
+       Else
+
+          write(10,'(a7, es17.10)') 'e_pi = ', parameter_value
+
+       End If
+
+    End If
+
+    If ( (DEA_MODEL .eq. 2) .or. (DEA_MODEL .eq. 3) ) then
+
+       If (parameter_name .ne. param_name_f_pi) then
+
+          write(10,'(a7, es17.10)') 'f_pi = ', f_pi
+
+       Else
+
+          write(10,'(a7, es17.10)') 'f_pi = ', parameter_value
+
+       End If
+
+       If (parameter_name .ne. param_name_g_pi) then
+
+          write(10,'(a7, es16.10)') 'g_pi = ', g_pi
+
+       Else
+
+          write(10,'(a7, es16.10)') 'g_pi = ', parameter_value
+
+       End If
+
+    End If
+
+    write(10,'(a11, es16.10)') 'tau_reio = ', tau
+
+    write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
+
+    write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
+
+    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
+
+    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+
+    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+
+    ! TEMPERATURE AND POLARISATION IN THE OUTPUT
+
+    write(10,'(a16)') 'output = tCl,pCl'
+
+    write(10,'(a13)') 'headers = yes'
+
+    write(10,'(a17)') 'bessel file = yes'
+
+    write(10,'(a16,i4)') 'l_max_scalars = ', lmax_class_cmb
+
+    write(10,'(a8,i1)') 'l_min = ', lmin
+
+    write(10,'(a14)') 'format = class'
+
+    write(10,'(a17)') 'gauge = newtonian'
+
+    write(10,'(a13)') 'lensing = yes'
+
+    close(10)
+ 
+end subroutine write_ini_file_for_cmb
+
+subroutine write_ini_file_mcmc_for_cmb(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
+                          param_m_ncdm,param_cs2_fld,param_w0_fld,param_ADE_MODEL,&
+                          param_tau_reio,job)
+    
+    use fiducial
+    Implicit none
+    Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
+    Real*8:: param_cs2_fld,param_w0_fld
+    Real*8,dimension(number_of_parameters-9) :: param_ADE_MODEL
+    Character(len=10) :: job
+    Integer*4 :: m
+
+    open(10, file = PATH_TO_INI_FILES_CMB//trim(job)//'.ini')
+
+    write(10,*) 'root = ../output/current_fake_planck_'//trim(job)//'_'
+    
+    ! Background parameters and anisotropic stress
+                                                                                                        
+    write(10,'(a6, es16.10)') 'A_s = ', param_A_s  
+
+    write(10,'(a6, es16.10)') 'n_s = ', param_n_s
+ 
+    write(10,'(a5, es16.10)') 'H0 = ', param_H0
+
+    write(10,'(a10, es16.10)') 'omega_b = ', param_omega_b
+
+    write(10,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
+
+    write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
+
+    write(10,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
+
+    write(10,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
+
+    Do m=1,3
+
+       If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)) .and. (m .eq. 1) ) then
+
+          write(10,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 1) ) then
+
+          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 2) ) then
+
+          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 2) ) then
+
+          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+
+       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 3) ) then
+
+          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+
+       End If
+
+    End Do
+
+    ! Parameters for massive neutrinos                                                                                            
+
+    write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
+
+    write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
+
+    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
+
+    write(10,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
+
+    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+
+    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+
+    ! TEMPERATURE AND POLARISATION IN THE OUTPUT                                                                                       
+
+    write(10,'(a16)') 'output = tCl,pCl'
+    
+    write(10,'(a13)') 'headers = yes'
+
+    write(10,'(a17)') 'bessel file = yes'
+
+    write(10,'(a16,i4)') 'l_max_scalars = ', lmax_class_cmb
+
+    write(10,'(a8,i1)') 'l_min = ', lmin
+
+    write(10,'(a14)') 'format = class'
+
+    write(10,'(a17)') 'gauge = newtonian'
+
+    write(10,'(a13)') 'lensing = yes'
+
+    close(10)
+
+end subroutine write_ini_file_mcmc_for_cmb
 
 subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_flag, Cl_flag,bessel,q,kmaxtau0)
     use fiducial
@@ -2343,6 +2842,61 @@ subroutine run_class(parameter_name,parameter_value,lensing_flag,Cl_flag)
 
 end subroutine run_class
 
+subroutine run_class_cmb(parameter_name,parameter_value)
+    use arrays
+    use fiducial
+    Implicit none
+    Real*8 ::parameter_value
+    character(len=*) :: parameter_name
+    character*16 :: string_par_value
+    logical :: exist,fid1,fid2,fid3,fid4,fid5,fid6,fiducial_flag
+    character(len=*),parameter :: fmt = '(es16.10)'
+
+    fid1 = parameter_value .eq. omega_b
+
+    fid2 = parameter_value .eq. omega_cdm
+
+    fid3 = parameter_value .eq. n_s
+
+    fid4 = parameter_value .eq. A_s
+
+    fid5 = parameter_value .eq. H0
+
+    fid6 = parameter_value .eq. m_ncdm
+
+    fiducial_flag = ((fid1 .or. fid2) .or. (fid3 .or. fid4)) .or. (fid5 .or. fid6)
+
+    write(string_par_value,fmt) parameter_value
+
+    If (fiducial_flag) then
+
+       inquire(file='./data/Cl_fiducial_fake_planck_cl.dat',exist=exist)
+
+       If (.not.exist) then
+
+!          call write_sh_file('Cl_fiducial_lensing')
+
+          call system('cd class_montanari-lensing ; ./class ../ini_files/Cl_fiducial_fake_planck.ini cl_2permille.pre')
+
+       End If
+
+    Else 
+
+!       inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_cl.dat',exist=exist)
+
+!       If (.not.exist) then
+
+!          call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
+
+!          call system('cd class_montanari-lensing ; sbatch --exclusive Cl_'//trim(parameter_name)//&
+!               '_'//trim(string_par_value)//'_lensing.sh')
+
+!       End If
+
+    End If
+
+end subroutine run_class_cmb
+
 subroutine run_current_model(len_flag)
     use arrays
     use fiducial
@@ -2387,6 +2941,26 @@ subroutine run_current_model_mcmc(len_flag,job)
     End if
 
 end subroutine run_current_model_mcmc
+
+subroutine run_current_model_mcmc_cmb(job)
+
+  use arrays
+  use fiducial
+  Implicit none
+
+  logical :: exist
+  Character(len=10) :: job
+
+  inquire(file= PATH_TO_CURRENT_CL_CMB//trim(job)//'_cl.dat',exist=exist)
+  
+  If (.not.exist) then
+  
+     call system ('cd class_montanari-lensing; ./class '//trim(' ')//&
+          '../ini_files/current_fake_planck_cl_'//trim(job)//'.ini')
+
+  End If
+
+end subroutine run_current_model_mcmc_cmb
 
 subroutine compute_derivatives()
     use arrays
@@ -2873,6 +3447,101 @@ subroutine read_data(Cl,u,param_name,param_value,lensing_flag,fiducial_flag,El_C
     End Do
     close(u)
 end subroutine read_data
+
+subroutine read_data_cmb(Cl,u,fiducial_flag)
+
+    use fiducial
+    Implicit none
+
+    Real*8,dimension(lmin:lmax_class_cmb,0:2,0:2) :: Cl
+    Integer*4 m,u,p,i
+    logical :: fiducial_flag
+
+    If ( fiducial_flag ) then 
+
+       open(u,file='./data/Cl_fiducial_fake_planck_cl.dat')
+
+    Else
+
+!        open(u,file='./data/Cl_'//trim(param_name)//'_'//trim(param_value)//'_lensing_cl.dat')
+
+    End If
+  
+    Do m=-5,lmax
+
+       If (m .le. 1) then
+
+          read(u,*)
+
+       else
+
+          read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,2,2),Cl(m,1,2) ! \ell, TT, EE, TE
+
+          Do p=1,2
+
+             Do i=1,2
+
+                If (p .gt. i) then
+
+                   Cl(m,p,i) = Cl(m,i,p)
+
+                End If
+
+             End Do
+
+          End Do
+
+       End If
+
+    End Do
+
+    close(u)
+
+end subroutine read_data_cmb
+
+subroutine read_Cl_mcmc_cmb(Cl,u,job)
+
+  use fiducial
+  Implicit none
+
+  Real*8,dimension(lmin:lmax_class_cmb,0:2,0:2) :: Cl
+  Integer*4 :: m,u,p,i
+  character(len=*),parameter :: fmt = '(i2.2)'
+  Character(len=10) :: job
+
+  open(u,file= PATH_TO_CURRENT_CL_CMB//trim(job)//'_cl.dat')
+
+  Do m=-5,lmax
+
+     If (m .le. 1) then
+
+        read(u,*)
+
+     Else
+
+        read(u,*) Cl(m,0,0),Cl(m,1,1),Cl(m,2,2),Cl(m,1,2)
+
+        Do p=1,2
+
+           Do i=1,2
+
+              If (p .gt. i) then
+
+                 Cl(m,p,i) = Cl(m,i,p)
+
+              End If
+
+           End Do
+
+        End Do
+
+     End If
+
+  End Do
+
+  close(u)
+
+end subroutine read_Cl_mcmc_cmb
 
 subroutine read_Cl(Cl,u,lensing_flag)
     use fiducial

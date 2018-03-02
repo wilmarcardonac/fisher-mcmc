@@ -8,4 +8,6 @@
 #SBATCH --mail-type=ALL
 #SBATCH -o job-%J.out
 
- srun ./fisher
+l=`uname -n`
+h=`squeue -w $l -O jobid -h`
+srun ./fisher $h $1
