@@ -1385,11 +1385,11 @@ Program fisher
 
            Else If ( (n .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
 
-              current_point(n) = 1.d1**(dble(x_new(m))) ! g_pi
+              current_point(n) = 1.d1**(dble(x_new(n))) ! g_pi
 
            Else If ( (m .eq. 12) .and. (DEA_MODEL .eq. 3) ) then
 
-              current_point(n) = 1.d1**(dble(x_new(m))) ! g_pi
+              current_point(n) = 1.d1**(dble(x_new(n))) ! g_pi
 
            Else
 

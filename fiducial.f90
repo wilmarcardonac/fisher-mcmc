@@ -19,12 +19,12 @@ Module fiducial
   Real*8,parameter :: deg_ncdm = 1.d0
   Real*8,parameter :: tau = 5.96d-2
   Real*8,parameter :: nc_bias_b0 = 1.0d0
-  Real*8,parameter :: cs2_fld = 1.d-4 ! 1.d0 ; 1.d-4 ; 1.d-6 ; 3.333334d0 ; 3.3334d0 ; 4.3d0 
+  Real*8,parameter :: cs2_fld = 3.333334d0 ! 1.d0 ; 1.d-4 ; 1.d-6 ; 3.333334d0 ; 3.3334d0 ; 4.3d0 
   Real*8,parameter :: w0_fld = -8.0d-1 
   !Real*8,parameter :: wa_fld = 0.d0 
   Real*8,parameter :: e_pi = 0.0d0
-  Real*8,parameter :: f_pi = 0.0d0 ! 0.d0 ; 5.d0
-  Real*8,parameter :: g_pi = 0.0d0 ! 0.d0 ; 1.d0 ! THIS IS ACTUALLY log10 g_pi
+  Real*8,parameter :: f_pi = 5.0d0 ! 0.d0 ; 5.d0
+  Real*8,parameter :: g_pi = 1.0d0 ! 0.d0 ; 1.d0 ! THIS IS ACTUALLY log10 g_pi
 
 
   Character(len=*),parameter :: param_name_omega_b = 'omega_b'
@@ -111,10 +111,10 @@ Module fiducial
   !################
 
   Integer*4,parameter    :: number_iterations = 8000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
-  Integer*4,parameter    :: number_of_parameters = 10       ! NUMBER OF COSMOLOGICAL PARAMETERS: 10 FOR DEA MODEL ONLY INCLUDING e_pi; 11 FOR DEA MODEL INCLUDING 
+  Integer*4,parameter    :: number_of_parameters = 11       ! NUMBER OF COSMOLOGICAL PARAMETERS: 10 FOR DEA MODEL ONLY INCLUDING e_pi; 11 FOR DEA MODEL INCLUDING 
   ! f_pi and g_pi; 12 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi; 11 FOR DEA MODEL ONLY INCLUDING e_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 
   ! 12 FOR DEA MODEL INCLUDING  f_pi and g_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 13 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi BUT JOINTLY ANALYSING  ! NUMBER COUNTS AND CMB DATA   
-  Integer*4,parameter    :: DEA_MODEL = 1 ! 1: DEA MODEL ONLY INCLUDING e_pi; 2: DEA MODEL INCLUDING f_pi and g_pi; 3: DEA MODEL INCLUDING e_pi, f_pi, g_pi 
+  Integer*4,parameter    :: DEA_MODEL = 2 ! 1: DEA MODEL ONLY INCLUDING e_pi; 2: DEA MODEL INCLUDING f_pi and g_pi; 3: DEA MODEL INCLUDING e_pi, f_pi, g_pi 
   Integer*4,parameter    :: number_DEA_parameters = DEA_MODEL 
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0 !5000!10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
@@ -129,14 +129,14 @@ Module fiducial
 
   Character*16,parameter :: phrase = 'randomizer'       ! PHRASE NEEDED BY NUMBER RANDOM GENERATOR
   ! MODEL 1
-  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
-       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ']!,'   f_pi   ','   g_pi   ']
+!  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
+!       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ']!,'   f_pi   ','   g_pi   ']
   ! MODEL 1 NUMBER COUNTS + CMB 
 !  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
 !       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ','   tau    ']
   ! MODEL 2 NUMBER COUNTS ALONE
-!  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
-!       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   f_pi   ','   g_pi   ']
+  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
+       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   f_pi   ','   g_pi   ']
   ! MODEL 2 NUMBER COUNTS + CMB
 !  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
 !       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   f_pi   ','   g_pi   ','   tau    ']
@@ -148,14 +148,14 @@ Module fiducial
 !       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ','   f_pi   ','   g_pi   ',&
 !'   tau    ']
   ! MODEL 1 NUMBER COUNTS ALONE
-  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ']
+!  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
+!       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ']
   ! MODEL 1 NUMBER COUNTS + CMB
 !  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
 !       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ','\tau        ']
   ! MODEL 2 NUMBER COUNTS ALONE
-!  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-!       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','f_{\pi}     ','g_{\pi}     ']
+  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
+       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','f_{\pi}     ','g_{\pi}     ']
   ! MODEL 2 NUMBER COUNTS + CMB
 !  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
 !       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','f_{\pi}     ','g_{\pi}     ',&
