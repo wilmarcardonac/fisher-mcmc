@@ -19,7 +19,7 @@ Module fiducial
   Real*8,parameter :: deg_ncdm = 1.d0
   Real*8,parameter :: tau = 5.96d-2
   Real*8,parameter :: nc_bias_b0 = 1.0d0
-  Real*8,parameter :: cs2_fld = 1.d0 ! 1.d0 ; 1.d-4 ; 1.d-6 ; 3.333334d0 ; 3.3334d0 ; 4.3d0 
+  Real*8,parameter :: cs2_fld = 1.d-4 ! 1.d0 ; 1.d-4 ; 1.d-6 ; 3.333334d0 ; 3.3334d0 ; 4.3d0 
   Real*8,parameter :: w0_fld = -8.0d-1 
   !Real*8,parameter :: wa_fld = 0.d0 
   Real*8,parameter :: e_pi = 0.0d0
@@ -115,6 +115,7 @@ Module fiducial
   ! f_pi and g_pi; 12 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi; 11 FOR DEA MODEL ONLY INCLUDING e_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 
   ! 12 FOR DEA MODEL INCLUDING  f_pi and g_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 13 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi BUT JOINTLY ANALYSING  ! NUMBER COUNTS AND CMB DATA   
   Integer*4,parameter    :: DEA_MODEL = 1 ! 1: DEA MODEL ONLY INCLUDING e_pi; 2: DEA MODEL INCLUDING f_pi and g_pi; 3: DEA MODEL INCLUDING e_pi, f_pi, g_pi 
+  Integer*4,parameter    :: number_DEA_parameters = DEA_MODEL 
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
   Integer*4,parameter    :: covariance_matrix_update = 0 !5000!10000 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
   Integer*4,parameter    :: steps_taken_before_definite_run = 0 !5000!10000 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX

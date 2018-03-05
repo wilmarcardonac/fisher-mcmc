@@ -45,7 +45,7 @@ Program fisher
   Real*4                                 :: average_acceptance_probability
   Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
 
-  Logical                                :: cl_file_exist,ini_file_exist,exe_file,dir_exist ! CHECK EXISTENCE OF FILES
+  Logical                                :: cl_file_exist,ini_file_exist,dir_exist ! CHECK EXISTENCE OF FILES
   Logical,parameter                      :: lensing = .false. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
   Logical                                :: not_good_app,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
   Logical,dimension(number_of_parameters) :: plausibility  
