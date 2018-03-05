@@ -1640,7 +1640,7 @@ subroutine write_ini_file_mcmc_for_cmb(param_omega_b, param_omega_cdm, param_n_s
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_cs2_fld,param_w0_fld
-    Real*8,dimension(number_of_parameters-9) :: param_ADE_MODEL
+    Real*8,dimension(number_DEA_parameters) :: param_ADE_MODEL
     Character(len=10) :: job
     Integer*4 :: m
 
@@ -2201,7 +2201,7 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio, param_nc_bias_b0
     Real*8:: param_cs2_fld,param_w0_fld
-    Real*8,dimension(number_of_parameters-9) :: param_ADE_MODEL
+    Real*8,dimension(number_DEA_parameters) :: param_ADE_MODEL
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,bessel,q,kmaxtau0
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias, s_z_mag_bias
     logical :: len_flag

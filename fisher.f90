@@ -45,7 +45,7 @@ Program fisher
   Real*4                                 :: average_acceptance_probability
   Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
 
-  Logical                                :: cl_file_exist,ini_file_exist,exe_file,dir_exist ! CHECK EXISTENCE OF FILES
+  Logical                                :: cl_file_exist,ini_file_exist,dir_exist ! CHECK EXISTENCE OF FILES
   Logical,parameter                      :: lensing = .true. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
   Logical                                :: not_good_app,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
   Logical,dimension(number_of_parameters) :: plausibility  
@@ -1363,11 +1363,11 @@ Program fisher
 
            Else If ( (n .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
 
-              current_point(n) = 1.d1**(dble(x_new(m))) ! g_pi
+              current_point(n) = 1.d1**(dble(x_new(n))) ! g_pi
 
            Else If ( (m .eq. 12) .and. (DEA_MODEL .eq. 3) ) then
 
-              current_point(n) = 1.d1**(dble(x_new(m))) ! g_pi
+              current_point(n) = 1.d1**(dble(x_new(n))) ! g_pi
 
            Else
 
