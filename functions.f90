@@ -3230,15 +3230,21 @@ subroutine write_covariance_matrix_mcmc(matrix)
 
     Real*8,dimension(number_of_parameters,number_of_parameters) :: matrix
     Integer*4 :: index1
+    Character*16 :: fmt
+    Character*16 :: string
+
+    write(string,'(i2)') number_of_parameters
  
+    fmt = '('//trim(string)//'es16.7)'
+
     open(12,file='./output/covariance_matrix.txt')
 
     write(12,*) '#'
 
     Do index1=1,number_of_parameters
 
-       write(12,*) matrix(index1,1:number_of_parameters)
-
+       write(12,fmt) matrix(index1,1:number_of_parameters)
+       
     End Do
 
     close(12)
