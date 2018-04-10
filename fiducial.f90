@@ -19,7 +19,7 @@ Module fiducial
   Real*8,parameter :: deg_ncdm = 1.d0
   Real*8,parameter :: tau = 5.96d-2
   Real*8,parameter :: nc_bias_b0 = 1.0d0
-  Real*8,parameter :: cs2_fld = 1.d-4 ! 1.d0 ; 1.d-4 ; 1.d-6 ; 3.333334d0 ; 3.3334d0 ; 4.3d0 
+  Real*8,parameter :: cs2_fld = 1.d0 ! 1.d0 ; 1.d-4 ; 1.d-6 ; 3.333334d0 ; 3.3334d0 ; 4.3d0 
   Real*8,parameter :: w0_fld = -8.0d-1 
   !Real*8,parameter :: wa_fld = 0.d0 
   Real*8,parameter :: e_pi = 0.0d0
