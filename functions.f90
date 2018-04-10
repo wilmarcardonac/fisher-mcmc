@@ -3170,6 +3170,35 @@ subroutine compute_derivatives()
     End Do
 end subroutine compute_derivatives
 
+subroutine write_covariance_matrix_mcmc(matrix)
+
+    use fiducial
+
+    Implicit none
+
+    Real*8,dimension(number_of_parameters,number_of_parameters) :: matrix
+    Integer*4 :: index1
+    Character*16 :: fmt
+    Character*16 :: string
+
+    write(string,'(i2)') number_of_parameters
+ 
+    fmt = '('//trim(string)//'es16.7)'
+
+    open(12,file='./output/covariance_matrix.txt')
+
+    write(12,*) '#'
+
+    Do index1=1,number_of_parameters
+
+       write(12,fmt) matrix(index1,1:number_of_parameters)
+       
+    End Do
+
+    close(12)
+
+end subroutine write_covariance_matrix_mcmc
+
 subroutine read_covariance_matrix_mcmc(matrix1)
     use fiducial
     Implicit none
