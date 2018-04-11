@@ -14,15 +14,15 @@ samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_r
 
 #print 'CONVERGENCE FOR SAMPLES WITH LENSING ', samples.getGelmanRubin()
 
-g = plots.getSinglePlotter()
+#g = plots.getSinglePlotter()
 
-g.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
+#g.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
 
-g.triangle_plot(samples,filled=True)
+#g.triangle_plot(samples,filled=True)
 
-g.export('../output/chains/triangle_figure.pdf')
+#g.export('../output/chains/triangle_figure.pdf')
 
-print 'TRIANGLE PLOT CREATED'
+#print 'TRIANGLE PLOT CREATED'
 
 p = samples.getParams()
 
@@ -48,23 +48,23 @@ filebestfit.close()
 
 filemeans.close()
 
-print 'MEANS AND BESTFIT FILES CREATED'
+#print 'MEANS AND BESTFIT FILES CREATED'
 
-stats = samples.getMargeStats()
+#stats = samples.getMargeStats()
 
-stats.saveAsText('../output/chains/1Dstatistics.txt')
+#stats.saveAsText('../output/chains/1Dstatistics.txt')
 
-print '1D STATISTICS FILE CREATED'
+#print '1D STATISTICS FILE CREATED'
 
-f = plots.getSubplotPlotter()
+#f = plots.getSubplotPlotter()
 
-f.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
+#f.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
 
-f.plots_1d(samples,['omega_b','omega_cdm','n_s','A_s','H0','m_ncdm','nc_bias_b0','cs2_fld','w0_fld','e_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
+#f.plots_1d(samples,['omega_b','omega_cdm','n_s','A_s','H0','m_ncdm','nc_bias_b0','cs2_fld','w0_fld','e_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
 
-f.export('../output/chains/1D_plots.pdf')
+#f.export('../output/chains/1D_plots.pdf')
 
-print '1D PLOTS CREATED'
+#print '1D PLOTS CREATED'
 
 covariance_matrix = samples.getCov(pars=[0,1,2,10,4,5,6,7,8,9])#nparam=number_of_parameters)
 
