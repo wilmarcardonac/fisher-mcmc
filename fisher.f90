@@ -44,10 +44,11 @@ Program fisher
   Real*8                                 :: jumping_factor    ! STORES JUMPING FACTOR (INCREASE IF BIGGER STEP SIZE WANTED, DECREASE OTHERWISE)
   Real*4                                 :: average_acceptance_probability
   Real*8                                 :: random_uniform    ! RANDOM UNIFORM DEVIATE BETWEEN 0 AND 1
+  Real*8                                 :: acceptance_ratio  ! IT STORES ACCEPTANCE RATIO FOR CURRENT CHAIN
 
   Logical                                :: cl_file_exist,ini_file_exist,dir_exist ! CHECK EXISTENCE OF FILES
   Logical,parameter                      :: lensing = .false. ! CONSIDER LENSING TERMS IN MCMC RUNS IF SET IT TRUE
-  Logical                                :: not_good_app,non_plausible_parameters ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
+  Logical                                :: not_good_app,non_plausible_parameters,good_acceptance_probability ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
   Logical,dimension(number_of_parameters) :: plausibility  
 
 !  Character(len=10) :: string ! STORES STRINGS FOR INTEGERS
@@ -800,7 +801,7 @@ Program fisher
 
            Else if (i .eq. 8) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -1.e1    1.e1'    ! cs2_fld
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -1.e0    1.e1'    ! cs2_fld
 
            Else if (i .eq. 9) then
 
@@ -1309,7 +1310,7 @@ Program fisher
 
               Else if (n .eq. 8) then
 
-                 plausibility(n) = (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(1.d1))  ! cs2_fld
+                 plausibility(n) = (x_new(n) .le. real(-1.d0)) .or. (x_new(n) .ge. real(1.d1))  ! cs2_fld
 
               Else if (n .eq. 9) then
 
@@ -1777,8 +1778,17 @@ Program fisher
 
      write(job_number,*) 'NUMBER OF REJECTED POINTS IS : ', number_rejected_points
 
-     write(job_number,*) 'ACCEPTANCE RATIO IS: ', dble(number_iterations - steps_taken_before_definite_run - &
+     acceptance_ratio = dble(number_iterations - steps_taken_before_definite_run - &
           number_rejected_points)/dble(number_iterations - steps_taken_before_definite_run)
+
+     average_acceptance_probability = sum(acceptance_probability(steps_taken_before_definite_run+1:number_iterations))&
+          /real(number_iterations-steps_taken_before_definite_run)
+
+     good_acceptance_probability = (average_acceptance_probability .lt. 0.1) .or. (average_acceptance_probability .gt. 0.4)
+
+     write(job_number,*) 'ACCEPTANCE RATIO IS: ', acceptance_ratio
+
+     write(job_number,*) 'AVERAGE ACCEPTANCE PROBABILITY IS: ', average_acceptance_probability
 
      close(UNIT_MCMC_FINAL)
 
@@ -1792,49 +1802,103 @@ Program fisher
 
         If (adjusting_covariance_matrix) then
 
-           If (DEA_MODEL .eq. 2) then
+           If (good_acceptance_probability) then
 
-              call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
+              If (testing_Gaussian_likelihood) then
 
-              If (number_of_parameters .eq. 11) then
+                 call write_covariance_matrix_mcmc(Covgauss)
 
-                 call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
+              Else
 
-              Else if (number_of_parameters .eq. 12) then
-
-                 call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II_CMB.py')
+                 call write_covariance_matrix_mcmc(Covguess)
 
               End if
 
-           Else if (DEA_MODEL .eq. 3) then
+              If (DEA_MODEL .eq. 2) then
 
-              call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
+                 If (number_of_parameters .eq. 11) then 
 
-              If (number_of_parameters .eq. 12) then 
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
 
-                 call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
+                 Else if (number_of_parameters .eq. 12) then
 
-              Else if (number_of_parameters .eq. 13) then
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II_CMB.py')
 
-                 call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III_CMB.py')
+                 End if
 
-              End if
+              Else if (DEA_MODEL .eq. 3) then
 
-           Else if ( DEA_MODEL .eq. 1 ) then
+                 If (number_of_parameters .eq. 12) then 
 
-              call system('cd output; python compute_covariance_matrix.py')
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
 
-              If (number_of_parameters .eq. 10) then
+                 Else if (number_of_parameters .eq. 13) then
 
-                 call system('cd analyzer; python analyze_adjusting.py')
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III_CMB.py')
 
-              Else if (number_of_parameters .eq. 11) then
+                 End if
 
-                 call system('cd analyzer; python analyze_adjusting_CMB.py')
+              Else if (DEA_MODEL .eq. 1) then
 
-              End if
+                 If (number_of_parameters .eq. 10) then
 
-           End If
+                    call system('cd analyzer; python analyze_adjusting.py')
+
+                 Else if (number_of_parameters .eq. 11) then
+
+                    call system('cd analyzer; python analyze_adjusting_CMB.py')
+
+                 End if
+
+              End If
+
+           Else
+
+              If (DEA_MODEL .eq. 2) then
+
+                 call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
+
+                 If (number_of_parameters .eq. 11) then
+
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
+
+                 Else if (number_of_parameters .eq. 12) then
+
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II_CMB.py')
+
+                 End if
+
+              Else if (DEA_MODEL .eq. 3) then
+
+                 call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
+
+                 If (number_of_parameters .eq. 12) then 
+
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
+
+                 Else if (number_of_parameters .eq. 13) then
+
+                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III_CMB.py')
+
+                 End if
+
+              Else if ( DEA_MODEL .eq. 1 ) then
+
+                 call system('cd output; python compute_covariance_matrix.py')
+
+                 If (number_of_parameters .eq. 10) then
+
+                    call system('cd analyzer; python analyze_adjusting.py')
+
+                 Else if (number_of_parameters .eq. 11) then
+
+                    call system('cd analyzer; python analyze_adjusting_CMB.py')
+
+                 End if
+
+              End If
+
+           End if
 
         Else
 
