@@ -21,6 +21,8 @@ p = samples.getParams()
 
 samples.addDerived(np.log(1.e1**10*p.A_s),name='ln1010As',label='\ln 10^{10}A_s')
 
+samples.addDerived(np.log10(p.cs2_fld),name='logcs2fld',label='\log c_s^2')
+
 bestfit = samples.getLikeStats()
 
 means = samples.setMeans()
@@ -59,7 +61,7 @@ f.export('../output/chains/1D_plots.pdf')
 
 print '1D PLOTS CREATED'
 
-covariance_matrix = samples.getCov(pars=[0,1,2,11,4,5,6,7,8,9,10])#nparam=number_of_parameters)
+covariance_matrix = samples.getCov(pars=[0,1,2,11,4,5,6,12,8,9,10])#nparam=number_of_parameters)
 
 covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
 

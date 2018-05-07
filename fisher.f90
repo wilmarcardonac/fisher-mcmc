@@ -241,7 +241,7 @@ Program fisher
 
                  Else if (m .eq. 8) then
 
-                    Covguess(m,m) = sigma_cs2_fld**2
+                    Covguess(m,m) = sigma_cs2_fld**2/cs2_fld**2/log(1.d1)**2
 
                  Else if (m .eq. 9) then
 
@@ -801,7 +801,7 @@ Program fisher
 
            Else if (i .eq. 8) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -1.e0    1.e1'    ! cs2_fld
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e1'    ! cs2_fld
 
            Else if (i .eq. 9) then
 
@@ -927,6 +927,10 @@ Program fisher
 
                  x_old(m) = real(dlog(1.d1**1.d1*old_point(m)))
 
+              Else if (m .eq. 8) then
+
+                 x_old(m) = real(log10(old_point(m)))
+
               Else if ( (m .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
 
                  x_old(m) = real(g_pi) ! log10 g_pi
@@ -954,6 +958,10 @@ Program fisher
               If (m .eq. 4) then
 
                  x_old(m) = real(dlog(1.d1**1.d1*old_point(m)))
+
+              Else if (m .eq. 8) then
+
+                 x_old(m) = real(log10(old_point(m)))
 
               Else if ( (m .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
 
@@ -1005,7 +1013,7 @@ Program fisher
 
               Else if ( m .eq. 8) then
 
-                 x_old(m) = genunf(real(cs2_fld-sigma_cs2_fld),real(cs2_fld+sigma_cs2_fld))     ! cs2_fld
+                 x_old(m) = log10(genunf(real(cs2_fld-sigma_cs2_fld),real(cs2_fld+sigma_cs2_fld)))     ! log10(cs2_fld)
 
               Else if ( m .eq. 9 ) then
 
@@ -1052,6 +1060,10 @@ Program fisher
               If (m .eq. 4) then
 
                  old_point(m) = exp(dble(x_old(m)))/(1.d1**1.d1)
+
+              Else if (m .eq. 8) then
+
+                 old_point(m) = 1.d1**(dble(x_old(m))) ! cs2_fld 
 
               Else If ( (m .eq. 11) .and. (DEA_MODEL .eq. 2) ) then
 
@@ -1310,7 +1322,7 @@ Program fisher
 
               Else if (n .eq. 8) then
 
-                 plausibility(n) = (x_new(n) .le. real(-1.d0)) .or. (x_new(n) .ge. real(1.d1))  ! cs2_fld
+                 plausibility(n) = (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(1.d0))  ! log10 cs2_fld
 
               Else if (n .eq. 9) then
 
@@ -1381,6 +1393,18 @@ Program fisher
               Else
 
                  current_point(n) = dexp(dble(x_new(n)))/(1.d1**1.d1) ! Converting log(10**10A_s) to A_s 
+
+              End If
+
+           Else if (n .eq. 8) then
+
+              If (testing_Gaussian_likelihood) then
+
+                 current_point(n) = dble(x_new(n)) 
+
+              Else
+
+                 current_point(n) = 1.d1**(dble(x_new(n))) ! Converting log10(cs2_fld) to cs2_fld 
 
               End If
 
@@ -1559,6 +1583,18 @@ Program fisher
 
                  End If
 
+              Else if (i .eq. 8) then
+
+                 If (testing_Gaussian_likelihood) then
+
+                    x_old(i) = real(old_point(i)) 
+
+                 Else
+
+                    x_old(i) = real(log10(old_point(i))) ! converting cs2_fld to log10(cs2_fld)
+
+                 End If
+
               Else if ( (i.eq. 11) .and. (DEA_MODEL .eq. 2) ) then
 
                  x_old(i) = real(log10(old_point(i))) ! log10 g_pi
@@ -1615,6 +1651,18 @@ Program fisher
 
                     End If
 
+                 Else if (i .eq. 8) then
+
+                    If (testing_Gaussian_likelihood) then
+
+                       x_old(i) = real(old_point(i)) 
+
+                    Else
+
+                       x_old(i) = real(log10(old_point(i))) ! converting cs2_fld to log10(cs2_fld)
+
+                    End If
+
                  Else if ( (i.eq. 11) .and. (DEA_MODEL .eq. 2) ) then
 
                     x_old(i) = real(log10(old_point(i))) ! log10 g_pi
@@ -1654,6 +1702,18 @@ Program fisher
                     Else
 
                        x_old(i) = real(log(1.d1**1.d1*old_point(i))) ! convert A_s to log(10**10*A_s)
+
+                    End If
+
+                 Else if (i .eq. 8) then
+
+                    If (testing_Gaussian_likelihood) then
+
+                       x_old(i) = real(old_point(i))
+
+                    Else
+
+                       x_old(i) = real(log10(old_point(i))) ! convert cs2_fld to log10(cs2_fld)
 
                     End If
 
