@@ -219,7 +219,7 @@ Program fisher
 
                  Else if (m .eq. 8) then
 
-                    Covguess(m,m) = sigma_cs2_fld**2/cs2_fld/log(1.d1)
+                    Covguess(m,m) = sigma_cs2_fld**2/cs2_fld**2/log(1.d1)**2
 
                  Else if (m .eq. 9) then
 
