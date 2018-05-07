@@ -402,7 +402,7 @@ function fake_planck_likelihood(Cl)
 
         Do indexbin_j=1,2
 
-           Cov_obs(indexbin_i,indexbin_j) = Cl_obs(indexl,indexbin_i,indexbin_j)
+           Cov_obs(indexbin_i,indexbin_j) = Cl_obs_cmb(indexl,indexbin_i,indexbin_j)
 
            Cov_the(indexbin_i,indexbin_j) = Clth(indexl,indexbin_i,indexbin_j)
 
@@ -430,7 +430,7 @@ function fake_planck_likelihood(Cl)
             
         Do indexbin_p=1,2
 
-           Cov_mix(indexbin_p,indexbin_k) = Cl_obs(indexl,indexbin_p,indexbin_k) 
+           Cov_mix(indexbin_p,indexbin_k) = Cl_obs_cmb(indexl,indexbin_p,indexbin_k) 
 
         End Do
                 

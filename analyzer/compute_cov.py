@@ -2,31 +2,21 @@ from getdist import loadMCSamples,plots,covmat
 import numpy as np
 import os,fnmatch
 
-filenames = fnmatch.filter(os.listdir("../output/chains/"),"mcmc_*.txt")
+#filenames = fnmatch.filter(os.listdir("../output/chains/"),"mcmc_*.txt")
 
-for index in range(len(filenames)):
+#for index in range(len(filenames)):
     
-    os.rename("../output/chains/"+str(filenames[index]),"../output/chains/mcmc_final_output_"+str(index+1)+".txt")
+#    os.rename("../output/chains/"+str(filenames[index]),"../output/chains/mcmc_final_output_"+str(index+1)+".txt")
 
 number_of_parameters = 10
 
-samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':0.})
-
-#print 'CONVERGENCE FOR SAMPLES WITH LENSING ', samples.getGelmanRubin()
-
-#g = plots.getSinglePlotter()
-
-#g.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
-
-#g.triangle_plot(samples,filled=True)
-
-#g.export('../output/chains/triangle_figure.pdf')
-
-#print 'TRIANGLE PLOT CREATED'
+samples = loadMCSamples('../output/chains/NC-run4/mcmc_final_output',settings={'ignore_rows':0.})
 
 p = samples.getParams()
 
 samples.addDerived(np.log(1.e1**10*p.A_s),name='ln1010As',label='\ln 10^{10}A_s')
+
+samples.addDerived(np.log10(p.cs2_fld),name='logcs2fld',label='\log c_s^2')
 
 bestfit = samples.getLikeStats()
 
@@ -35,8 +25,6 @@ means = samples.setMeans()
 filebestfit = open("../output/chains/bestfit.txt",'w')
 
 filemeans = open("../output/chains/means.txt",'w')
-
-#filebestfit.write("-log(Like) = "+str(bestfit.logLike_sample)+"\n")
 
 for index in range(number_of_parameters) : 
 
@@ -48,25 +36,7 @@ filebestfit.close()
 
 filemeans.close()
 
-#print 'MEANS AND BESTFIT FILES CREATED'
-
-#stats = samples.getMargeStats()
-
-#stats.saveAsText('../output/chains/1Dstatistics.txt')
-
-#print '1D STATISTICS FILE CREATED'
-
-#f = plots.getSubplotPlotter()
-
-#f.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
-
-#f.plots_1d(samples,['omega_b','omega_cdm','n_s','A_s','H0','m_ncdm','nc_bias_b0','cs2_fld','w0_fld','e_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
-
-#f.export('../output/chains/1D_plots.pdf')
-
-#print '1D PLOTS CREATED'
-
-covariance_matrix = samples.getCov(pars=[0,1,2,10,4,5,6,7,8,9])#nparam=number_of_parameters)
+covariance_matrix = samples.getCov(pars=[0,1,2,10,4,5,6,11,8,9])#nparam=number_of_parameters)
 
 covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
 
