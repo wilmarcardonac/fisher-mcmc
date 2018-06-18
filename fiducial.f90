@@ -123,7 +123,10 @@ Module fiducial
   Integer*4,parameter    :: UNIT_RANGES_FILE = 90        ! UNIT NUMBER FOR RANGES FILE
   Integer*4,parameter    :: UNIT_PARAMNAMES_FILE = 91    ! UNIT NUMBER FOR PARAMMNAMES FILE
   Integer*4,parameter    :: UNIT_MCMC = 92               ! UNIT NUMBER FOR MCMC OUTPUT (CALIBRATING PHASE)
-  Integer*4,parameter    :: UNIT_MCMC_FINAL = 93         ! UNIT NUMBER FOR MCMC FINAL OUTPUT 
+  Integer*4,parameter    :: UNIT_MCMC_FINAL = 93         ! UNIT NUMBER FOR MCMC FINAL OUTPUT
+  Integer*4,parameter    :: UNIT_FILE1 = 80               ! UNIT FILE FOR AUXILIARY FILES
+  Integer*4,parameter    :: UNIT_FILE2 = 81               ! UNIT FILE FOR AUXILIARY FILES
+  Integer*4,parameter    :: UNIT_FILE3 = 82               ! UNIT FILE FOR AUXILIARY FILES 
 
   Real*8,parameter       :: step_size_changes = 1.d-2      ! CHANGE IN STEP SIZE
 
