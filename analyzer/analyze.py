@@ -18,12 +18,6 @@ g = plots.getSinglePlotter()
 
 g.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
 
-g.triangle_plot(samples,filled=True)
-
-g.export('../output/chains/triangle_figure.pdf')
-
-print 'TRIANGLE PLOT CREATED'
-
 p = samples.getParams()
 
 samples.addDerived(np.log(1.e1**10*p.A_s),name='ln1010As',label='\ln 10^{10}A_s')
@@ -62,11 +56,17 @@ f = plots.getSubplotPlotter()
 
 f.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
 
-f.plots_1d(samples,['omega_b','omega_cdm','n_s','A_s','H0','m_ncdm','nc_bias_b0','cs2_fld','w0_fld','e_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
+f.plots_1d(samples,['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','logcs2fld','w0_fld','e_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
 
 f.export('../output/chains/1D_plots.pdf')
 
 print '1D PLOTS CREATED'
+
+g.triangle_plot(samples,params=['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','logcs2fld','w0_fld','e_pi'],filled=True)
+
+g.export('../output/chains/triangle_figure.pdf')
+
+print 'TRIANGLE PLOT CREATED'
 
 covariance_matrix = samples.getCov(pars=[0,1,2,10,4,5,6,11,8,9])#nparam=number_of_parameters)
 
