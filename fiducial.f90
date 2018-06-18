@@ -111,7 +111,7 @@ Module fiducial
   !################
 
   Integer*4,parameter    :: number_iterations = 5000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
-  Integer*4,parameter    :: number_of_parameters = 11       ! NUMBER OF COSMOLOGICAL PARAMETERS: 10 FOR DEA MODEL ONLY INCLUDING e_pi; 11 FOR DEA MODEL INCLUDING 
+  Integer*4,parameter    :: number_of_parameters = 10       ! NUMBER OF COSMOLOGICAL PARAMETERS: 10 FOR DEA MODEL ONLY INCLUDING e_pi; 11 FOR DEA MODEL INCLUDING 
   ! f_pi and g_pi; 12 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi; 11 FOR DEA MODEL ONLY INCLUDING e_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 
   ! 12 FOR DEA MODEL INCLUDING  f_pi and g_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 13 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi BUT JOINTLY ANALYSING  ! NUMBER COUNTS AND CMB DATA   
   Integer*4,parameter    :: DEA_MODEL = 1 ! 1: DEA MODEL ONLY INCLUDING e_pi; 2: DEA MODEL INCLUDING f_pi and g_pi; 3: DEA MODEL INCLUDING e_pi, f_pi, g_pi 
@@ -124,16 +124,19 @@ Module fiducial
   Integer*4,parameter    :: UNIT_PARAMNAMES_FILE = 91    ! UNIT NUMBER FOR PARAMMNAMES FILE
   Integer*4,parameter    :: UNIT_MCMC = 92               ! UNIT NUMBER FOR MCMC OUTPUT (CALIBRATING PHASE)
   Integer*4,parameter    :: UNIT_MCMC_FINAL = 93         ! UNIT NUMBER FOR MCMC FINAL OUTPUT 
+  Integer*4,parameter    :: UNIT_FILE1 = 80              ! UNIT NUMBER FOR AUXILIARY FILES
+  Integer*4,parameter    :: UNIT_FILE2 = 81              ! UNIT NUMBER FOR AUXILIARY FILES
+  Integer*4,parameter    :: UNIT_FILE3 = 82              ! UNIT NUMBER FOR AUXILIARY FILES
 
   Real*8,parameter       :: step_size_changes = 1.d-2      ! CHANGE IN STEP SIZE
 
   Character*16,parameter :: phrase = 'randomizer'       ! PHRASE NEEDED BY NUMBER RANDOM GENERATOR
   ! MODEL 1
-!  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
-!       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ']!,'   f_pi   ','   g_pi   ']
-  ! MODEL 1 NUMBER COUNTS + CMB 
   Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
-       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ','   tau    ']
+       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ']!,'   f_pi   ','   g_pi   ']
+  ! MODEL 1 NUMBER COUNTS + CMB 
+!  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
+!       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ','   tau    ']
   ! MODEL 2 NUMBER COUNTS ALONE
 !  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
 !       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   f_pi   ','   g_pi   ']
@@ -148,11 +151,11 @@ Module fiducial
 !       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ','   f_pi   ','   g_pi   ',&
 !'   tau    ']
   ! MODEL 1 NUMBER COUNTS ALONE
-!  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-!       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ']
-  ! MODEL 1 NUMBER COUNTS + CMB
   Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ','\tau        ']
+       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ']
+  ! MODEL 1 NUMBER COUNTS + CMB
+!  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
+!       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ','\tau        ']
   ! MODEL 2 NUMBER COUNTS ALONE
 !  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
 !       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','f_{\pi}     ','g_{\pi}     ']
@@ -179,7 +182,7 @@ Module fiducial
   Logical,parameter      :: multiple_chains = .true. !.true.!.false. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: use_only_autocorrelations = .true. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
   Logical,parameter      :: use_gaussian_planck_prior = .false. !.true. ! USE GAUSSIAN PRIOR BASED ON PAPER XIII (2015) IF SET IT TRUE
-  Logical,parameter      :: include_fake_planck_likelihood = .true. ! INCLUDE FAKE PLANCK LIKELIHOOD IN THE ANALYSIS IF SET IT TRUE
+  Logical,parameter      :: include_fake_planck_likelihood = .false. ! INCLUDE FAKE PLANCK LIKELIHOOD IN THE ANALYSIS IF SET IT TRUE
 
   !###############
   ! PATHS TO FILES

@@ -432,17 +432,17 @@ Program fisher
 
      write(job_number,*) 'READING DATA CL_FID, EL, AND CL_FID_NL IN FORTRAN ARRAYS '
 
-     call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
+     call read_data(Cl_fid,UNIT_FILE1,filetype,ElCl,.true.,.true.,.true.)
 
-     call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
+     call read_data(El,UNIT_FILE1,filetype,ElCl,.true.,.true.,.false.)
 
-     call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
+     call read_data(Cl_fid_nl,UNIT_FILE1,filetype,ElCl,.false.,.true.,.true.)
 
      write(job_number,*) ' COMPUTING AND WRITING OUT SYSTEMATIC ERROR '
 
      call compute_systematic_error()
  
-     call write_Cl_syst(Cl_syst,11)
+     call write_Cl_syst(Cl_syst,UNIT_FILE2)
         
      write(job_number,*) 'COMPUTING SHOT NOISE '
 
@@ -652,7 +652,7 @@ Program fisher
 
               write(job_number,*) 'CURRENT ANALYSIS INCLUDES FAKE PLANCK LIKELIHOOD'
 
-              call read_data_cmb(Cl_fid_cmb,10,.true.)
+              call read_data_cmb(Cl_fid_cmb,UNIT_FILE1,.true.)
 
            Else
 
@@ -662,11 +662,11 @@ Program fisher
 
         End If
 
-        call read_data(Cl_fid,10,filetype,ElCl,.true.,.true.,.true.)
+        call read_data(Cl_fid,UNIT_FILE1,filetype,ElCl,.true.,.true.,.true.)
 
-        call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
+        call read_data(El,UNIT_FILE1,filetype,ElCl,.true.,.true.,.false.)
 
-        call read_data(Cl_fid_nl,10,filetype,ElCl,.false.,.true.,.true.)
+        call read_data(Cl_fid_nl,UNIT_FILE1,filetype,ElCl,.false.,.true.,.true.)
 
         write(job_number,*) 'COMPUTING SHOT NOISE '
 
@@ -676,7 +676,7 @@ Program fisher
 
         call compute_observed_Cl()
 
-        call read_data(El,10,filetype,ElCl,.true.,.true.,.false.)
+        call read_data(El,UNIT_FILE1,filetype,ElCl,.true.,.true.,.false.)
 
      Else
 
@@ -801,7 +801,7 @@ Program fisher
 
            Else if (i .eq. 8) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e1'    ! cs2_fld
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e0'    ! cs2_fld
 
            Else if (i .eq. 9) then
 
@@ -1155,7 +1155,7 @@ Program fisher
            
            If (cl_file_exist) then
 
-              call read_Cl_mcmc(Cl_current,11,lensing,string)
+              call read_Cl_mcmc(Cl_current,UNIT_FILE2,lensing,string)
 
               old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,old_point(1),old_point(2),old_point(3),&
                    old_point(4),old_point(5))
@@ -1194,7 +1194,7 @@ Program fisher
 
               If (cl_file_exist) then
 
-                 call read_Cl_mcmc_cmb(Cl_current_cmb,11,string)
+                 call read_Cl_mcmc_cmb(Cl_current_cmb,UNIT_FILE2,string)
 
                  old_loglikelihood = old_loglikelihood + fake_planck_likelihood(Cl_current_cmb)
 
@@ -1322,7 +1322,7 @@ Program fisher
 
               Else if (n .eq. 8) then
 
-                 plausibility(n) = (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(1.d0))  ! log10 cs2_fld
+                 plausibility(n) = (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(0.d0))  ! log10 cs2_fld
 
               Else if (n .eq. 9) then
 
@@ -1470,7 +1470,7 @@ Program fisher
 
                  If (cl_file_exist) then
 
-                    call read_Cl_mcmc(Cl_current,11,lensing,string)
+                    call read_Cl_mcmc(Cl_current,UNIT_FILE2,lensing,string)
 
                     current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,current_point(1),current_point(2),&
                          current_point(3),current_point(4),current_point(5))
@@ -1510,7 +1510,7 @@ Program fisher
 
                     If (cl_file_exist) then
 
-                       call read_Cl_mcmc_cmb(Cl_current_cmb,11,string)
+                       call read_Cl_mcmc_cmb(Cl_current_cmb,UNIT_FILE2,string)
 
                        current_loglikelihood = current_loglikelihood + fake_planck_likelihood(Cl_current_cmb)
 

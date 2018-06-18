@@ -46,11 +46,11 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
             Else
 
-                open(10, file='./ini_files/El_nl.ini')
+                open(UNIT_FILE1, file='./ini_files/El_nl.ini')
 
-                write(10,*) 'root = ../data/El_nl_'
+                write(UNIT_FILE1,*) 'root = ../data/El_nl_'
 
-                write(10,'(a25)') 'number count error = 0.10'   
+                write(UNIT_FILE1,'(a25)') 'number count error = 0.10'   
 
             End If
 
@@ -58,9 +58,9 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
             If (Cl_flag) then
 
-                open(10, file='./ini_files/Cl_'//trim(string)//'.ini')
+                open(UNIT_FILE1, file='./ini_files/Cl_'//trim(string)//'.ini')
 
-                write(10,*) 'root = ../data/Cl_'//trim(string)//'_'
+                write(UNIT_FILE1,*) 'root = ../data/Cl_'//trim(string)//'_'
 
             Else
                
@@ -73,91 +73,91 @@ subroutine write_ini_file_for_testing_precision(Cl_flag,bessel,q,kmaxtau0,index)
 
         End If
 
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
 
     End if
     
     ! Background parameters and anisotropic stress
 
-    write(10,'(a6, es16.10)') 'A_s = ', A_s  
+    write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', A_s  
 
-    write(10,'(a6, es16.10)') 'n_s = ', n_s
+    write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', n_s
 
-    write(10,'(a5, es16.10)') 'H0 = ', H0
+    write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', H0
 
-    write(10,'(a10, es16.10)') 'omega_b = ', omega_b
+    write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', omega_b
 
-    write(10,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
+    write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
 
-    write(10,'(a11, es16.10)') 'tau_reio = ', tau
+    write(UNIT_FILE1,'(a11, es16.10)') 'tau_reio = ', tau
 
-!    write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
+!    write(UNIT_FILE1,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2
 
     ! Parameters for massive neutrinos                                                                                            
 
-    write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
+    write(UNIT_FILE1,'(a7, f5.3)') 'N_ur = ', real(N_ur)
 
-    write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
+    write(UNIT_FILE1,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
 
-    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
+    write(UNIT_FILE1,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
 
-    write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+    write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
 
     ! Number counts in the output                                                                                            
 
-    write(10,'(a12)') 'output = nCl'
+    write(UNIT_FILE1,'(a12)') 'output = nCl'
     
-!    write(10,'(a20)') 'non linear = halofit'
+!    write(UNIT_FILE1,'(a20)') 'non linear = halofit'
  
-    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_evolution = analytic_euclid'
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(UNIT_FILE1,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',',&
+         z_bin_centers(3),',',z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
     !z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+    write(UNIT_FILE1,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',&
+         z_bin_widths(3),',',z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
 !    z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',&
+         z_bin_bias(3),',',z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+    write(UNIT_FILE1,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
          s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
+    write(UNIT_FILE1,'(a15,i2)') 'non_diagonal = ',nbins-1
 
-    write(10,'(a13)') 'headers = yes'
+    write(UNIT_FILE1,'(a13)') 'headers = yes'
 
-    write(10,'(a17)') 'bessel file = yes'
+    write(UNIT_FILE1,'(a17)') 'bessel file = yes'
 
-    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
+    write(UNIT_FILE1,'(a12,i4)') 'l_max_lss = ', lmax_class
 
-    write(10,'(a8,i1)') 'l_min = ', lmin
+    write(UNIT_FILE1,'(a8,i1)') 'l_min = ', lmin
 
-!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(UNIT_FILE1,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
-    write(10,'(a14)') 'format = class'
+    write(UNIT_FILE1,'(a14)') 'format = class'
 
-    write(10,'(a17)') 'gauge = newtonian'
+    write(UNIT_FILE1,'(a17)') 'gauge = newtonian'
 
     ! PRECISION PARAMETERS
 
-!    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+!    write(UNIT_FILE1,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
 
-    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+    write(UNIT_FILE1,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
-    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+    write(UNIT_FILE1,'(a12, f5.1)') 'q_linstep = ', real(q)
 
-    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+    write(UNIT_FILE1,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
 
-    close(10)
+    close(UNIT_FILE1)
 
 end subroutine write_ini_file_for_testing_precision
 
@@ -1197,20 +1197,20 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
 
     If (Cl_El_flag  .and. fiducial_model) then
         if (len_flag) then
-            open(10, file='./ini_files/fiducial_euclid_galaxy.ini')
-            write(10,'(a40)') 'root = ../output/fiducial_euclid_galaxy_'
-            write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+            open(UNIT_FILE1, file='./ini_files/fiducial_euclid_galaxy.ini')
+            write(UNIT_FILE1,'(a40)') 'root = ../output/fiducial_euclid_galaxy_'
+            write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
         else
-            open(10, file='./ini_files/fiducial_euclid_galaxy_no_lensing.ini')
-            write(10,'(a51)') 'root = ../output/fiducial_euclid_galaxy_no_lensing_'
-            write(10,'(a50)') 'number count contributions = density, rsd, doppler' 
+            open(UNIT_FILE1, file='./ini_files/fiducial_euclid_galaxy_no_lensing.ini')
+            write(UNIT_FILE1,'(a51)') 'root = ../output/fiducial_euclid_galaxy_no_lensing_'
+            write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler' 
         end if
     else if (fiducial_model .and. .not.Cl_El_flag) then
         if (len_flag) then
-            open(10, file='./ini_files/El_fiducial_euclid_galaxy.ini')
-            write(10,'(a43)') 'root = ../output/El_fiducial_euclid_galaxy_'
-            write(10,'(a25)') 'number count error = 0.10'   
-            write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'     
+            open(UNIT_FILE1, file='./ini_files/El_fiducial_euclid_galaxy.ini')
+            write(UNIT_FILE1,'(a43)') 'root = ../output/El_fiducial_euclid_galaxy_'
+            write(UNIT_FILE1,'(a25)') 'number count error = 0.10'   
+            write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'     
         else
             !print *, 'Error files are only computed for the fiducial model which includes lensing in our project'
             !print *, 'Turn on lensing flag '
@@ -1218,63 +1218,63 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     else if (.not.fiducial_model .and. Cl_El_flag) then
         if ((.not.f1 .and. f2) .and. (f3 .and. f4) .and. (f5 .and. f6)) then 
             if (len_flag) then 
-                open(10, file='./ini_files/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_lensing.ini')
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_lensing_'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_lensing.ini')
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_lensing_'
             else 
-                open(10, file='./ini_files/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'.ini')
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'.ini')
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_omega_b_'//trim(string_omega_b)//'_'
             end if
         else if ((f1 .and. .not.f2) .and. (f3 .and. f4) .and. (f5 .and. f6)) then
             if (len_flag) then
-                open(10, file='./ini_files/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_lensing.ini')
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_lensing_'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_lensing.ini')
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_lensing_'
             else 
-                open(10, file='./ini_files/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_'
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_omega_cdm_'//trim(string_omega_cdm)//'_'
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
             end if
         else if ((f1 .and. f2) .and. (.not.f3 .and. f4) .and. (f5 .and. f6)) then 
             if (len_flag) then
-                open(10, file='./ini_files/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'_lensing.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'_lensing_'
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'_lensing.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'_lensing_'
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
             else 
-                open(10, file='./ini_files/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'_'
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_n_s_'//trim(string_n_s)//'_'
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
             end if
         else if ((f1 .and. f2) .and. (f3 .and. .not.f4) .and. (f5 .and. f6)) then 
             if (len_flag) then
-                open(10, file='./ini_files/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'_lensing.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'_lensing_'
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'_lensing.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'_lensing_'
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
             else 
-                open(10, file='./ini_files/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'_'
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_A_s_'//trim(string_A_s)//'_'
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
             end if
         else if ((f1 .and. f2) .and. (f3 .and. f4) .and. (.not.f5 .and. f6)) then 
             if (len_flag) then 
-                open(10, file='./ini_files/Cl_euclid_galaxy_H0_'//trim(string_H0)//'_lensing.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_H0_'//trim(string_H0)//'_lensing_'
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_H0_'//trim(string_H0)//'_lensing.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_H0_'//trim(string_H0)//'_lensing_'
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
             else
-                open(10, file='./ini_files/Cl_euclid_galaxy_H0_'//trim(string_H0)//'.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_H0_'//trim(string_H0)//'_'
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_H0_'//trim(string_H0)//'.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_H0_'//trim(string_H0)//'_'
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
             end if
         else if ((f1 .and. f2) .and. (f3 .and. f4) .and. (f5 .and. .not.f6)) then 
             if (len_flag) then 
-                open(10, file='./ini_files/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'_lensing.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'_lensing_'
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'_lensing.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'_lensing_'
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
             else 
-                open(10, file='./ini_files/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'.ini')
-                write(10,*) 'root = ../output/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'_'
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                open(UNIT_FILE1, file='./ini_files/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'.ini')
+                write(UNIT_FILE1,*) 'root = ../output/Cl_euclid_galaxy_m_ncdm_'//trim(string_m_ncdm)//'_'
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
             end if
         else 
             print *,'Varying two parameters simultaneously, that is not what we want for this project'
@@ -1290,81 +1290,81 @@ subroutine ini_file_generator(param_omega_b, param_omega_cdm, param_n_s, param_A
     
     ! Background parameters     
                                                                                                         
-    write(10,'(a6, es16.10)') 'A_s = ', param_A_s  
+    write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', param_A_s  
 
-    write(10,'(a6, es16.10)') 'n_s = ', param_n_s
+    write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', param_n_s
  
-    write(10,'(a5, es16.10)') 'H0 = ', param_H0
+    write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', param_H0
 
-    write(10,'(a10, es16.10)') 'omega_b = ', param_omega_b
+    write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', param_omega_b
 
-    write(10,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
+    write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
 
-    write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
+    write(UNIT_FILE1,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
     ! Parameters for massive neutrinos                                                                                            
 
-    write(10,'(a7, es16.10)') 'N_ur = ', param_N_ur
+    write(UNIT_FILE1,'(a7, es16.10)') 'N_ur = ', param_N_ur
 
-    write(10,'(a9, es16.10)') 'N_ncdm = ', param_N_ncdm
+    write(UNIT_FILE1,'(a9, es16.10)') 'N_ncdm = ', param_N_ncdm
 
-    write(10,'(a11, es16.10)') 'deg_ncdm = ', param_deg_ncdm
+    write(UNIT_FILE1,'(a11, es16.10)') 'deg_ncdm = ', param_deg_ncdm
 
-    write(10,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
+    write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
 
     ! Number counts in the output                                                                                            
 
-    write(10,'(a12)') 'output = nCl'
+    write(UNIT_FILE1,'(a12)') 'output = nCl'
     
-    !write(10,'(a20)') 'non linear = halofit'
+    !write(UNIT_FILE1,'(a20)') 'non linear = halofit'
  
-    write(10,'(a25)') 'dNdz_selection = analytic'
+    write(UNIT_FILE1,'(a25)') 'dNdz_selection = analytic'
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(UNIT_FILE1,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',',&
+         z_bin_centers(3),',',z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
 !    z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
-!    z_bin_widths(9),',',z_bin_widths(10)
+    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',&
+         z_bin_widths(3),',',z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+!    z_bin_widths(9),',',z_bin_widths(UNIT_FILE1)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',&
+         z_bin_bias(3),',',z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+    write(UNIT_FILE1,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
          s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
+    write(UNIT_FILE1,'(a15,i2)') 'non_diagonal = ',nbins-1
 
-    write(10,'(a13)') 'headers = yes'
+    write(UNIT_FILE1,'(a13)') 'headers = yes'
 
-    write(10,'(a17)') 'bessel file = yes'
+    write(UNIT_FILE1,'(a17)') 'bessel file = yes'
 
-    write(10,'(a12,i4)') 'l_max_lss = ', lmax
+    write(UNIT_FILE1,'(a12,i4)') 'l_max_lss = ', lmax
 
-    write(10,'(a8,i1)') 'l_min = ', lmin
+    write(UNIT_FILE1,'(a8,i1)') 'l_min = ', lmin
 
-    write(10,'(a9,f2.0)') 's_bias = ', 0.
+    write(UNIT_FILE1,'(a9,f2.0)') 's_bias = ', 0.
 
-    write(10,'(a13)') 'format = camb'
+    write(UNIT_FILE1,'(a13)') 'format = camb'
 
-    write(10,'(a17)') 'gauge = newtonian'
+    write(UNIT_FILE1,'(a17)') 'gauge = newtonian'
 
     ! PRECISION PARAMETERS
 
-!    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+!    write(UNIT_FILE1,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
 
-    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+    write(UNIT_FILE1,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
-    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+    write(UNIT_FILE1,'(a12, f5.1)') 'q_linstep = ', real(q)
 
-    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+    write(UNIT_FILE1,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
 
-    close(10)
+    close(UNIT_FILE1)
 
 end subroutine ini_file_generator
 
@@ -1396,16 +1396,16 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
 
     If (fiducial_flag) then
 
-       open(10, file='./ini_files/Cl_fiducial_fake_planck.ini')
+       open(UNIT_FILE1, file='./ini_files/Cl_fiducial_fake_planck.ini')
 
-       write(10,*) 'root = ../data/Cl_fiducial_fake_planck_'
+       write(UNIT_FILE1,*) 'root = ../data/Cl_fiducial_fake_planck_'
 
     Else 
 
        stop
-!       open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
+!       open(UNIT_FILE1, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
-!       write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
+!       write(UNIT_FILE1,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
     End If
 
@@ -1413,101 +1413,101 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
     
     If (parameter_name .ne. param_name_A_s) then 
 
-       write(10,'(a6, es16.10)') 'A_s = ', A_s  
+       write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', A_s  
 
     else
 
-       write(10,'(a6, es16.10)') 'A_s = ', parameter_value  
+       write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', parameter_value  
 
     End If
 
     If (parameter_name .ne. param_name_n_s) then
 
-       write(10,'(a6, es16.10)') 'n_s = ', n_s
+       write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', n_s
 
     else
 
-       write(10,'(a6, es16.10)') 'n_s = ', parameter_value
+       write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', parameter_value
 
     End If
 
     If (parameter_name .ne. param_name_H0) then
 
-       write(10,'(a5, es16.10)') 'H0 = ', H0
+       write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', H0
 
     Else
 
-       write(10,'(a5, es16.10)') 'H0 = ', parameter_value
+       write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', parameter_value
 
     End If
 
     If (parameter_name .ne. param_name_omega_b) then
 
-       write(10,'(a10, es16.10)') 'omega_b = ', omega_b
+       write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', omega_b
 
     Else
 
-       write(10,'(a10, es16.10)') 'omega_b = ', parameter_value
+       write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', parameter_value
 
     End If
 
     If (parameter_name .ne. param_name_omega_cdm) then
 
-       write(10,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
+       write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
 
     Else
 
-       write(10,'(a12, es16.10)') 'omega_cdm = ', parameter_value
+       write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', parameter_value
 
     End If
 
     If (parameter_name .ne. param_name_m_ncdm) then
 
-       write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+       write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
 
     Else
 
-       write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+       write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', parameter_value
 
     End If
 
 !!$    If (parameter_name .ne. param_name_nc_bias_b0) then
 !!$
-!!$       write(10,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
+!!$       write(UNIT_FILE1,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
 !!$
 !!$    Else
 !!$
-!!$       write(10,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
+!!$       write(UNIT_FILE1,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
 !!$
 !!$    End If
 
     If (parameter_name .ne. param_name_cs2_fld) then
 
-       write(10,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
+       write(UNIT_FILE1,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
 
     Else
 
-       write(10,'(a10, es17.10)') 'cs2_fld = ', parameter_value
+       write(UNIT_FILE1,'(a10, es17.10)') 'cs2_fld = ', parameter_value
 
     End If
 
     If (parameter_name .ne. param_name_w0_fld) then
 
-       write(10,'(a9, es17.10)') 'w0_fld = ', w0_fld
+       write(UNIT_FILE1,'(a9, es17.10)') 'w0_fld = ', w0_fld
 
     Else
 
-       write(10,'(a9, es17.10)') 'w0_fld = ', parameter_value
+       write(UNIT_FILE1,'(a9, es17.10)') 'w0_fld = ', parameter_value
 
     End If
 
 !!$       If (parameter_name .ne. param_name_wa_fld) then
 !!$
-!!$          write(10,'(a9, es17.10)') 'wa_fld = ', wa_fld
+!!$          write(UNIT_FILE1,'(a9, es17.10)') 'wa_fld = ', wa_fld
 !!$
 !!$       Else
 !!$
-!!$          write(10,'(a9, es17.10)') 'wa_fld = ', parameter_value
+!!$          write(UNIT_FILE1,'(a9, es17.10)') 'wa_fld = ', parameter_value
 !!$
 !!$       End If
 
@@ -1515,11 +1515,11 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
 
        If (parameter_name .ne. param_name_e_pi) then
 
-          write(10,'(a7, es17.10)') 'e_pi = ', e_pi
+          write(UNIT_FILE1,'(a7, es17.10)') 'e_pi = ', e_pi
 
        Else
 
-          write(10,'(a7, es17.10)') 'e_pi = ', parameter_value
+          write(UNIT_FILE1,'(a7, es17.10)') 'e_pi = ', parameter_value
 
        End If
 
@@ -1529,57 +1529,57 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
 
        If (parameter_name .ne. param_name_f_pi) then
 
-          write(10,'(a7, es17.10)') 'f_pi = ', f_pi
+          write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', f_pi
 
        Else
 
-          write(10,'(a7, es17.10)') 'f_pi = ', parameter_value
+          write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_g_pi) then
 
-          write(10,'(a7, es16.10)') 'g_pi = ', g_pi
+          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', g_pi
 
        Else
 
-          write(10,'(a7, es16.10)') 'g_pi = ', parameter_value
+          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', parameter_value
 
        End If
 
     End If
 
-    write(10,'(a11, es16.10)') 'tau_reio = ', tau
+    write(UNIT_FILE1,'(a11, es16.10)') 'tau_reio = ', tau
 
-    write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
+    write(UNIT_FILE1,'(a7, f5.3)') 'N_ur = ', real(N_ur)
 
-    write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
+    write(UNIT_FILE1,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
 
-    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
+    write(UNIT_FILE1,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
 
-    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+    write(UNIT_FILE1,'(a10,f5.3)') 'Omega_k = ', real(0.)
 
-    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+    write(UNIT_FILE1,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
 
     ! TEMPERATURE AND POLARISATION IN THE OUTPUT
 
-    write(10,'(a16)') 'output = tCl,pCl'
+    write(UNIT_FILE1,'(a16)') 'output = tCl,pCl'
 
-    write(10,'(a13)') 'headers = yes'
+    write(UNIT_FILE1,'(a13)') 'headers = yes'
 
-    write(10,'(a17)') 'bessel file = yes'
+    write(UNIT_FILE1,'(a17)') 'bessel file = yes'
 
-    write(10,'(a16,i4)') 'l_max_scalars = ', lmax_class_cmb
+    write(UNIT_FILE1,'(a16,i4)') 'l_max_scalars = ', lmax_class_cmb
 
-    write(10,'(a8,i1)') 'l_min = ', lmin
+    write(UNIT_FILE1,'(a8,i1)') 'l_min = ', lmin
 
-    write(10,'(a14)') 'format = class'
+    write(UNIT_FILE1,'(a14)') 'format = class'
 
-    write(10,'(a17)') 'gauge = newtonian'
+    write(UNIT_FILE1,'(a17)') 'gauge = newtonian'
 
-    write(10,'(a13)') 'lensing = yes'
+    write(UNIT_FILE1,'(a13)') 'lensing = yes'
 
-    close(10)
+    close(UNIT_FILE1)
  
 end subroutine write_ini_file_for_cmb
 
@@ -1595,49 +1595,49 @@ subroutine write_ini_file_mcmc_for_cmb(param_omega_b, param_omega_cdm, param_n_s
     Character(len=10) :: job
     Integer*4 :: m
 
-    open(10, file = PATH_TO_INI_FILES_CMB//trim(job)//'.ini')
+    open(UNIT_FILE1, file = PATH_TO_INI_FILES_CMB//trim(job)//'.ini')
 
-    write(10,*) 'root = ../output/current_fake_planck_'//trim(job)//'_'
+    write(UNIT_FILE1,*) 'root = ../output/current_fake_planck_'//trim(job)//'_'
     
     ! Background parameters and anisotropic stress
                                                                                                         
-    write(10,'(a6, es16.10)') 'A_s = ', param_A_s  
+    write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', param_A_s  
 
-    write(10,'(a6, es16.10)') 'n_s = ', param_n_s
+    write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', param_n_s
  
-    write(10,'(a5, es16.10)') 'H0 = ', param_H0
+    write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', param_H0
 
-    write(10,'(a10, es16.10)') 'omega_b = ', param_omega_b
+    write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', param_omega_b
 
-    write(10,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
+    write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
 
-    write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
+    write(UNIT_FILE1,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
-    write(10,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
+    write(UNIT_FILE1,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
 
-    write(10,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
+    write(UNIT_FILE1,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
 
     Do m=1,3
 
        If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)) .and. (m .eq. 1) ) then
 
-          write(10,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 1) ) then
 
-          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 2) ) then
 
-          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 2) ) then
 
-          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 3) ) then
 
-          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
 
        End If
 
@@ -1645,37 +1645,37 @@ subroutine write_ini_file_mcmc_for_cmb(param_omega_b, param_omega_cdm, param_n_s
 
     ! Parameters for massive neutrinos                                                                                            
 
-    write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
+    write(UNIT_FILE1,'(a7, f5.3)') 'N_ur = ', real(N_ur)
 
-    write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
+    write(UNIT_FILE1,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
 
-    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
+    write(UNIT_FILE1,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
 
-    write(10,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
+    write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
 
-    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+    write(UNIT_FILE1,'(a10,f5.3)') 'Omega_k = ', real(0.)
 
-    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+    write(UNIT_FILE1,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
 
     ! TEMPERATURE AND POLARISATION IN THE OUTPUT                                                                                       
 
-    write(10,'(a16)') 'output = tCl,pCl'
+    write(UNIT_FILE1,'(a16)') 'output = tCl,pCl'
     
-    write(10,'(a13)') 'headers = yes'
+    write(UNIT_FILE1,'(a13)') 'headers = yes'
 
-    write(10,'(a17)') 'bessel file = yes'
+    write(UNIT_FILE1,'(a17)') 'bessel file = yes'
 
-    write(10,'(a16,i4)') 'l_max_scalars = ', lmax_class_cmb
+    write(UNIT_FILE1,'(a16,i4)') 'l_max_scalars = ', lmax_class_cmb
 
-    write(10,'(a8,i1)') 'l_min = ', lmin
+    write(UNIT_FILE1,'(a8,i1)') 'l_min = ', lmin
 
-    write(10,'(a14)') 'format = class'
+    write(UNIT_FILE1,'(a14)') 'format = class'
 
-    write(10,'(a17)') 'gauge = newtonian'
+    write(UNIT_FILE1,'(a17)') 'gauge = newtonian'
 
-    write(10,'(a13)') 'lensing = yes'
+    write(UNIT_FILE1,'(a13)') 'lensing = yes'
 
-    close(10)
+    close(UNIT_FILE1)
 
 end subroutine write_ini_file_mcmc_for_cmb
 
@@ -1718,11 +1718,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              If (bestfit_flag) then
 
-                open(10, file='./ini_files/Cl_bestfit_lensing.ini')
+                open(UNIT_FILE1, file='./ini_files/Cl_bestfit_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-                write(10,*) 'root = ../data/Cl_bestfit_lensing_'
+                write(UNIT_FILE1,*) 'root = ../data/Cl_bestfit_lensing_'
 
              Else 
 
@@ -1730,11 +1730,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
                 stop
 
-!                open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
+!                open(UNIT_FILE1, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
-!                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+!                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-!                write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
+!                write(UNIT_FILE1,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
              End If
 
@@ -1744,13 +1744,13 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              stop
 
-!             open(10, file='./ini_files/El.ini')
+!             open(UNIT_FILE1, file='./ini_files/El.ini')
 
-!             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+!             write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-!             write(10,*) 'root = ../data/El_'
+!             write(UNIT_FILE1,*) 'root = ../data/El_'
 
-!             write(10,'(a25)') 'number count error = 0.10'
+!             write(UNIT_FILE1,'(a25)') 'number count error = 0.10'
 
           End if
 
@@ -1758,11 +1758,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
           If (bestfit_flag) then
 
-             open(10, file='./ini_files/Cl_bestfit_no_lensing.ini')
+             open(UNIT_FILE1, file='./ini_files/Cl_bestfit_no_lensing.ini')
 
-             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
 
-             write(10,*) 'root = ../data/Cl_bestfit_no_lensing_'
+             write(UNIT_FILE1,*) 'root = ../data/Cl_bestfit_no_lensing_'
 
           Else
 
@@ -1770,11 +1770,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              stop
 
-!             open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
+!             open(UNIT_FILE1, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
 
-!             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+!             write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
 
-!             write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
+!             write(UNIT_FILE1,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
 
           End If
 
@@ -1784,71 +1784,71 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        If (parameter_name .ne. param_name_omega_b) then
 
-          write(10,'(a10, es16.10)') 'omega_b = ', bestfit(1) 
+          write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', bestfit(1) 
 
        Else
 
-          write(10,'(a10, es16.10)') 'omega_b = ', parameter_value
+          write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_omega_cdm) then
 
-          write(10,'(a12, es16.10)') 'omega_cdm = ', bestfit(2)
+          write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', bestfit(2)
 
        Else
 
-          write(10,'(a12, es16.10)') 'omega_cdm = ', parameter_value
+          write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_n_s) then
 
-          write(10,'(a6, es16.10)') 'n_s = ', bestfit(3)
+          write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', bestfit(3)
 
        else
 
-          write(10,'(a6, es16.10)') 'n_s = ', parameter_value
+          write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_A_s) then 
  
-          write(10,'(a6, es16.10)') 'A_s = ', bestfit(4) 
+          write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', bestfit(4) 
 
        else
 
-          write(10,'(a6, es16.10)') 'A_s = ', parameter_value  
+          write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', parameter_value  
 
        End If
 
        If (parameter_name .ne. param_name_H0) then
 
-          write(10,'(a5, es16.10)') 'H0 = ', bestfit(5)
+          write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', bestfit(5)
 
        Else
 
-          write(10,'(a5, es16.10)') 'H0 = ', parameter_value
+          write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_m_ncdm) then
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', bestfit(6)
+          write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', bestfit(6)
 
        Else
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+          write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', parameter_value
 
        End If
 
        !If (parameter_name .ne. param_name_MG_beta2) then
 
-!       write(10,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
+!       write(UNIT_FILE1,'(a11, es16.10)') 'MG_beta2 = ', MG_beta2 !bestfit(7)
 
        !Else
 
-        !  write(10,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
+        !  write(UNIT_FILE1,'(a11, es16.10)') 'MG_beta2 = ', parameter_value
  
        !End If
 
@@ -1878,31 +1878,31 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              If (fiducial_flag) then
 
-                open(10, file='./ini_files/Cl_fiducial_lensing.ini')
+                open(UNIT_FILE1, file='./ini_files/Cl_fiducial_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-                write(10,*) 'root = ../data/Cl_fiducial_lensing_'
+                write(UNIT_FILE1,*) 'root = ../data/Cl_fiducial_lensing_'
 
              Else 
 
-                open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
+                open(UNIT_FILE1, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
 
-                write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+                write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-                write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
+                write(UNIT_FILE1,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
              End If
 
           Else
 
-             open(10, file='./ini_files/El.ini')
+             open(UNIT_FILE1, file='./ini_files/El.ini')
 
-             write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+             write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
 
-             write(10,*) 'root = ../data/El_'
+             write(UNIT_FILE1,*) 'root = ../data/El_'
 
-             write(10,'(a25)') 'number count error = 0.10'
+             write(UNIT_FILE1,'(a25)') 'number count error = 0.10'
 
           End if
 
@@ -1912,31 +1912,31 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
              If (fiducial_flag) then
 
-                open(10, file='./ini_files/Cl_fiducial_no_lensing.ini')
+                open(UNIT_FILE1, file='./ini_files/Cl_fiducial_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
 
-                write(10,*) 'root = ../data/Cl_fiducial_no_lensing_'
+                write(UNIT_FILE1,*) 'root = ../data/Cl_fiducial_no_lensing_'
 
              Else
 
-                open(10, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
+                open(UNIT_FILE1, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing.ini')
 
-                write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+                write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
 
-                write(10,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
+                write(UNIT_FILE1,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_no_lensing_'
 
              End If
 
           Else
 
-             open(10, file='./ini_files/El_nl.ini')
+             open(UNIT_FILE1, file='./ini_files/El_nl.ini')
 
-             write(10,'(a50)') 'number count contributions = density, rsd, doppler'
+             write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
 
-             write(10,*) 'root = ../data/El_nl_'
+             write(UNIT_FILE1,*) 'root = ../data/El_nl_'
 
-             write(10,'(a25)') 'number count error = 0.10'
+             write(UNIT_FILE1,'(a25)') 'number count error = 0.10'
 
           End If
 
@@ -1946,91 +1946,91 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
        If (parameter_name .ne. param_name_A_s) then 
  
-          write(10,'(a6, es16.10)') 'A_s = ', A_s  
+          write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', A_s  
 
        else
 
-          write(10,'(a6, es16.10)') 'A_s = ', parameter_value  
+          write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', parameter_value  
 
        End If
 
        If (parameter_name .ne. param_name_n_s) then
 
-          write(10,'(a6, es16.10)') 'n_s = ', n_s
+          write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', n_s
 
        else
 
-          write(10,'(a6, es16.10)') 'n_s = ', parameter_value
+          write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', parameter_value
 
        End If
  
        If (parameter_name .ne. param_name_H0) then
 
-          write(10,'(a5, es16.10)') 'H0 = ', H0
+          write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', H0
 
        Else
 
-          write(10,'(a5, es16.10)') 'H0 = ', parameter_value
+          write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_omega_b) then
 
-          write(10,'(a10, es16.10)') 'omega_b = ', omega_b
+          write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', omega_b
 
        Else
 
-          write(10,'(a10, es16.10)') 'omega_b = ', parameter_value
+          write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_omega_cdm) then
 
-          write(10,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
+          write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', omega_cdm
 
        Else
 
-          write(10,'(a12, es16.10)') 'omega_cdm = ', parameter_value
+          write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_m_ncdm) then
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
+          write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', m_ncdm
 
        Else
 
-          write(10,'(a9, es16.10)') 'm_ncdm = ', parameter_value
+          write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', parameter_value
 
        End If
 
      If (parameter_name .ne. param_name_nc_bias_b0) then
  
-          write(10,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
+          write(UNIT_FILE1,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
 
        Else
 
-          write(10,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
+          write(UNIT_FILE1,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_cs2_fld) then
 
-          write(10,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
+          write(UNIT_FILE1,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
 
        Else
 
-          write(10,'(a10, es17.10)') 'cs2_fld = ', parameter_value
+          write(UNIT_FILE1,'(a10, es17.10)') 'cs2_fld = ', parameter_value
 
        End If
 
        If (parameter_name .ne. param_name_w0_fld) then
 
-          write(10,'(a9, es17.10)') 'w0_fld = ', w0_fld
+          write(UNIT_FILE1,'(a9, es17.10)') 'w0_fld = ', w0_fld
 
        Else
 
-          write(10,'(a9, es17.10)') 'w0_fld = ', parameter_value
+          write(UNIT_FILE1,'(a9, es17.10)') 'w0_fld = ', parameter_value
 
        End If
 
@@ -2038,11 +2038,11 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
           If (parameter_name .ne. param_name_e_pi) then
 
-             write(10,'(a7, es17.10)') 'e_pi = ', e_pi
+             write(UNIT_FILE1,'(a7, es17.10)') 'e_pi = ', e_pi
 
           Else
 
-             write(10,'(a7, es17.10)') 'e_pi = ', parameter_value
+             write(UNIT_FILE1,'(a7, es17.10)') 'e_pi = ', parameter_value
 
           End If
        
@@ -2052,21 +2052,21 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
           If (parameter_name .ne. param_name_f_pi) then
 
-             write(10,'(a7, es17.10)') 'f_pi = ', f_pi
+             write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', f_pi
 
           Else
 
-             write(10,'(a7, es17.10)') 'f_pi = ', parameter_value
+             write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', parameter_value
 
           End If
 
           If (parameter_name .ne. param_name_g_pi) then
 
-             write(10,'(a7, es16.10)') 'g_pi = ', g_pi
+             write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', g_pi
 
           Else
 
-             write(10,'(a7, es16.10)') 'g_pi = ', parameter_value
+             write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', parameter_value
 
           End If
 
@@ -2074,75 +2074,75 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
     End If
     
-    write(10,'(a11, es16.10)') 'tau_reio = ', tau
+    write(UNIT_FILE1,'(a11, es16.10)') 'tau_reio = ', tau
 
-    write(10,'(a7, f5.3)') 'N_ur = ', real(N_ur)
+    write(UNIT_FILE1,'(a7, f5.3)') 'N_ur = ', real(N_ur)
 
-    write(10,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
+    write(UNIT_FILE1,'(a9, f5.3)') 'N_ncdm = ', real(N_ncdm)
 
-    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
+    write(UNIT_FILE1,'(a11, f5.3)') 'deg_ncdm = ', real(deg_ncdm)
 
-    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+    write(UNIT_FILE1,'(a10,f5.3)') 'Omega_k = ', real(0.)
 
-    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+    write(UNIT_FILE1,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
 
     ! Number counts in the output                                                                                            
 
-    write(10,'(a12)') 'output = nCl'
+    write(UNIT_FILE1,'(a12)') 'output = nCl'
     
-!    write(10,'(a20)') 'non linear = halofit'
+!    write(UNIT_FILE1,'(a20)') 'non linear = halofit'
  
-    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_evolution = analytic_euclid'
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(UNIT_FILE1,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',',&
+         z_bin_centers(3),',',z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
     !z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+    write(UNIT_FILE1,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',&
+         z_bin_widths(3),',',z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
 !    z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',&
+         z_bin_bias(3),',',z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+    write(UNIT_FILE1,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
          s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
+    write(UNIT_FILE1,'(a15,i2)') 'non_diagonal = ',nbins-1
 
-    write(10,'(a13)') 'headers = yes'
+    write(UNIT_FILE1,'(a13)') 'headers = yes'
 
-    write(10,'(a17)') 'bessel file = yes'
+    write(UNIT_FILE1,'(a17)') 'bessel file = yes'
 
-    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
+    write(UNIT_FILE1,'(a12,i4)') 'l_max_lss = ', lmax_class
 
-    write(10,'(a8,i1)') 'l_min = ', lmin
+    write(UNIT_FILE1,'(a8,i1)') 'l_min = ', lmin
 
-!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(UNIT_FILE1,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
-    write(10,'(a14)') 'format = class'
+    write(UNIT_FILE1,'(a14)') 'format = class'
 
-    write(10,'(a17)') 'gauge = newtonian'
+    write(UNIT_FILE1,'(a17)') 'gauge = newtonian'
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+    write(UNIT_FILE1,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
+    write(UNIT_FILE1,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
-    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+    write(UNIT_FILE1,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
-    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+    write(UNIT_FILE1,'(a12, f5.1)') 'q_linstep = ', real(q)
 
-    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+    write(UNIT_FILE1,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
 
-    close(10)
+    close(UNIT_FILE1)
 
 end subroutine write_ini_file_for_fisher
 
@@ -2202,56 +2202,56 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     End Do
 
     If (len_flag) then 
-        open(10, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
-        write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
-        write(10,*) 'root = ../output/current_euclid_galaxy_lensing_'//trim(job)//'_'
+        open(UNIT_FILE1, file='./ini_files/current_euclid_galaxy_cl_lensing_'//trim(job)//'.ini')
+        write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+        write(UNIT_FILE1,*) 'root = ../output/current_euclid_galaxy_lensing_'//trim(job)//'_'
     else 
-        open(10, file='./ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
-        write(10,*) 'root = ../output/current_euclid_galaxy_cl_'//trim(job)//'_'
+        open(UNIT_FILE1, file='./ini_files/current_euclid_galaxy_cl_'//trim(job)//'.ini')
+        write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(UNIT_FILE1,*) 'root = ../output/current_euclid_galaxy_cl_'//trim(job)//'_'
     End if
     
     ! Background parameters and anisotropic stress
                                                                                                         
-    write(10,'(a6, es16.10)') 'A_s = ', param_A_s  
+    write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', param_A_s  
 
-    write(10,'(a6, es16.10)') 'n_s = ', param_n_s
+    write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', param_n_s
  
-    write(10,'(a5, es16.10)') 'H0 = ', param_H0
+    write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', param_H0
 
-    write(10,'(a10, es16.10)') 'omega_b = ', param_omega_b
+    write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', param_omega_b
 
-    write(10,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
+    write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
 
-    write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
+    write(UNIT_FILE1,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
-    write(10,'(a13, es16.10)') 'nc_bias_b0 = ', param_nc_bias_b0
+    write(UNIT_FILE1,'(a13, es16.10)') 'nc_bias_b0 = ', param_nc_bias_b0
 
-    write(10,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
+    write(UNIT_FILE1,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
 
-    write(10,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
+    write(UNIT_FILE1,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
 
     Do m=1,3
 
        If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)) .and. (m .eq. 1) ) then
 
-          write(10,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 1) ) then
 
-          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 2) ) then
 
-          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 2) ) then
 
-          write(10,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
 
        Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 3) ) then
 
-          write(10,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
 
        End If
 
@@ -2259,75 +2259,75 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
 
     ! Parameters for massive neutrinos                                                                                            
 
-    write(10,'(a7, f5.3)') 'N_ur = ', real(param_N_ur)
+    write(UNIT_FILE1,'(a7, f5.3)') 'N_ur = ', real(param_N_ur)
 
-    write(10,'(a9, f5.3)') 'N_ncdm = ', real(param_N_ncdm)
+    write(UNIT_FILE1,'(a9, f5.3)') 'N_ncdm = ', real(param_N_ncdm)
 
-    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(param_deg_ncdm)
+    write(UNIT_FILE1,'(a11, f5.3)') 'deg_ncdm = ', real(param_deg_ncdm)
 
-    write(10,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
+    write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
 
-    write(10,'(a10,f5.3)') 'Omega_k = ', real(0.)
+    write(UNIT_FILE1,'(a10,f5.3)') 'Omega_k = ', real(0.)
 
-    write(10,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+    write(UNIT_FILE1,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
 
     ! Number counts in the output                                                                                            
 
-    write(10,'(a12)') 'output = nCl'
+    write(UNIT_FILE1,'(a12)') 'output = nCl'
     
-    !write(10,'(a20)') 'non linear = halofit'
+    !write(UNIT_FILE1,'(a20)') 'non linear = halofit'
  
-    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_evolution = analytic_euclid'
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(UNIT_FILE1,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',',&
+         z_bin_centers(3),',',z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
 !    z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+    write(UNIT_FILE1,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',&
+         z_bin_widths(3),',',z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
  !   z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',&
+         z_bin_bias(3),',',z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
   !  z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+    write(UNIT_FILE1,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
          s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
+    write(UNIT_FILE1,'(a15,i2)') 'non_diagonal = ',nbins-1
 
-    write(10,'(a13)') 'headers = yes'
+    write(UNIT_FILE1,'(a13)') 'headers = yes'
 
-    write(10,'(a17)') 'bessel file = yes'
+    write(UNIT_FILE1,'(a17)') 'bessel file = yes'
 
-    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
+    write(UNIT_FILE1,'(a12,i4)') 'l_max_lss = ', lmax_class
 
-    write(10,'(a8,i1)') 'l_min = ', lmin
+    write(UNIT_FILE1,'(a8,i1)') 'l_min = ', lmin
 
-!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(UNIT_FILE1,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
-    write(10,'(a14)') 'format = class'
+    write(UNIT_FILE1,'(a14)') 'format = class'
 
-    write(10,'(a17)') 'gauge = newtonian'
+    write(UNIT_FILE1,'(a17)') 'gauge = newtonian'
 
     ! PRECISION PARAMETERS
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
+    write(UNIT_FILE1,'(a40, f6.0)') 'l_switch_limber_for_nc_local_over_z =   ', real(l_switch_limber_for_nc_local_over_z)
 
-    write(10,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
+    write(UNIT_FILE1,'(a40, f6.0)') 'l_switch_limber_for_nc_los_over_z =     ', real(l_switch_limber_for_nc_los_over_z)
 
-    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+    write(UNIT_FILE1,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
-    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+    write(UNIT_FILE1,'(a12, f5.1)') 'q_linstep = ', real(q)
 
-    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+    write(UNIT_FILE1,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
 
-    close(10)
+    close(UNIT_FILE1)
 
 end subroutine write_ini_file_mcmc
 
@@ -2354,94 +2354,94 @@ subroutine write_ini_file(param_omega_b, param_omega_cdm, param_n_s, param_A_s, 
     write(string_m_ncdm,fmt) param_m_ncdm
 
     If (len_flag) then 
-        open(10, file='./ini_files/current_euclid_galaxy_cl_lensing.ini')
-        write(10,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
-        write(10,*) 'root = ../output/current_euclid_galaxy_lensing_'
+        open(UNIT_FILE1, file='./ini_files/current_euclid_galaxy_cl_lensing.ini')
+        write(UNIT_FILE1,'(a59)') 'number count contributions = density, rsd, lensing, doppler'
+        write(UNIT_FILE1,*) 'root = ../output/current_euclid_galaxy_lensing_'
     else 
-        open(10, file='./ini_files/current_euclid_galaxy_cl_.ini')
-        write(10,'(a50)') 'number count contributions = density, rsd, doppler'
-        write(10,*) 'root = ../output/current_euclid_galaxy_'
+        open(UNIT_FILE1, file='./ini_files/current_euclid_galaxy_cl_.ini')
+        write(UNIT_FILE1,'(a50)') 'number count contributions = density, rsd, doppler'
+        write(UNIT_FILE1,*) 'root = ../output/current_euclid_galaxy_'
     End if
     
     ! Background parameters and anisotropic stress
                                                                                                         
-    write(10,'(a6, es16.10)') 'A_s = ', param_A_s  
+    write(UNIT_FILE1,'(a6, es16.10)') 'A_s = ', param_A_s  
 
-    write(10,'(a6, es16.10)') 'n_s = ', param_n_s
+    write(UNIT_FILE1,'(a6, es16.10)') 'n_s = ', param_n_s
  
-    write(10,'(a5, es16.10)') 'H0 = ', param_H0
+    write(UNIT_FILE1,'(a5, es16.10)') 'H0 = ', param_H0
 
-    write(10,'(a10, es16.10)') 'omega_b = ', param_omega_b
+    write(UNIT_FILE1,'(a10, es16.10)') 'omega_b = ', param_omega_b
 
-    write(10,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
+    write(UNIT_FILE1,'(a12, es16.10)') 'omega_cdm = ', param_omega_cdm
 
-    write(10,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
+    write(UNIT_FILE1,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
     ! Parameters for massive neutrinos                                                                                            
 
-    write(10,'(a7, f5.3)') 'N_ur = ', real(param_N_ur)
+    write(UNIT_FILE1,'(a7, f5.3)') 'N_ur = ', real(param_N_ur)
 
-    write(10,'(a9, f5.3)') 'N_ncdm = ', real(param_N_ncdm)
+    write(UNIT_FILE1,'(a9, f5.3)') 'N_ncdm = ', real(param_N_ncdm)
 
-    write(10,'(a11, f5.3)') 'deg_ncdm = ', real(param_deg_ncdm)
+    write(UNIT_FILE1,'(a11, f5.3)') 'deg_ncdm = ', real(param_deg_ncdm)
 
-    write(10,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
+    write(UNIT_FILE1,'(a9, es16.10)') 'm_ncdm = ', param_m_ncdm
 
     ! Number counts in the output                                                                                            
 
-    write(10,'(a12)') 'output = nCl'
+    write(UNIT_FILE1,'(a12)') 'output = nCl'
     
-    !write(10,'(a20)') 'non linear = halofit'
+    !write(UNIT_FILE1,'(a20)') 'non linear = halofit'
  
-    write(10,'(a32)') 'dNdz_selection = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_selection = analytic_euclid'
 
-    write(10,'(a32)') 'dNdz_evolution = analytic_euclid'
+    write(UNIT_FILE1,'(a32)') 'dNdz_evolution = analytic_euclid'
 
-    write(10,'(a20)') 'selection = gaussian'
+    write(UNIT_FILE1,'(a20)') 'selection = gaussian'
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',', z_bin_centers(3),',',&
-    z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_mean = ', z_bin_centers(1),',', z_bin_centers(2),',',&
+         z_bin_centers(3),',',z_bin_centers(4),',',z_bin_centers(5)!,',',z_bin_centers(6),',',z_bin_centers(7),',',z_bin_centers(8),',',&
 !    z_bin_centers(9),',',z_bin_centers(10)
 
-    write(10,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',z_bin_widths(3),',',&
-    z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
+    write(UNIT_FILE1,'(a18, 4(f10.8, a1),f10.8)') 'selection_width = ', z_bin_widths(1),',',z_bin_widths(2),',',&
+         z_bin_widths(3),',',z_bin_widths(4),',',z_bin_widths(5)!,',',z_bin_widths(6),',',z_bin_widths(7),',',z_bin_widths(8),',',&
  !   z_bin_widths(9),',',z_bin_widths(10)
 
-    write(10,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',z_bin_bias(3),',',&
-    z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
+    write(UNIT_FILE1,'(a17, 4(f10.8, a1),f10.8)') 'selection_bias = ', z_bin_bias(1),',',z_bin_bias(2),',',&
+         z_bin_bias(3),',',z_bin_bias(4),',',z_bin_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
   !  z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
+    write(UNIT_FILE1,'(a31, 4(f10.8, a1),f10.8)') 'selection_magnification_bias = ', s_z_mag_bias(1),',',s_z_mag_bias(2),',',&
          s_z_mag_bias(3),',',s_z_mag_bias(4),',',s_z_mag_bias(5)!,',',z_bin_bias(6),',',z_bin_bias(7),',',z_bin_bias(8),',',&
 !    z_bin_bias(9),',',z_bin_bias(10)
 
-    write(10,'(a15,i2)') 'non_diagonal = ',nbins-1
+    write(UNIT_FILE1,'(a15,i2)') 'non_diagonal = ',nbins-1
 
-    write(10,'(a13)') 'headers = yes'
+    write(UNIT_FILE1,'(a13)') 'headers = yes'
 
-    write(10,'(a17)') 'bessel file = yes'
+    write(UNIT_FILE1,'(a17)') 'bessel file = yes'
 
-    write(10,'(a12,i4)') 'l_max_lss = ', lmax_class
+    write(UNIT_FILE1,'(a12,i4)') 'l_max_lss = ', lmax_class
 
-    write(10,'(a8,i1)') 'l_min = ', lmin
+    write(UNIT_FILE1,'(a8,i1)') 'l_min = ', lmin
 
-!    write(10,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
+!    write(UNIT_FILE1,'(a27,f2.0)') 'selection_magnitude_bias = ', 0.
 
-    write(10,'(a14)') 'format = class'
+    write(UNIT_FILE1,'(a14)') 'format = class'
 
-    write(10,'(a17)') 'gauge = newtonian'
+    write(UNIT_FILE1,'(a17)') 'gauge = newtonian'
 
     ! PRECISION PARAMETERS
 
-!    write(10,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
+!    write(UNIT_FILE1,'(a40, f6.0)') 'l_switch_limber_for_cl_density_over_z = ', real(l_switch_limber_for_cl_density_over_z)
 
-    write(10,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
+    write(UNIT_FILE1,'(a28, f5.2)') 'selection_sampling_bessel = ', real(bessel)
 
-    write(10,'(a12, f5.1)') 'q_linstep = ', real(q)
+    write(UNIT_FILE1,'(a12, f5.1)') 'q_linstep = ', real(q)
 
-    write(10,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
+    write(UNIT_FILE1,'(a24, f5.2)') 'k_max_tau0_over_l_max = ', real(kmaxtau0)
 
-    close(10)
+    close(UNIT_FILE1)
 
 end subroutine write_ini_file
 
@@ -2588,23 +2588,25 @@ subroutine compute_data_for_fisher_analysis(p)
 end subroutine compute_data_for_fisher_analysis
 
 subroutine write_sh_file(name_ini_file)
-    Implicit none
-    character(len=*) :: name_ini_file
 
-    open(12,file='./class_montanari-lensing/'//trim(name_ini_file)//'.sh')
+  use fiducial 
+  Implicit none
+  character(len=*) :: name_ini_file
 
-    write(12,'(a9)') '#!/bin/sh'
-    write(12,'(a26)') '#SBATCH --cpus-per-task=12'
-    write(12,'(a24)') '#SBATCH --job-name=CLASS'
-    write(12,'(a18)') '#SBATCH --ntasks=1'
-    write(12,'(a25)') '#SBATCH --time=5-20:00:00'
-    write(12,'(a42)') '#SBATCH --mail-user=wilmar.cardona@csic.es'
-    write(12,'(a23)') '#SBATCH --mail-type=ALL'
-    write(12,'(a21)') '#SBATCH -o job.%J.out'
-    write(12,*) 
-    write(12,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
+  open(UNIT_FILE3,file='./class_montanari-lensing/'//trim(name_ini_file)//'.sh')
 
-    close(12)
+  write(UNIT_FILE3,'(a9)') '#!/bin/sh'
+  write(UNIT_FILE3,'(a26)') '#SBATCH --cpus-per-task=12'
+  write(UNIT_FILE3,'(a24)') '#SBATCH --job-name=CLASS'
+  write(UNIT_FILE3,'(a18)') '#SBATCH --ntasks=1'
+  write(UNIT_FILE3,'(a25)') '#SBATCH --time=5-20:00:00'
+  write(UNIT_FILE3,'(a42)') '#SBATCH --mail-user=wilmar.cardona@csic.es'
+  write(UNIT_FILE3,'(a23)') '#SBATCH --mail-type=ALL'
+  write(UNIT_FILE3,'(a21)') '#SBATCH -o job.%J.out'
+  write(UNIT_FILE3,*) 
+  write(UNIT_FILE3,*)'srun ./class ../ini_files/'//trim(name_ini_file)//'.ini'
+
+  close(UNIT_FILE3)
 
 end subroutine write_sh_file
 
@@ -3185,17 +3187,17 @@ subroutine write_covariance_matrix_mcmc(matrix)
  
     fmt = '('//trim(string)//'es16.7)'
 
-    open(12,file='./output/covariance_matrix.txt')
+    open(UNIT_FILE3,file='./output/covariance_matrix.txt')
 
-    write(12,*) '#'
+    write(UNIT_FILE3,*) '#'
 
     Do index1=1,number_of_parameters
 
-       write(12,fmt) matrix(index1,1:number_of_parameters)
+       write(UNIT_FILE3,fmt) matrix(index1,1:number_of_parameters)
        
     End Do
 
-    close(12)
+    close(UNIT_FILE3)
 
 end subroutine write_covariance_matrix_mcmc
 
@@ -3215,9 +3217,9 @@ subroutine read_covariance_matrix_mcmc(matrix1)
 
     If (exist) then
 
-       open(12,file='./output/chains/covariance_matrix.txt')
+       open(UNIT_FILE3,file='./output/chains/covariance_matrix.txt')
 
-       read(12,*)
+       read(UNIT_FILE3,*)
 
     Else
 
@@ -3229,11 +3231,11 @@ subroutine read_covariance_matrix_mcmc(matrix1)
 
     Do index1=1,number_of_parameters
 
-        read(12,*) matrix(index1,1:number_of_parameters)
+        read(UNIT_FILE3,*) matrix(index1,1:number_of_parameters)
 
     End Do
 
-    close(12)
+    close(UNIT_FILE3)
 
     call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
 
@@ -3255,17 +3257,17 @@ subroutine read_covariance_matrix_mcmc(matrix1)
       
         If (pos_def) then
 
-            open(12,file='./output/chains/covariance_matrix.txt')
+            open(UNIT_FILE3,file='./output/chains/covariance_matrix.txt')
 
-            read(12,*)
+            read(UNIT_FILE3,*)
 
             Do index1=1,number_of_parameters
 
-                read(12,*) matrix1(index1,1:number_of_parameters)
+                read(UNIT_FILE3,*) matrix1(index1,1:number_of_parameters)
 
             End Do
 
-            close(12)
+            close(UNIT_FILE3)
 
         Else
 
@@ -3297,9 +3299,9 @@ subroutine read_covariance_matrix_prior(matrix1)
 
     If (exist) then
 
-       open(12,file='./data/planck_covariance_matrix.txt')
+       open(UNIT_FILE3,file='./data/planck_covariance_matrix.txt')
 
-       read(12,*)
+       read(UNIT_FILE3,*)
 
     Else
 
@@ -3311,11 +3313,11 @@ subroutine read_covariance_matrix_prior(matrix1)
 
     Do index1=1,5
 
-        read(12,*) matrix(index1,1:5)
+        read(UNIT_FILE3,*) matrix(index1,1:5)
 
     End Do
 
-    close(12)
+    close(UNIT_FILE3)
 
     call dsyev(JOBZ,UPLO,5,matrix,5,W,WORK,LWORK,INFO)
 
@@ -3337,17 +3339,17 @@ subroutine read_covariance_matrix_prior(matrix1)
       
         If (pos_def) then
 
-            open(12,file='./data/planck_covariance_matrix.txt')
+            open(UNIT_FILE3,file='./data/planck_covariance_matrix.txt')
 
-            read(12,*)
+            read(UNIT_FILE3,*)
 
             Do index1=1,5
 
-                read(12,*) matrix1(index1,1:5)
+                read(UNIT_FILE3,*) matrix1(index1,1:5)
 
             End Do
 
-            close(12)
+            close(UNIT_FILE3)
 
         Else
 
@@ -3399,11 +3401,11 @@ subroutine read_bestfit_mcmc(vector)
     Implicit none
     Real*8,dimension(number_of_parameters) :: vector
     Integer*4 :: index1
-    open(12,file='./output/chains/bestfit.txt')
+    open(UNIT_FILE3,file='./output/chains/bestfit.txt')
     Do index1=1,number_of_parameters
-        read(12,*) vector(index1)
+        read(UNIT_FILE3,*) vector(index1)
     End Do
-    close(12)
+    close(UNIT_FILE3)
 end subroutine read_bestfit_mcmc
 
 subroutine read_means_mcmc(vector)
@@ -3412,15 +3414,15 @@ subroutine read_means_mcmc(vector)
     Real*8,dimension(number_of_parameters) :: vector
     Integer*4 :: index1
 
-    open(12,file='./output/chains/means.txt')
+    open(UNIT_FILE3,file='./output/chains/means.txt')
 
     Do index1=1,number_of_parameters
 
-        read(12,*) vector(index1)
+        read(UNIT_FILE3,*) vector(index1)
 
     End Do
 
-    close(12)
+    close(UNIT_FILE3)
 
 end subroutine read_means_mcmc
 
@@ -3799,14 +3801,14 @@ subroutine compute_b_lambda_alpha()
         End Do
     End Do
 
-    open(11,file='./output/b_lambda_alpha.dat')
+    open(UNIT_FILE2,file='./output/b_lambda_alpha.dat')
 
-    write(11,*) '# Order of parameters in columns is as follows: '
-    write(11,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
-    write(11,'(7es25.10)') b_lambda(1), b_lambda(2), b_lambda(3),&
+    write(UNIT_FILE2,*) '# Order of parameters in columns is as follows: '
+    write(UNIT_FILE2,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
+    write(UNIT_FILE2,'(7es25.10)') b_lambda(1), b_lambda(2), b_lambda(3),&
                            b_lambda(4), b_lambda(5), b_lambda(6), b_lambda(7)
 
-    close(11)
+    close(UNIT_FILE2)
 
 end subroutine compute_b_lambda_alpha
 
@@ -4016,17 +4018,24 @@ subroutine compute_inverse_fisher_matrix()
         End Do
     End Do
     
-    open(11,file='./output/inverse_fisher_matrix.dat')
-    write(11,*) '# Order of parameters in rows and columns is as follows: '
-    write(11,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
-    write(11,'(7es25.10)') inv_F_ab(1,1), inv_F_ab(1,2), inv_F_ab(1,3), inv_F_ab(1,4), inv_F_ab(1,5), inv_F_ab(1,6), inv_F_ab(1,7)
-    write(11,'(7es25.10)') inv_F_ab(2,1), inv_F_ab(2,2), inv_F_ab(2,3), inv_F_ab(2,4), inv_F_ab(2,5), inv_F_ab(2,6), inv_F_ab(2,7)
-    write(11,'(7es25.10)') inv_F_ab(3,1), inv_F_ab(3,2), inv_F_ab(3,3), inv_F_ab(3,4), inv_F_ab(3,5), inv_F_ab(3,6), inv_F_ab(3,7)
-    write(11,'(7es25.10)') inv_F_ab(4,1), inv_F_ab(4,2), inv_F_ab(4,3), inv_F_ab(4,4), inv_F_ab(4,5), inv_F_ab(4,6), inv_F_ab(4,7)
-    write(11,'(7es25.10)') inv_F_ab(5,1), inv_F_ab(5,2), inv_F_ab(5,3), inv_F_ab(5,4), inv_F_ab(5,5), inv_F_ab(5,6), inv_F_ab(5,7)
-    write(11,'(7es25.10)') inv_F_ab(6,1), inv_F_ab(6,2), inv_F_ab(6,3), inv_F_ab(6,4), inv_F_ab(6,5), inv_F_ab(6,6), inv_F_ab(6,7)
-    write(11,'(7es25.10)') inv_F_ab(7,1), inv_F_ab(7,2), inv_F_ab(7,3), inv_F_ab(7,4), inv_F_ab(7,5), inv_F_ab(7,6), inv_F_ab(7,7)
-    close(11)
+    open(UNIT_FILE2,file='./output/inverse_fisher_matrix.dat')
+    write(UNIT_FILE2,*) '# Order of parameters in rows and columns is as follows: '
+    write(UNIT_FILE2,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
+    write(UNIT_FILE2,'(7es25.10)') inv_F_ab(1,1), inv_F_ab(1,2), inv_F_ab(1,3), inv_F_ab(1,4),&
+         inv_F_ab(1,5), inv_F_ab(1,6), inv_F_ab(1,7)
+    write(UNIT_FILE2,'(7es25.10)') inv_F_ab(2,1), inv_F_ab(2,2), inv_F_ab(2,3), inv_F_ab(2,4),&
+         inv_F_ab(2,5), inv_F_ab(2,6), inv_F_ab(2,7)
+    write(UNIT_FILE2,'(7es25.10)') inv_F_ab(3,1), inv_F_ab(3,2), inv_F_ab(3,3), inv_F_ab(3,4),&
+         inv_F_ab(3,5), inv_F_ab(3,6), inv_F_ab(3,7)
+    write(UNIT_FILE2,'(7es25.10)') inv_F_ab(4,1), inv_F_ab(4,2), inv_F_ab(4,3), inv_F_ab(4,4),&
+         inv_F_ab(4,5), inv_F_ab(4,6), inv_F_ab(4,7)
+    write(UNIT_FILE2,'(7es25.10)') inv_F_ab(5,1), inv_F_ab(5,2), inv_F_ab(5,3), inv_F_ab(5,4),&
+         inv_F_ab(5,5), inv_F_ab(5,6), inv_F_ab(5,7)
+    write(UNIT_FILE2,'(7es25.10)') inv_F_ab(6,1), inv_F_ab(6,2), inv_F_ab(6,3), inv_F_ab(6,4),&
+         inv_F_ab(6,5), inv_F_ab(6,6), inv_F_ab(6,7)
+    write(UNIT_FILE2,'(7es25.10)') inv_F_ab(7,1), inv_F_ab(7,2), inv_F_ab(7,3), inv_F_ab(7,4),&
+         inv_F_ab(7,5), inv_F_ab(7,6), inv_F_ab(7,7)
+    close(UNIT_FILE2)
 
 end subroutine compute_inverse_fisher_matrix
 
@@ -4046,7 +4055,7 @@ subroutine read_inverse_fisher_matrix(matrix1)
 
     If (exist) then
 
-       open(12,file='./output/inverse_fisher_matrix.dat')
+       open(UNIT_FILE3,file='./output/inverse_fisher_matrix.dat')
 
     Else
 
@@ -4056,17 +4065,17 @@ subroutine read_inverse_fisher_matrix(matrix1)
 
     End If
     
-    read(12,*)
+    read(UNIT_FILE3,*)
 
-    read(12,*)
+    read(UNIT_FILE3,*)
 
     Do index1=1,number_of_parameters
 
-        read(12,'(7es25.10)') matrix(index1,1:number_of_parameters)
+        read(UNIT_FILE3,'(7es25.10)') matrix(index1,1:number_of_parameters)
 
     End Do
 
-    close(12)
+    close(UNIT_FILE3)
 
     call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
 
@@ -4088,19 +4097,19 @@ subroutine read_inverse_fisher_matrix(matrix1)
       
         If (pos_def) then
 
-            open(12,file='./output/inverse_fisher_matrix.dat')
+            open(UNIT_FILE3,file='./output/inverse_fisher_matrix.dat')
 
-            read(12,*)
+            read(UNIT_FILE3,*)
 
-            read(12,*)
+            read(UNIT_FILE3,*)
 
             Do index1=1,number_of_parameters
 
-                read(12,'(7es25.10)') matrix1(index1,1:number_of_parameters)
+                read(UNIT_FILE3,'(7es25.10)') matrix1(index1,1:number_of_parameters)
 
             End Do
 
-            close(12)
+            close(UNIT_FILE3)
 
         Else
 
@@ -4278,20 +4287,20 @@ subroutine compute_fisher_matrix(lensing_flag,autocorr_flag)
         End Do
         
         If (autocorr_flag) then
-            open(11,file='./output/fisher_matrix_lensing_only_autocorrelations.dat')
+            open(UNIT_FILE2,file='./output/fisher_matrix_lensing_only_autocorrelations.dat')
         Else
-            open(11,file='./output/fisher_matrix_lensing.dat')
+            open(UNIT_FILE2,file='./output/fisher_matrix_lensing.dat')
         End If
-        write(11,*) '# Order of parameters in rows and columns is as follows: '
-        write(11,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
-        write(11,'(7es25.10)') F_ab(1,1), F_ab(1,2), F_ab(1,3), F_ab(1,4), F_ab(1,5), F_ab(1,6), F_ab(1,7)
-        write(11,'(7es25.10)') F_ab(2,1), F_ab(2,2), F_ab(2,3), F_ab(2,4), F_ab(2,5), F_ab(2,6), F_ab(2,7)
-        write(11,'(7es25.10)') F_ab(3,1), F_ab(3,2), F_ab(3,3), F_ab(3,4), F_ab(3,5), F_ab(3,6), F_ab(3,7)
-        write(11,'(7es25.10)') F_ab(4,1), F_ab(4,2), F_ab(4,3), F_ab(4,4), F_ab(4,5), F_ab(4,6), F_ab(4,7)
-        write(11,'(7es25.10)') F_ab(5,1), F_ab(5,2), F_ab(5,3), F_ab(5,4), F_ab(5,5), F_ab(5,6), F_ab(5,7)
-        write(11,'(7es25.10)') F_ab(6,1), F_ab(6,2), F_ab(6,3), F_ab(6,4), F_ab(6,5), F_ab(6,6), F_ab(6,7)
-        write(11,'(7es25.10)') F_ab(7,1), F_ab(7,2), F_ab(7,3), F_ab(7,4), F_ab(7,5), F_ab(7,6), F_ab(7,7)
-        close(11)
+        write(UNIT_FILE2,*) '# Order of parameters in rows and columns is as follows: '
+        write(UNIT_FILE2,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
+        write(UNIT_FILE2,'(7es25.10)') F_ab(1,1), F_ab(1,2), F_ab(1,3), F_ab(1,4), F_ab(1,5), F_ab(1,6), F_ab(1,7)
+        write(UNIT_FILE2,'(7es25.10)') F_ab(2,1), F_ab(2,2), F_ab(2,3), F_ab(2,4), F_ab(2,5), F_ab(2,6), F_ab(2,7)
+        write(UNIT_FILE2,'(7es25.10)') F_ab(3,1), F_ab(3,2), F_ab(3,3), F_ab(3,4), F_ab(3,5), F_ab(3,6), F_ab(3,7)
+        write(UNIT_FILE2,'(7es25.10)') F_ab(4,1), F_ab(4,2), F_ab(4,3), F_ab(4,4), F_ab(4,5), F_ab(4,6), F_ab(4,7)
+        write(UNIT_FILE2,'(7es25.10)') F_ab(5,1), F_ab(5,2), F_ab(5,3), F_ab(5,4), F_ab(5,5), F_ab(5,6), F_ab(5,7)
+        write(UNIT_FILE2,'(7es25.10)') F_ab(6,1), F_ab(6,2), F_ab(6,3), F_ab(6,4), F_ab(6,5), F_ab(6,6), F_ab(6,7)
+        write(UNIT_FILE2,'(7es25.10)') F_ab(7,1), F_ab(7,2), F_ab(7,3), F_ab(7,4), F_ab(7,5), F_ab(7,6), F_ab(7,7)
+        close(UNIT_FILE2)
     else 
         call read_derivative(d1,16,params(1),.false.)
         call read_derivative(d2,17,params(2),.false.)
@@ -4386,20 +4395,27 @@ subroutine compute_fisher_matrix(lensing_flag,autocorr_flag)
             End Do
         End Do
         If (autocorr_flag) then
-            open(12,file='./output/fisher_matrix_only_autocorrelations.dat')
+            open(UNIT_FILE3,file='./output/fisher_matrix_only_autocorrelations.dat')
         Else
-            open(12,file='./output/fisher_matrix.dat')
+            open(UNIT_FILE3,file='./output/fisher_matrix.dat')
         End If
-        write(12,*) '# Order of parameters in rows and columns is as follows: '
-        write(12,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
-        write(12,'(7es25.10)') F_ab_nl(1,1), F_ab_nl(1,2), F_ab_nl(1,3), F_ab_nl(1,4), F_ab_nl(1,5), F_ab_nl(1,6), F_ab_nl(1,7)
-        write(12,'(7es25.10)') F_ab_nl(2,1), F_ab_nl(2,2), F_ab_nl(2,3), F_ab_nl(2,4), F_ab_nl(2,5), F_ab_nl(2,6), F_ab_nl(2,7)
-        write(12,'(7es25.10)') F_ab_nl(3,1), F_ab_nl(3,2), F_ab_nl(3,3), F_ab_nl(3,4), F_ab_nl(3,5), F_ab_nl(3,6), F_ab_nl(3,7)
-        write(12,'(7es25.10)') F_ab_nl(4,1), F_ab_nl(4,2), F_ab_nl(4,3), F_ab_nl(4,4), F_ab_nl(4,5), F_ab_nl(4,6), F_ab_nl(4,7)
-        write(12,'(7es25.10)') F_ab_nl(5,1), F_ab_nl(5,2), F_ab_nl(5,3), F_ab_nl(5,4), F_ab_nl(5,5), F_ab_nl(5,6), F_ab_nl(5,7)
-        write(12,'(7es25.10)') F_ab_nl(6,1), F_ab_nl(6,2), F_ab_nl(6,3), F_ab_nl(6,4), F_ab_nl(6,5), F_ab_nl(6,6), F_ab_nl(6,7)
-        write(12,'(7es25.10)') F_ab_nl(7,1), F_ab_nl(7,2), F_ab_nl(7,3), F_ab_nl(7,4), F_ab_nl(7,5), F_ab_nl(7,6), F_ab_nl(7,7)
-        close(12)
+        write(UNIT_FILE3,*) '# Order of parameters in rows and columns is as follows: '
+        write(UNIT_FILE3,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
+        write(UNIT_FILE3,'(7es25.10)') F_ab_nl(1,1), F_ab_nl(1,2), F_ab_nl(1,3), F_ab_nl(1,4),&
+             F_ab_nl(1,5), F_ab_nl(1,6), F_ab_nl(1,7)
+        write(UNIT_FILE3,'(7es25.10)') F_ab_nl(2,1), F_ab_nl(2,2), F_ab_nl(2,3), F_ab_nl(2,4),&
+             F_ab_nl(2,5), F_ab_nl(2,6), F_ab_nl(2,7)
+        write(UNIT_FILE3,'(7es25.10)') F_ab_nl(3,1), F_ab_nl(3,2), F_ab_nl(3,3), F_ab_nl(3,4),&
+             F_ab_nl(3,5), F_ab_nl(3,6), F_ab_nl(3,7)
+        write(UNIT_FILE3,'(7es25.10)') F_ab_nl(4,1), F_ab_nl(4,2), F_ab_nl(4,3), F_ab_nl(4,4),&
+             F_ab_nl(4,5), F_ab_nl(4,6), F_ab_nl(4,7)
+        write(UNIT_FILE3,'(7es25.10)') F_ab_nl(5,1), F_ab_nl(5,2), F_ab_nl(5,3), F_ab_nl(5,4),&
+             F_ab_nl(5,5), F_ab_nl(5,6), F_ab_nl(5,7)
+        write(UNIT_FILE3,'(7es25.10)') F_ab_nl(6,1), F_ab_nl(6,2), F_ab_nl(6,3), F_ab_nl(6,4),&
+             F_ab_nl(6,5), F_ab_nl(6,6), F_ab_nl(6,7)
+        write(UNIT_FILE3,'(7es25.10)') F_ab_nl(7,1), F_ab_nl(7,2), F_ab_nl(7,3), F_ab_nl(7,4),&
+             F_ab_nl(7,5), F_ab_nl(7,6), F_ab_nl(7,7)
+        close(UNIT_FILE3)
     End If 
 end subroutine compute_fisher_matrix
 
@@ -4449,13 +4465,13 @@ subroutine compute_B_beta()
 
     B_beta(4) = B_beta(4)*A_s
 
-    open(11,file='./output/B_beta.dat')
+    open(UNIT_FILE2,file='./output/B_beta.dat')
 
-    write(11,*) '# Order of parameters in columns is as follows: '
-    write(11,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
-    write(11,'(7es25.10)') B_beta(1), B_beta(2), B_beta(3), B_beta(4), B_beta(5), B_beta(6), B_beta(7)
+    write(UNIT_FILE2,*) '# Order of parameters in columns is as follows: '
+    write(UNIT_FILE2,*) '# omega_b, omega_cdm, n_s, ln(10^10*A_s), H_0, m_ncdm, MG_beta2 '
+    write(UNIT_FILE2,'(7es25.10)') B_beta(1), B_beta(2), B_beta(3), B_beta(4), B_beta(5), B_beta(6), B_beta(7)
 
-    close(11)
+    close(UNIT_FILE2)
     
 end subroutine compute_B_beta
 
