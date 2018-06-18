@@ -26,6 +26,8 @@ p = samples.getParams()
 
 samples.addDerived(np.log(1.e1**10*p.A_s),name='ln1010As',label='\ln 10^{10}A_s')
 
+samples.addDerived(np.log10(p.cs2_fld),name='logcs2fld',label='\log c_s^2')
+
 bestfit = samples.getLikeStats()
 
 means = samples.setMeans()
@@ -36,6 +38,8 @@ p_neglecting_lensing = samples_neglecting_lensing.getParams()
 
 samples_neglecting_lensing.addDerived(np.log(1.e1**10*p_neglecting_lensing.A_s),name='ln1010As',label='\ln 10^{10}A_s')
 
+samples_neglecting_lensing.addDerived(np.log10(p_neglecting_lensing.cs2_fld),name='logcs2fld',label='\log c_s^2')
+
 bestfit_neglecting_lensing = samples_neglecting_lensing.getLikeStats()
 
 means_neglecting_lensing = samples_neglecting_lensing.setMeans()
@@ -45,6 +49,8 @@ stats_neglecting_lensing = samples_neglecting_lensing.getMargeStats()
 p_neglecting_lensing_only_auto = samples_neglecting_lensing_only_auto.getParams()
 
 samples_neglecting_lensing_only_auto.addDerived(np.log(1.e1**10*p_neglecting_lensing_only_auto.A_s),name='ln1010As',label='\ln 10^{10}A_s')
+
+samples_neglecting_lensing_only_auto.addDerived(np.log10(p_neglecting_lensing_only_auto.cs2_fld),name='logcs2fld',label='\log c_s^2')
 
 bestfit_neglecting_lensing_only_auto = samples_neglecting_lensing_only_auto.getLikeStats()
 
@@ -62,7 +68,7 @@ stats_neglecting_lensing_only_auto = samples_neglecting_lensing_only_auto.getMar
 
 #print '1D PLOTS CREATED'
 
-g.triangle_plot([samples,samples_neglecting_lensing,samples_neglecting_lensing_only_auto],params=['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','cs2_fld','w0_fld','e_pi'],filled=True,contour_colors=['red','blue','gray'],legend_labels=['with lensing','without lensing','only auto-correlations'],legend_loc='upper right')
+g.triangle_plot([samples,samples_neglecting_lensing,samples_neglecting_lensing_only_auto],params=['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','logcs2fld','w0_fld','e_pi'],filled=True,contour_colors=['red','blue','gray'],legend_labels=['with lensing','without lensing','only auto-correlations'],legend_loc='upper right')
 
 for ax in g.subplots[:,0]:
     ax.axvline(2.218e-2,color='black',ls='--')
@@ -86,7 +92,7 @@ for ax in g.subplots[6:,6]:
     ax.axvline(1.,color='black',ls='--')
 
 for ax in g.subplots[7:,7]:
-    ax.axvline(1.,color='black',ls='--')
+    ax.axvline(0.,color='black',ls='--')
 
 for ax in g.subplots[8:,8]:
     ax.axvline(-0.8,color='black',ls='--')
@@ -116,7 +122,7 @@ for ax in g.subplots[6,0:6]:
     ax.axhline(1.,color='black',ls='dotted')
 
 for ax in g.subplots[7,0:7]:
-    ax.axhline(1.,color='black',ls='dotted')
+    ax.axhline(0.,color='black',ls='dotted')
 
 for ax in g.subplots[8,0:8]:
     ax.axhline(-0.8,color='black',ls='dotted')
