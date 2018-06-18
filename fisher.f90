@@ -801,7 +801,7 @@ Program fisher
 
            Else if (i .eq. 8) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e1'    ! cs2_fld
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e0'    ! cs2_fld
 
            Else if (i .eq. 9) then
 
@@ -1322,7 +1322,7 @@ Program fisher
 
               Else if (n .eq. 8) then
 
-                 plausibility(n) = (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(1.d0))  ! log10 cs2_fld
+                 plausibility(n) = (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(0.d0))  ! log10 cs2_fld
 
               Else if (n .eq. 9) then
 
