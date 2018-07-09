@@ -94,8 +94,11 @@ for ax in g.subplots[8:,8]:
 for ax in g.subplots[9:,9]:
     ax.axvline(0.,color='black',ls='--')
 
-for ax in g.subplots[9,0:9]:
-    ax.axhline(0.,color='black',ls='dotted')
+for ax in g.subplots[10:,10]:
+    ax.axvline(0.0596,color='black',ls='--')
+
+for ax in g.subplots[10,0:10]:
+    ax.axhline(0.0596,color='black',ls='dotted')
 
 for ax in g.subplots[1,0:1]:
     ax.axhline(1.205e-1,color='black',ls='dotted')

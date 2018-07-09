@@ -2,15 +2,15 @@ from getdist import loadMCSamples,plots,covmat
 import numpy as np
 import os,fnmatch
 
-filenames = fnmatch.filter(os.listdir("../output/chains/"),"mcmc_*.txt")
+filenames = fnmatch.filter(os.listdir("../output/chains/NC-CMB-run3/"),"mcmc_*.txt")
 
 for index in range(len(filenames)):
-    
-    os.rename("../output/chains/"+str(filenames[index]),"../output/chains/mcmc_final_output_"+str(index+1)+".txt")
 
-number_of_parameters = 10
+    os.rename("../output/chains/NC-CMB-run3/"+str(filenames[index]),"../output/chains/NC-CMB-run3/mcmc_final_output_"+str(index+1)+".txt")
 
-samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':0.})
+number_of_parameters = 11
+
+samples = loadMCSamples('../output/chains/NC-CMB-run3/mcmc_final_output',settings={'ignore_rows':0.})
 
 #print 'CONVERGENCE FOR SAMPLES WITH LENSING ', samples.getGelmanRubin()
 
@@ -28,9 +28,9 @@ bestfit = samples.getLikeStats()
 
 means = samples.setMeans()
 
-filebestfit = open("../output/chains/bestfit.txt",'w')
+filebestfit = open("../output/chains/NC-CMB-run3/bestfit.txt",'w')
 
-filemeans = open("../output/chains/means.txt",'w')
+filemeans = open("../output/chains/NC-CMB-run3/means.txt",'w')
 
 #filebestfit.write("-log(Like) = "+str(bestfit.logLike_sample)+"\n")
 
@@ -48,7 +48,7 @@ print 'MEANS AND BESTFIT FILES CREATED'
 
 stats = samples.getMargeStats()
 
-stats.saveAsText('../output/chains/1Dstatistics.txt')
+stats.saveAsText('../output/chains/NC-CMB-run3/1Dstatistics.txt')
 
 print '1D STATISTICS FILE CREATED'
 
@@ -56,13 +56,13 @@ f = plots.getSubplotPlotter()
 
 f.settings.rcSizes(axes_fontsize = 2,lab_fontsize = 7)
 
-f.plots_1d(samples,['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','logcs2fld','w0_fld','e_pi'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
+f.plots_1d(samples,['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','logcs2fld','w0_fld','e_pi','tau'])#,markers=[2.225e-2,1.198e-1,9.645e-1,2.20652e-9,6.727e1,6.0e-2,1.],nx=3)
 
-f.export('../output/chains/1D_plots.pdf')
+f.export('../output/chains/NC-CMB-run3/1D_plots.pdf')
 
 print '1D PLOTS CREATED'
 
-g.triangle_plot(samples,params=['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','logcs2fld','w0_fld','e_pi'],filled=True)
+g.triangle_plot(samples,params=['omega_b','omega_cdm','n_s','ln1010As','H0','m_ncdm','nc_bias_b0','logcs2fld','w0_fld','e_pi','tau'],filled=True,contour_colors=['blue'],legend_labels=['without lensing'],legend_loc='upper right')
 
 for ax in g.subplots[:,0]:
     ax.axvline(2.218e-2,color='black',ls='--')
@@ -94,6 +94,12 @@ for ax in g.subplots[8:,8]:
 for ax in g.subplots[9:,9]:
     ax.axvline(0.,color='black',ls='--')
 
+for ax in g.subplots[10:,10]:
+    ax.axvline(0.0596,color='black',ls='--')
+
+for ax in g.subplots[10,0:10]:
+    ax.axhline(0.0596,color='black',ls='dotted')
+
 for ax in g.subplots[1,0:1]:
     ax.axhline(1.205e-1,color='black',ls='dotted')
 
@@ -121,15 +127,15 @@ for ax in g.subplots[8,0:8]:
 for ax in g.subplots[9,0:9]:
     ax.axhline(0.,color='black',ls='dotted')
 
-g.export('../output/chains/triangle_figure.pdf')
+g.export('../output/chains/NC-CMB-run3/triangle_figure.pdf')
 
 print 'TRIANGLE PLOT CREATED'
 
-covariance_matrix = samples.getCov(pars=[0,1,2,10,4,5,6,11,8,9])#nparam=number_of_parameters)
+covariance_matrix = samples.getCov(pars=[0,1,2,11,4,5,6,12,8,9,10])#nparam=number_of_parameters)
 
 covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
 
-covariance_matrix_2.saveToFile('../output/chains/covariance_matrix.txt')
+covariance_matrix_2.saveToFile('../output/chains/NC-CMB-run3/covariance_matrix.txt')
 
 print 'COVARIANCE MATRIX CREATED'
 
