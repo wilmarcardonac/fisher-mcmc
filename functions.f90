@@ -1410,9 +1410,6 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
     Else 
 
        stop
-!       open(UNIT_FILE2, file='./ini_files/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing.ini')
-
-!       write(UNIT_FILE2,*) 'root = ../data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_'
 
     End If
 
@@ -1478,83 +1475,67 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
 
     End If
 
-!!$    If (parameter_name .ne. param_name_nc_bias_b0) then
-!!$
-!!$       write(UNIT_FILE2,'(a13, es16.10)') 'nc_bias_b0 = ', nc_bias_b0
-!!$
-!!$    Else
-!!$
-!!$       write(UNIT_FILE2,'(a13, es16.10)') 'nc_bias_b0 = ', parameter_value
-!!$
-!!$    End If
+    If (number_of_parameters .gt. 7) then
 
-    If (parameter_name .ne. param_name_cs2_fld) then
+       If (parameter_name .ne. param_name_cs2_fld) then
 
-       write(UNIT_FILE2,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
-
-    Else
-
-       write(UNIT_FILE2,'(a10, es17.10)') 'cs2_fld = ', parameter_value
-
-    End If
-
-    If (parameter_name .ne. param_name_w0_fld) then
-
-       write(UNIT_FILE2,'(a9, es17.10)') 'w0_fld = ', w0_fld
-
-    Else
-
-       write(UNIT_FILE2,'(a9, es17.10)') 'w0_fld = ', parameter_value
-
-    End If
-
-!!$       If (parameter_name .ne. param_name_wa_fld) then
-!!$
-!!$          write(UNIT_FILE2,'(a9, es17.10)') 'wa_fld = ', wa_fld
-!!$
-!!$       Else
-!!$
-!!$          write(UNIT_FILE2,'(a9, es17.10)') 'wa_fld = ', parameter_value
-!!$
-!!$       End If
-
-    If ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ) then
-
-       If (parameter_name .ne. param_name_e_pi) then
-
-          write(UNIT_FILE2,'(a7, es17.10)') 'e_pi = ', e_pi
+          write(UNIT_FILE2,'(a10, es17.10)') 'cs2_fld = ', cs2_fld
 
        Else
 
-          write(UNIT_FILE2,'(a7, es17.10)') 'e_pi = ', parameter_value
+          write(UNIT_FILE2,'(a10, es17.10)') 'cs2_fld = ', parameter_value
 
        End If
 
-    End If
+       If (parameter_name .ne. param_name_w0_fld) then
 
-    If ( (DEA_MODEL .eq. 2) .or. (DEA_MODEL .eq. 3) ) then
-
-       If (parameter_name .ne. param_name_f_pi) then
-
-          write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', f_pi
+          write(UNIT_FILE2,'(a9, es17.10)') 'w0_fld = ', w0_fld
 
        Else
 
-          write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', parameter_value
+          write(UNIT_FILE2,'(a9, es17.10)') 'w0_fld = ', parameter_value
 
        End If
 
-       If (parameter_name .ne. param_name_g_pi) then
+       If ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3) ) then
 
-          write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', g_pi
+          If (parameter_name .ne. param_name_e_pi) then
 
-       Else
+             write(UNIT_FILE2,'(a7, es17.10)') 'e_pi = ', e_pi
 
-          write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', parameter_value
+          Else
+
+             write(UNIT_FILE2,'(a7, es17.10)') 'e_pi = ', parameter_value
+
+          End If
 
        End If
 
-    End If
+       If ( (DEA_MODEL .eq. 2) .or. (DEA_MODEL .eq. 3) ) then
+
+          If (parameter_name .ne. param_name_f_pi) then
+
+             write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', f_pi
+
+          Else
+
+             write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', parameter_value
+
+          End If
+
+          If (parameter_name .ne. param_name_g_pi) then
+
+             write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', g_pi
+
+          Else
+
+             write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', parameter_value
+
+          End If
+
+       End If
+
+    End if
 
     write(UNIT_FILE2,'(a11, es16.10)') 'tau_reio = ', tau
 
@@ -1566,7 +1547,15 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
 
     write(UNIT_FILE2,'(a10,f5.3)') 'Omega_k = ', real(0.)
 
-    write(UNIT_FILE2,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+    If (number_of_parameters .gt. 7) then
+
+       write(UNIT_FILE2,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+
+    Else
+
+       write(UNIT_FILE2,'(a12,f5.3)') 'Omega_fld = ', real(0.)
+
+    End if
 
     ! TEMPERATURE AND POLARISATION IN THE OUTPUT
 
@@ -1590,17 +1579,68 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
  
 end subroutine write_ini_file_for_cmb
 
-subroutine write_ini_file_mcmc_for_cmb(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
-                          param_m_ncdm,param_cs2_fld,param_w0_fld,param_ADE_MODEL,&
-                          param_tau_reio,job)
+subroutine write_ini_file_mcmc_for_cmb(parameter_vector,job)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio
     Real*8:: param_cs2_fld,param_w0_fld
+    Real*8,dimension(number_of_parameters) :: parameter_vector
     Real*8,dimension(number_DEA_parameters) :: param_ADE_MODEL
     Character(len=10) :: job
     Integer*4 :: m
+
+    Do m=1,number_of_parameters
+
+       If (m .eq. 1) then
+
+          param_omega_b = parameter_vector(m)
+ 
+       Else if (m .eq. 2) then
+
+          param_omega_cdm = parameter_vector(m)
+          
+       Else if (m .eq. 3) then
+
+          param_n_s = parameter_vector(m) 
+
+       Else if (m .eq. 4) then
+
+          param_A_s = parameter_vector(m)
+
+       Else if (m .eq. 5) then
+
+          param_H0 = parameter_vector(m)
+
+       Else if (m .eq. 6) then
+
+          param_m_ncdm = parameter_vector(m) 
+
+       Else if (m .eq. 8) then
+
+          param_cs2_fld = parameter_vector(m)
+
+       Else if (m .eq. 9) then
+
+          param_w0_fld = parameter_vector(m)
+
+       Else if (m .eq. 10) then
+
+          param_ADE_MODEL(1) = parameter_vector(m) 
+
+       Else if (m .eq. 11) then
+
+          param_ADE_MODEL(2) = parameter_vector(m) 
+
+       Else if (m .eq. 12) then
+
+          param_ADE_MODEL(3) = parameter_vector(m) 
+
+       End if
+
+    End do
+    
+    param_tau_reio = parameter_vector(number_of_parameters)
 
     open(UNIT_FILE2, file = PATH_TO_INI_FILES_CMB//trim(job)//'.ini')
 
@@ -1620,35 +1660,39 @@ subroutine write_ini_file_mcmc_for_cmb(param_omega_b, param_omega_cdm, param_n_s
 
     write(UNIT_FILE2,'(a11, es16.10)') 'tau_reio = ', param_tau_reio
 
-    write(UNIT_FILE2,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
+    If (number_of_parameters .gt. 7) then
 
-    write(UNIT_FILE2,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
+       write(UNIT_FILE2,'(a10, es17.10)') 'cs2_fld = ', param_cs2_fld
 
-    Do m=1,3
+       write(UNIT_FILE2,'(a9, es17.10)') 'w0_fld = ', param_w0_fld
 
-       If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)) .and. (m .eq. 1) ) then
+       Do m=1,3
 
-          write(UNIT_FILE2,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
+          If ( ( (DEA_MODEL .eq. 1) .or. (DEA_MODEL .eq. 3)) .and. (m .eq. 1) ) then
 
-       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 1) ) then
+             write(UNIT_FILE2,'(a7, es17.10)') 'e_pi = ', param_ADE_MODEL(m)
 
-          write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+          Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 1) ) then
 
-       Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 2) ) then
+             write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
 
-          write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+          Else if ( (DEA_MODEL .eq. 2) .and. (m .eq. 2) ) then
 
-       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 2) ) then
+             write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
 
-          write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
+          Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 2) ) then
 
-       Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 3) ) then
+             write(UNIT_FILE2,'(a7, es17.10)') 'f_pi = ', param_ADE_MODEL(m)
 
-          write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
+          Else if ( (DEA_MODEL .eq. 3) .and. (m .eq. 3) ) then
 
-       End If
+             write(UNIT_FILE2,'(a7, es16.10)') 'g_pi = ', param_ADE_MODEL(m)
 
-    End Do
+          End If
+
+       End Do
+
+    End if
 
     ! Parameters for massive neutrinos                                                                                            
 
@@ -1662,7 +1706,15 @@ subroutine write_ini_file_mcmc_for_cmb(param_omega_b, param_omega_cdm, param_n_s
 
     write(UNIT_FILE2,'(a10,f5.3)') 'Omega_k = ', real(0.)
 
-    write(UNIT_FILE2,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+    If (number_of_parameters .gt. 7) then
+
+       write(UNIT_FILE2,'(a15,f5.3)') 'Omega_Lambda = ', real(0.)
+
+    Else
+
+       write(UNIT_FILE2,'(a12,f5.3)') 'Omega_fld = ', real(0.)
+
+    End if
 
     ! TEMPERATURE AND POLARISATION IN THE OUTPUT                                                                                       
 
@@ -2155,15 +2207,15 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
 end subroutine write_ini_file_for_fisher
 
-subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_A_s, param_H0, &
-                          param_m_ncdm, param_nc_bias_b0, param_cs2_fld,param_w0_fld,param_ADE_MODEL,&
-                          param_tau_reio, param_N_ur, param_N_ncdm,param_deg_ncdm, len_flag,bessel,q,kmaxtau0,job)
+subroutine write_ini_file_mcmc(parameter_vector, param_N_ur, param_N_ncdm,param_deg_ncdm,&
+     len_flag,bessel,q,kmaxtau0,job)
     
     use fiducial
     Implicit none
     Real*8:: param_omega_b,param_omega_cdm,param_n_s,param_A_s,param_H0,param_m_ncdm,param_tau_reio,param_nc_bias_b0
     Real*8:: param_N_ur,param_N_ncdm,param_deg_ncdm,param_cs2_fld,param_w0_fld,bessel,q,kmaxtau0
     Real*8,dimension(number_DEA_parameters) :: param_ADE_MODEL
+    Real*8,dimension(number_of_parameters) :: parameter_vector
     Real*8,dimension(nbins):: z_bin_centers, z_bin_widths, z_bin_bias,s_z_mag_bias
     logical :: len_flag
     character*16 :: string_omega_b, string_omega_cdm, string_n_s, string_A_s, string_H0, string_m_ncdm,fmt
@@ -2171,7 +2223,71 @@ subroutine write_ini_file_mcmc(param_omega_b, param_omega_cdm, param_n_s, param_
     Character*17 :: string_cs2_fld, string_w0_fld, string_e_pi, string_f_pi
     Character(len=10) :: job
     Integer*4 :: m
-        
+
+    Do m=1,number_of_parameters
+
+       If (m .eq. 1) then
+
+          param_omega_b = parameter_vector(m)
+ 
+       Else if (m .eq. 2) then
+
+          param_omega_cdm = parameter_vector(m)
+          
+       Else if (m .eq. 3) then
+
+          param_n_s = parameter_vector(m) 
+
+       Else if (m .eq. 4) then
+
+          param_A_s = parameter_vector(m)
+
+       Else if (m .eq. 5) then
+
+          param_H0 = parameter_vector(m)
+
+       Else if (m .eq. 6) then
+
+          param_m_ncdm = parameter_vector(m) 
+ 
+       Else if (m .eq. 7) then
+
+          param_nc_bias_b0 = parameter_vector(m)
+
+       Else if (m .eq. 8) then
+
+          param_cs2_fld = parameter_vector(m)
+
+       Else if (m .eq. 9) then
+
+          param_w0_fld = parameter_vector(m)
+          
+       Else if (m .eq. 10) then
+
+          param_ADE_MODEL(1) = parameter_vector(m) 
+
+       Else if (m .eq. 11) then
+
+          param_ADE_MODEL(2) = parameter_vector(m) 
+          
+       Else if (m .eq. 12) then
+
+          param_ADE_MODEL(3) = parameter_vector(m) 
+
+       End if
+
+    End do
+    
+    If (include_fake_planck_likelihood) then
+
+       param_tau_reio = parameter_vector(number_of_parameters)
+
+    Else
+
+       param_tau_reio = tau
+
+    End if
+
     call bin_centers_widths_bias(z_bin_centers,z_bin_widths,z_bin_bias,s_z_mag_bias)
 
     fmt = '(es16.10)' 
@@ -2983,24 +3099,13 @@ subroutine run_class_cmb(parameter_name,parameter_value)
 
        If (.not.exist) then
 
-!          call write_sh_file('Cl_fiducial_lensing')
-
           call system('cd class_montanari-lensing ; ./class ../ini_files/Cl_fiducial_fake_planck.ini cl_2permille.pre')
 
        End If
 
     Else 
 
-!       inquire(file='./data/Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing_cl.dat',exist=exist)
-
-!       If (.not.exist) then
-
-!          call write_sh_file('Cl_'//trim(parameter_name)//'_'//trim(string_par_value)//'_lensing')
-
-!          call system('cd class_montanari-lensing ; sbatch --exclusive Cl_'//trim(parameter_name)//&
-!               '_'//trim(string_par_value)//'_lensing.sh')
-
-!       End If
+       continue
 
     End If
 

@@ -106,28 +106,6 @@ Program fisher
 
      number_rnd = job_number 
 
-!!$     Do m=1,number_of_parallel_jobs
-!!$
-!!$        job_number = m + 20
-!!$
-!!$        write(string,'(i1.1)') m 
-!!$
-!!$        inquire(file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt',exist=exe_file) 
-!!$
-!!$        If (exe_file) then
-!!$
-!!$           continue
-!!$
-!!$        Else
-!!$
-!!$           open(job_number,file=EXECUTION_INFORMATION_CHAIN//trim(string)//'.txt')
-!!$
-!!$           exit
-!!$           
-!!$        End If
-!!$
-!!$     End Do
-
   Else
 
      job_number = 15
@@ -236,8 +214,23 @@ Program fisher
                     Covguess(m,m) = sigma_m_ncdm**2
 
                  Else if (m .eq. 7) then
+                    
+                    If ( (include_fake_euclid_likelihood .and. include_fake_planck_likelihood) .or. &
+                         include_fake_euclid_likelihood) then 
 
-                    Covguess(m,m) = sigma_nc_bias_b0**2
+                       Covguess(m,m) = sigma_nc_bias_b0**2
+
+                    Else if (include_fake_planck_likelihood) then
+
+                       Covguess(m,m) = sigma_tau**2
+
+                    Else
+                       
+                       write(job_number,*) 'MUST CHOOSE SOME LIKELIHHOD TO CARRY OUT ANALYSIS'
+
+                       stop
+
+                    End if
 
                  Else if (m .eq. 8) then
 
@@ -311,25 +304,29 @@ Program fisher
         write(job_number,*) 'SUBMITTING JOBS TO COMPUTE DATA FOR FIDUCIAL MODEL (CL AND EL) IF NEEDED'
         write(job_number,*) 'IF NEW DATA WANTED, REMOVE CORRESPONDING FILES BEFORE RUNNING THE CODE'
 
-        call write_ini_file_for_fisher('omega_b',omega_b,.false.,.false.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+        If (include_fake_euclid_likelihood) then 
 
-        call run_class('omega_b',omega_b,.false.,.false.) ! COMPUTES EL FIDUCIAL NOT INCLUDING LENSING
+           call write_ini_file_for_fisher('omega_b',omega_b,.false.,.false.,&
+                selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-        call write_ini_file_for_fisher('omega_b',omega_b,.true.,.true.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+           call run_class('omega_b',omega_b,.false.,.false.) ! COMPUTES EL FIDUCIAL NOT INCLUDING LENSING
 
-        call run_class('omega_b',omega_b,.true.,.true.)   ! COMPUTE CL FIDUCIAL INCLUDING LENSING
+           call write_ini_file_for_fisher('omega_b',omega_b,.true.,.true.,&
+                selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-        call write_ini_file_for_fisher('omega_b',omega_b,.false.,.true.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+           call run_class('omega_b',omega_b,.true.,.true.)   ! COMPUTE CL FIDUCIAL INCLUDING LENSING
 
-        call run_class('omega_b',omega_b,.false.,.true.) ! COMPUTES CL FIDUCIAL NOT INCLUDING LENSING
+           call write_ini_file_for_fisher('omega_b',omega_b,.false.,.true.,&
+                selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
 
-        call write_ini_file_for_fisher('omega_b',omega_b,.true.,.false.,&
-             selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+           call run_class('omega_b',omega_b,.false.,.true.) ! COMPUTES CL FIDUCIAL NOT INCLUDING LENSING
 
-        call run_class('omega_b',omega_b,.true.,.false.) ! COMPUTES EL FIDUCIAL INCLUDING LENSING
+           call write_ini_file_for_fisher('omega_b',omega_b,.true.,.false.,&
+                selection_sampling_bessel_fid,q_linstep_fid,k_max_tau0_over_l_max_fid)
+
+           call run_class('omega_b',omega_b,.true.,.false.) ! COMPUTES EL FIDUCIAL INCLUDING LENSING
+
+        End if
 
         If (include_fake_planck_likelihood) then
 
@@ -696,7 +693,13 @@ Program fisher
 
      !ALLOCATING MEMORY FOR OLD AND CURRENT POINTS IN PARAMETER SPACE, ACCEPTANCE PROBABILITY, AND CURRENT SPECTRA
      allocate (old_point(1:number_of_parameters),current_point(1:number_of_parameters),&
-          acceptance_probability(number_iterations),Cl_current(lmin:lmax,0:nbins,0:nbins),stat = status1)
+          acceptance_probability(number_iterations),stat = status1)
+     
+     If (include_fake_euclid_likelihood) then
+
+        allocate(Cl_current(lmin:lmax,0:nbins,0:nbins))
+
+     End if
 
      If (include_fake_planck_likelihood) then
 
@@ -797,7 +800,16 @@ Program fisher
 
            Else if (i .eq. 7) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    0.    3.'         ! b_0
+              If ( (include_fake_euclid_likelihood .and. include_fake_planck_likelihood) .or. &
+                   include_fake_euclid_likelihood) then 
+
+                 write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    0.    3.'         ! b_0
+                 
+              Else if (include_fake_planck_likelihood) then
+
+                 write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     0.    1.'      ! tau
+
+              End if
 
            Else if (i .eq. 8) then
 
@@ -875,7 +887,16 @@ Program fisher
 
               Else if ( m .eq. 7) then
 
-                 old_point(m) = nc_bias_b0
+                 If ( (include_fake_euclid_likelihood .and. include_fake_planck_likelihood) .or. &
+                      include_fake_euclid_likelihood) then 
+
+                    old_point(m) = nc_bias_b0
+
+                 Else if (include_fake_planck_likelihood) then
+
+                    old_point(m) = tau
+
+                 End if
 
               Else if ( m .eq. 8) then
 
@@ -1009,8 +1030,17 @@ Program fisher
 
               Else if ( m .eq. 7) then
 
-                 x_old(m) = genunf(real(nc_bias_b0-sigma_nc_bias_b0),real(nc_bias_b0+sigma_nc_bias_b0))     ! nc_bias_b0
+                 If ( (include_fake_euclid_likelihood .and. include_fake_planck_likelihood) .or. &
+                      include_fake_euclid_likelihood) then 
 
+                    x_old(m) = genunf(real(nc_bias_b0-sigma_nc_bias_b0),real(nc_bias_b0+sigma_nc_bias_b0))     ! nc_bias_b0
+
+                 Else if (include_fake_planck_likelihood) then
+
+                    x_old(m) = genunf(real(tau-sigma_tau),real(tau+sigma_tau))         ! tau
+
+                 End if
+                    
               Else if ( m .eq. 8) then
 
                  x_old(m) = log10(genunf(real(cs2_fld-sigma_cs2_fld),real(cs2_fld+sigma_cs2_fld)))     ! log10(cs2_fld)
@@ -1087,33 +1117,26 @@ Program fisher
         ! WRITE INI FILE CORRESPONDING TO CURRENT POINT IN PARAMETER SPACE 
         !#################################################################
 
-        inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
- 
-        inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
+        If (include_fake_euclid_likelihood) then
+           
+           inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
 
-        If (cl_file_exist) then
+           inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
 
-           call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')
+           If (cl_file_exist) then
 
-        End If
+              call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')
 
-        If (ini_file_exist) then
+           End If
 
-           call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')
+           If (ini_file_exist) then
 
-        End If
+              call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')
 
-        If (include_fake_planck_likelihood) then
+           End If
 
-           call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
-                old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters-1),old_point(number_of_parameters)&
-                ,N_ur,N_ncdm,deg_ncdm,lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
-
-        Else
-
-           call write_ini_file_mcmc(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),old_point(6),&
-                old_point(7),old_point(8),old_point(9),old_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,&
-                lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+           call write_ini_file_mcmc(old_point(1:number_of_parameters),N_ur,N_ncdm,deg_ncdm,lensing,&
+                selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
         End if
 
@@ -1135,9 +1158,7 @@ Program fisher
 
            End If
 
-           call write_ini_file_mcmc_for_cmb(old_point(1),old_point(2),old_point(3),old_point(4),old_point(5),&
-                old_point(6),old_point(8),old_point(9),old_point(10:number_of_parameters-1),&
-                old_point(number_of_parameters),string)
+           call write_ini_file_mcmc_for_cmb(old_point(1:number_of_parameters),string)
 
         End if
            
@@ -1145,44 +1166,44 @@ Program fisher
         ! RUN CLASS FOR CURRENT POINT IN PARAMETER SPACE
         !###############################################
 
-        inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist) 
+        If ( include_fake_planck_likelihood .and. include_fake_euclid_likelihood) then
 
-        If (ini_file_exist) then
+           inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist) 
 
-           call run_current_model_mcmc(lensing,string) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
-          
-           inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
-           
-           If (cl_file_exist) then
+           If (ini_file_exist) then
 
-              call read_Cl_mcmc(Cl_current,UNIT_FILE1,lensing,string)
+              call run_current_model_mcmc(lensing,string) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
 
-              old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,old_point(1),old_point(2),old_point(3),&
-                   old_point(4),old_point(5))
+              inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
 
-              call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
+              If (cl_file_exist) then
+
+                 call read_Cl_mcmc(Cl_current,UNIT_FILE1,lensing,string)
+
+                 old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,old_point(1),old_point(2),old_point(3),&
+                      old_point(4),old_point(5))
+
+                 call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
+
+              Else
+
+                 write(job_number,*) 'SOMETHING WENT WRONG WITH CLASS FOR CURRENT MODEL. LOW LIKELIHOOD ASSIGNED FOR CURRENT POINT'
+
+                 old_loglikelihood = -1.d10
+
+              End If
+
+              call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
 
            Else
 
-              write(job_number,*) 'SOMETHING WENT WRONG WITH CLASS FOR CURRENT MODEL. LOW LIKELIHOOD ASSIGNED FOR CURRENT POINT'
+              write(job_number,*) 'NOT INI FILE FOR CURRENT MODEL. SOMETHING WENT WRONG WITH SUBROUTINE "write_ini_file" '
+
+              write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
 
               old_loglikelihood = -1.d10
 
-           End If
-
-           call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
-
-        Else
-
-           write(job_number,*) 'NOT INI FILE FOR CURRENT MODEL. SOMETHING WENT WRONG WITH SUBROUTINE "write_ini_file" '
-
-           write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
-    
-           old_loglikelihood = -1.d10
-
-        End if
-
-        If ( include_fake_planck_likelihood ) then
+           End if
 
            inquire(file= PATH_TO_INI_FILES_CMB//trim(string)//'.ini',exist=ini_file_exist) 
 
@@ -1217,6 +1238,83 @@ Program fisher
               write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
 
               old_loglikelihood = -1.d10 + old_loglikelihood
+
+           End if
+
+        Else if ( include_fake_planck_likelihood ) then
+
+           inquire(file= PATH_TO_INI_FILES_CMB//trim(string)//'.ini',exist=ini_file_exist) 
+
+           If (ini_file_exist) then
+
+              call run_current_model_mcmc_cmb(string) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
+
+              inquire(file= PATH_TO_CURRENT_CL_CMB//trim(string)//'_cl.dat',exist=cl_file_exist)
+
+              If (cl_file_exist) then
+
+                 call read_Cl_mcmc_cmb(Cl_current_cmb,UNIT_FILE1,string)
+
+                 old_loglikelihood = fake_planck_likelihood(Cl_current_cmb)
+
+                 call system('rm '//trim(PATH_TO_CURRENT_CL_CMB)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
+
+              Else
+
+                 write(job_number,*) 'SOMETHING WENT WRONG WITH CLASS FOR CURRENT MODEL. LOW LIKELIHOOD ASSIGNED FOR CURRENT POINT'
+
+                 old_loglikelihood = -1.d10  
+
+              End If
+
+              call system('rm '//trim(PATH_TO_INI_FILES_CMB)//''//trim(string)//'.ini')    ! REMOVE INI FILE
+
+           Else
+
+              write(job_number,*) 'NOT INI FILE FOR CURRENT MODEL. SOMETHING WENT WRONG WITH SUBROUTINE "write_ini_file" '
+
+              write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
+
+              old_loglikelihood = -1.d10 
+
+           End if
+
+        Else If (include_fake_euclid_likelihood) then
+
+           inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist) 
+
+           If (ini_file_exist) then
+
+              call run_current_model_mcmc(lensing,string) ! REMEMBER THAT LENSING FLAG ALLOWS TO RUN W/O LENSING
+
+              inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
+
+              If (cl_file_exist) then
+
+                 call read_Cl_mcmc(Cl_current,UNIT_FILE1,lensing,string)
+
+                 old_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,old_point(1),old_point(2),old_point(3),&
+                      old_point(4),old_point(5))
+
+                 call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE 
+
+              Else
+
+                 write(job_number,*) 'SOMETHING WENT WRONG WITH CLASS FOR CURRENT MODEL. LOW LIKELIHOOD ASSIGNED FOR CURRENT POINT'
+
+                 old_loglikelihood = -1.d10
+
+              End If
+
+              call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
+
+           Else
+
+              write(job_number,*) 'NOT INI FILE FOR CURRENT MODEL. SOMETHING WENT WRONG WITH SUBROUTINE "write_ini_file" '
+
+              write(job_number,*) 'LOW LIKELIHOOD ASSIGNED TO CURRENT POINT'
+
+              old_loglikelihood = -1.d10
 
            End if
 
@@ -1318,7 +1416,15 @@ Program fisher
 
               Else if (n .eq. 7) then
 
-                 plausibility(n) = (x_new(n) .le. real(0.d0)) .or. (x_new(n) .ge. real(3.d0))   ! b_0
+                 If (include_fake_euclid_likelihood) then
+
+                    plausibility(n) = (x_new(n) .le. real(0.d0)) .or. (x_new(n) .ge. real(3.d0))   ! b_0
+
+                 Else
+
+                    plausibility(n) = (x_new(n) .le. real(0.d0)) .or. (x_new(n) .ge. real(1.d0))  ! tau
+
+                 End if
 
               Else if (n .eq. 8) then
 
@@ -1436,22 +1542,20 @@ Program fisher
 
            Else
 
-              If (include_fake_planck_likelihood) then
+              If (include_fake_planck_likelihood .and. include_fake_euclid_likelihood) then
 
-                 call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
-                      current_point(5),current_point(6),current_point(7),current_point(8),current_point(9),&
-                      current_point(10:number_of_parameters-1),current_point(number_of_parameters),N_ur,N_ncdm,&
-                      deg_ncdm,lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
+                 call write_ini_file_mcmc(current_point(1:number_of_parameters),N_ur,N_ncdm,deg_ncdm,&
+                      lensing,selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
-                 call write_ini_file_mcmc_for_cmb(current_point(1),current_point(2),current_point(3),&
-                      current_point(4),current_point(5),current_point(6),current_point(8),current_point(9),&
-                      current_point(10:number_of_parameters-1),current_point(number_of_parameters),string)
+                 call write_ini_file_mcmc_for_cmb(current_point(1:number_of_parameters),string)
 
-              Else
+              Else if (include_fake_planck_likelihood) then
+   
+                 call write_ini_file_mcmc_for_cmb(current_point(1:number_of_parameters),string)
 
-                 call write_ini_file_mcmc(current_point(1),current_point(2),current_point(3),current_point(4),&
-                      current_point(5),current_point(6),current_point(7),current_point(8),current_point(9),&
-                      current_point(10:number_of_parameters),tau,N_ur,N_ncdm,deg_ncdm,lensing,&
+              Else if (include_fake_euclid_likelihood) then
+
+                 call write_ini_file_mcmc(current_point(1:number_of_parameters),N_ur,N_ncdm,deg_ncdm,lensing,&
                       selection_sampling_bessel_mcmc,q_linstep_mcmc,k_max_tau0_over_l_max_mcmc,string)
 
               End if
@@ -1460,45 +1564,45 @@ Program fisher
               ! CALL CLASS FOR CURRENT INI FILE
               !################################
 
-              inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
-             
-              If (ini_file_exist) then
+              If (include_fake_euclid_likelihood .and. include_fake_planck_likelihood) then 
 
-                 call run_current_model_mcmc(lensing,string) 
+                 inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
 
-                 inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
+                 If (ini_file_exist) then
 
-                 If (cl_file_exist) then
+                    call run_current_model_mcmc(lensing,string) 
 
-                    call read_Cl_mcmc(Cl_current,UNIT_FILE1,lensing,string)
+                    inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
 
-                    current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,current_point(1),current_point(2),&
-                         current_point(3),current_point(4),current_point(5))
+                    If (cl_file_exist) then
 
-                    call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE
+                       call read_Cl_mcmc(Cl_current,UNIT_FILE1,lensing,string)
+
+                       current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,current_point(1),current_point(2),&
+                            current_point(3),current_point(4),current_point(5))
+
+                       call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE
+
+                    Else
+
+                       write(job_number,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
+                       write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED'
+
+                       current_loglikelihood = -1.d10
+
+                    End if
+
+                    call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
 
                  Else
 
-                    write(job_number,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
-                    write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED'
+                    write(job_number,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
+
+                    write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED '
 
                     current_loglikelihood = -1.d10
 
-                 End if
-
-                 call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
-
-              Else
-
-                 write(job_number,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
-
-                 write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED '
-    
-                 current_loglikelihood = -1.d10
-
-              End If
-
-              If ( include_fake_planck_likelihood ) then
+                 End If
 
                  inquire(file= PATH_TO_INI_FILES_CMB//trim(string)//'.ini',exist=ini_file_exist)
 
@@ -1537,9 +1641,88 @@ Program fisher
 
                  End If
 
-              End if
+              Else if ( include_fake_planck_likelihood ) then
 
-           End If
+                 inquire(file= PATH_TO_INI_FILES_CMB//trim(string)//'.ini',exist=ini_file_exist)
+
+                 If (ini_file_exist) then
+
+                    call run_current_model_mcmc_cmb(string) 
+
+                    inquire(file= PATH_TO_CURRENT_CL_CMB//trim(string)//'_cl.dat',exist=cl_file_exist)
+
+                    If (cl_file_exist) then
+
+                       call read_Cl_mcmc_cmb(Cl_current_cmb,UNIT_FILE1,string)
+
+                       current_loglikelihood = fake_planck_likelihood(Cl_current_cmb)
+
+                       call system('rm '//trim(PATH_TO_CURRENT_CL_CMB)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE
+
+                    Else
+
+                       write(job_number,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
+                       write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED'
+
+                       current_loglikelihood = -1.d10 
+
+                    End if
+
+                    call system('rm '//trim(PATH_TO_INI_FILES_CMB)//''//trim(string)//'.ini')    ! REMOVE INI FILE
+
+                 Else
+
+                    write(job_number,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
+
+                    write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED '
+
+                    current_loglikelihood = -1.d10  
+
+                 End If
+
+              Else if ( include_fake_euclid_likelihood ) then
+
+                 inquire(file= PATH_TO_INI_FILES//trim(string)//'.ini',exist=ini_file_exist)
+
+                 If (ini_file_exist) then
+
+                    call run_current_model_mcmc(lensing,string) 
+
+                    inquire(file= PATH_TO_CURRENT_CL//trim(string)//'_cl.dat',exist=cl_file_exist)
+
+                    If (cl_file_exist) then
+
+                       call read_Cl_mcmc(Cl_current,UNIT_FILE1,lensing,string)
+
+                       current_loglikelihood = euclid_galaxy_cl_likelihood(Cl_current,current_point(1),current_point(2),&
+                            current_point(3),current_point(4),current_point(5))
+
+                       call system('rm '//trim(PATH_TO_CURRENT_CL)//''//trim(string)//'_cl.dat')    ! REMOVE CL FILE
+
+                    Else
+
+                       write(job_number,*) 'Cl FILE WAS NOT CREATED, SOMETHING WENT WRONG WITH CLASS FOR THE CURRENT POINT'
+                       write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED'
+
+                       current_loglikelihood = -1.d10
+
+                    End if
+
+                    call system('rm '//trim(PATH_TO_INI_FILES)//''//trim(string)//'.ini')    ! REMOVE INI FILE
+
+                 Else
+
+                    write(job_number,*) 'NOT INI FILE FOR CURRENT POINT. SOMETHING WENT WRONG WIT SUBROUTINE "write_ini_file" '
+
+                    write(job_number,*) 'LOW LOG LIKELIHOOD ASSIGNED '
+
+                    current_loglikelihood = -1.d10
+
+                 End If
+
+              End if
+              
+           End if
 
         End If
 
@@ -1800,20 +1983,29 @@ Program fisher
 
                  Else
 
-                    If (DEA_MODEL .eq. 2) then
+                    If ( (include_fake_planck_likelihood .and. include_fake_euclid_likelihood) .or. &
+                         include_fake_euclid_likelihood) then
 
-                       call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
+                       If (DEA_MODEL .eq. 2) then
 
-                    Else if (DEA_MODEL .eq. 3) then
+                          call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
 
-                       call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
-                       
-                    Else
+                       Else if (DEA_MODEL .eq. 3) then
 
-                       call system('cd output; python compute_covariance_matrix.py')
-     
-                    End If
-                    
+                          call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
+
+                       Else
+
+                          call system('cd output; python compute_covariance_matrix.py')
+
+                       End If
+
+                    Else if (include_fake_planck_likelihood) then
+
+                       call system('cd output; python compute_covariance_matrix_CMB.py')
+
+                    End if
+
                     call read_covariance_matrix_mcmc(Covguess)
 
                     close(UNIT_MCMC)
@@ -1874,27 +2066,138 @@ Program fisher
 
               End if
 
+              If ( (include_fake_planck_likelihood .and. include_fake_euclid_likelihood) .or. &
+                   include_fake_euclid_likelihood) then
+
+                 If (DEA_MODEL .eq. 2) then
+
+                    If (number_of_parameters .eq. 11) then 
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
+
+                    Else if (number_of_parameters .eq. 12) then
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II_CMB.py')
+
+                    End if
+
+                 Else if (DEA_MODEL .eq. 3) then
+
+                    If (number_of_parameters .eq. 12) then 
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
+
+                    Else if (number_of_parameters .eq. 13) then
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III_CMB.py')
+
+                    End if
+
+                 Else if (DEA_MODEL .eq. 1) then
+
+                    If (number_of_parameters .eq. 10) then
+
+                       call system('cd analyzer; python analyze_adjusting.py')
+
+                    Else if (number_of_parameters .eq. 11) then
+
+                       call system('cd analyzer; python analyze_adjusting_CMB.py')
+
+                    End if
+
+                 End If
+
+              Else if (include_fake_planck_likelihood) then
+
+                 call system('cd analyzer; python analyze_adjusting_CMB_alone.py')
+
+              End if
+
+           Else
+
+              If ( (include_fake_planck_likelihood .and. include_fake_euclid_likelihood) .or. &
+                   include_fake_euclid_likelihood) then
+
+                 If (DEA_MODEL .eq. 2) then
+
+                    call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
+
+                    If (number_of_parameters .eq. 11) then
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
+
+                    Else if (number_of_parameters .eq. 12) then
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II_CMB.py')
+
+                    End if
+
+                 Else if (DEA_MODEL .eq. 3) then
+
+                    call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
+
+                    If (number_of_parameters .eq. 12) then 
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
+
+                    Else if (number_of_parameters .eq. 13) then
+
+                       call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III_CMB.py')
+
+                    End if
+
+                 Else if ( DEA_MODEL .eq. 1 ) then
+
+                    call system('cd output; python compute_covariance_matrix.py')
+
+                    If (number_of_parameters .eq. 10) then
+
+                       call system('cd analyzer; python analyze_adjusting.py')
+
+                    Else if (number_of_parameters .eq. 11) then
+
+                       call system('cd analyzer; python analyze_adjusting_CMB.py')
+
+                    End if
+
+                 End If
+                 
+              Else if (include_fake_planck_likelihood) then
+
+                 call system('cd output; python compute_covariance_matrix_CMB.py')
+
+                 call system('cd analyzer; python analyze_adjusting_CMB_alone.py')
+
+              End if
+
+           End if
+
+        Else
+
+           If ( (include_fake_planck_likelihood .and. include_fake_euclid_likelihood) .or. &
+                include_fake_euclid_likelihood) then
+              
               If (DEA_MODEL .eq. 2) then
 
-                 If (number_of_parameters .eq. 11) then 
+                 If (number_of_parameters .eq. 11) then
 
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
+                    call system('cd analyzer; python analyze_DEA_MODEL_II.py')
 
                  Else if (number_of_parameters .eq. 12) then
 
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II_CMB.py')
+                    call system('cd analyzer; python analyze_DEA_MODEL_II_CMB.py')
 
                  End if
 
               Else if (DEA_MODEL .eq. 3) then
 
-                 If (number_of_parameters .eq. 12) then 
+                 If (number_of_parameters .eq. 12) then
 
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
+                    call system('cd analyzer; python analyze_DEA_MODEL_III.py')
 
                  Else if (number_of_parameters .eq. 13) then
 
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III_CMB.py')
+                    call system('cd analyzer; python analyze_DEA_MODEL_III_CMB.py')
 
                  End if
 
@@ -1902,103 +2205,21 @@ Program fisher
 
                  If (number_of_parameters .eq. 10) then
 
-                    call system('cd analyzer; python analyze_adjusting.py')
+                    call system('cd analyzer; python analyze.py')
 
                  Else if (number_of_parameters .eq. 11) then
 
-                    call system('cd analyzer; python analyze_adjusting_CMB.py')
+                    call system('cd analyzer; python analyze_CMB.py')
 
                  End if
 
               End If
 
-           Else
+           Else if (include_fake_planck_likelihood) then
 
-              If (DEA_MODEL .eq. 2) then
-
-                 call system('cd output; python compute_covariance_matrix_DEA_MODEL_II.py')
-
-                 If (number_of_parameters .eq. 11) then
-
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II.py')
-
-                 Else if (number_of_parameters .eq. 12) then
-
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_II_CMB.py')
-
-                 End if
-
-              Else if (DEA_MODEL .eq. 3) then
-
-                 call system('cd output; python compute_covariance_matrix_DEA_MODEL_III.py')
-
-                 If (number_of_parameters .eq. 12) then 
-
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III.py')
-
-                 Else if (number_of_parameters .eq. 13) then
-
-                    call system('cd analyzer; python analyze_adjusting_DEA_MODEL_III_CMB.py')
-
-                 End if
-
-              Else if ( DEA_MODEL .eq. 1 ) then
-
-                 call system('cd output; python compute_covariance_matrix.py')
-
-                 If (number_of_parameters .eq. 10) then
-
-                    call system('cd analyzer; python analyze_adjusting.py')
-
-                 Else if (number_of_parameters .eq. 11) then
-
-                    call system('cd analyzer; python analyze_adjusting_CMB.py')
-
-                 End if
-
-              End If
+              call system('cd analyzer; python analyze_CMB_alone.py')
 
            End if
-
-        Else
-
-           If (DEA_MODEL .eq. 2) then
-
-              If (number_of_parameters .eq. 11) then
-
-                 call system('cd analyzer; python analyze_DEA_MODEL_II.py')
-
-              Else if (number_of_parameters .eq. 12) then
-
-                 call system('cd analyzer; python analyze_DEA_MODEL_II_CMB.py')
-
-              End if
-
-           Else if (DEA_MODEL .eq. 3) then
-
-              If (number_of_parameters .eq. 12) then
-
-                 call system('cd analyzer; python analyze_DEA_MODEL_III.py')
-
-              Else if (number_of_parameters .eq. 13) then
-
-                 call system('cd analyzer; python analyze_DEA_MODEL_III_CMB.py')
-
-              End if
-
-           Else if (DEA_MODEL .eq. 1) then
-
-              If (number_of_parameters .eq. 10) then
-
-                 call system('cd analyzer; python analyze.py')
-
-              Else if (number_of_parameters .eq. 11) then
-
-                 call system('cd analyzer; python analyze_CMB.py')
-
-              End if
-
-           End If
 
         End If
 
@@ -2021,7 +2242,7 @@ Program fisher
            write(job_number,*) ''//trim(paramnames(m))//' = ', means(m)
 
         End Do
-
+        
      End If
 
   Else

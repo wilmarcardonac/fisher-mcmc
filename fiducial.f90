@@ -110,10 +110,15 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 5000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
-  Integer*4,parameter    :: number_of_parameters = 10       ! NUMBER OF COSMOLOGICAL PARAMETERS: 10 FOR DEA MODEL ONLY INCLUDING e_pi; 11 FOR DEA MODEL INCLUDING 
-  ! f_pi and g_pi; 12 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi; 11 FOR DEA MODEL ONLY INCLUDING e_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 
-  ! 12 FOR DEA MODEL INCLUDING  f_pi and g_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 13 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi BUT JOINTLY ANALYSING  ! NUMBER COUNTS AND CMB DATA   
+  Integer*4,parameter    :: number_iterations = 10000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS: 
+  ! 10 FOR DEA MODEL ONLY INCLUDING e_pi; 
+  ! 11 FOR DEA MODEL INCLUDING f_pi and g_pi; 
+  ! 12 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi; 
+  ! 11 FOR DEA MODEL ONLY INCLUDING e_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 
+  ! 12 FOR DEA MODEL INCLUDING  f_pi and g_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 
+  ! 13 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi BUT JOINTLY ANALYSING  NUMBER COUNTS AND CMB DATA
+  ! 7  FOR LCDM MODEL INCLUDING MASSIVE NEUTRINOS AND CMB DATA ALONE
   Integer*4,parameter    :: DEA_MODEL = 1 ! 1: DEA MODEL ONLY INCLUDING e_pi; 2: DEA MODEL INCLUDING f_pi and g_pi; 3: DEA MODEL INCLUDING e_pi, f_pi, g_pi 
   Integer*4,parameter    :: number_DEA_parameters = DEA_MODEL 
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
@@ -131,9 +136,14 @@ Module fiducial
   Real*8,parameter       :: step_size_changes = 1.d-2      ! CHANGE IN STEP SIZE
 
   Character*16,parameter :: phrase = 'randomizer'       ! PHRASE NEEDED BY NUMBER RANDOM GENERATOR
-  ! MODEL 1
+
+  ! LCDM + MASSIVE NEUTRINOS
   Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
-       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ']!,'   f_pi   ','   g_pi   ']
+       '   A_s    ','   H0     ','  m_ncdm  ','   tau    ']
+
+  ! MODEL 1
+!  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
+!       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ']!,'   f_pi   ','   g_pi   ']
   ! MODEL 1 NUMBER COUNTS + CMB 
 !  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
 !       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ','   tau    ']
@@ -150,9 +160,13 @@ Module fiducial
 !  Character(len=10),dimension(number_of_parameters), parameter :: paramnames = ['omega_b   ','omega_cdm ','   n_s    ',&
 !       '   A_s    ','   H0     ','  m_ncdm  ','nc_bias_b0','cs2_fld   ','w0_fld    ','   e_pi   ','   f_pi   ','   g_pi   ',&
 !'   tau    ']
-  ! MODEL 1 NUMBER COUNTS ALONE
+
+  ! LCDM + MASSIVE NEUTRINOS
   Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
-       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ']
+       'A_s         ','H_0         ','m_{\nu}     ','\tau        ']
+  ! MODEL 1 NUMBER COUNTS ALONE
+!  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
+!       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ']
   ! MODEL 1 NUMBER COUNTS + CMB
 !  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
 !       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ','\tau        ']
@@ -173,16 +187,17 @@ Module fiducial
 
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
-  Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
-  Logical,parameter      :: start_from_bestfit = .true.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
+  Logical,parameter      :: start_from_fiducial = .true.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
+  Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
-  Logical,parameter      :: adjusting_covariance_matrix = .false.!.true.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
-  Logical,parameter      :: read_covariance_matrix_from_file = .true. !.true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
+  Logical,parameter      :: adjusting_covariance_matrix = .true.!.true.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
+  Logical,parameter      :: read_covariance_matrix_from_file = .false. !.true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE
   Logical,parameter      :: use_getdist = .false. ! USE GETDIST WHEN RUNNIG THE CODE IF SET IT TRUE
-  Logical,parameter      :: multiple_chains = .true. !.true.!.false. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
+  Logical,parameter      :: multiple_chains = .false. !.true.!.false. ! USED TO RUN SEVERAL CHAINS WITH SAME COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: use_only_autocorrelations = .false. ! COMPUTE LIKELIHOOD INCLUDING ONLY AUTOCORRELATIONS IF SET IT TRUE
   Logical,parameter      :: use_gaussian_planck_prior = .false. !.true. ! USE GAUSSIAN PRIOR BASED ON PAPER XIII (2015) IF SET IT TRUE
-  Logical,parameter      :: include_fake_planck_likelihood = .false. ! INCLUDE FAKE PLANCK LIKELIHOOD IN THE ANALYSIS IF SET IT TRUE
+  Logical,parameter      :: include_fake_planck_likelihood = .true. ! INCLUDE FAKE PLANCK LIKELIHOOD IN THE ANALYSIS IF SET IT TRUE
+  Logical,parameter      :: include_fake_euclid_likelihood = .false. ! INCLUDE FAKE EUCLID LIKELIHOOD IN THE ANALYSIS IF SET IT TRUE
 
   !###############
   ! PATHS TO FILES
