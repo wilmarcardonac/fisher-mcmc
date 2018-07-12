@@ -1793,7 +1793,7 @@ Program fisher
 
                     End If
 
-                    call read_covariance_matrix_mcmc(Covguess)
+                    call read_covariance_matrix_mcmc_adjusting(Covguess)
 
                     close(UNIT_MCMC)
 
