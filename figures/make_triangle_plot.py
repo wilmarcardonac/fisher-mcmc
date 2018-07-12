@@ -4,11 +4,11 @@ import os,fnmatch
 
 number_of_parameters = 10
 
-samples = loadMCSamples('../output/chains/NC-run4/mcmc_final_output',settings={'ignore_rows':0.})
+samples = loadMCSamples('../output/chains/NC-run6/mcmc_final_output',settings={'ignore_rows':0.})
 
-samples_neglecting_lensing = loadMCSamples('../../../neglecting-lensing/fisher-mcmc/output/chains/NC-run4/mcmc_final_output',settings={'ignore_rows':0.})
+samples_neglecting_lensing = loadMCSamples('../../../neglecting-lensing/fisher-mcmc/output/chains/NC-run6/mcmc_final_output',settings={'ignore_rows':0.})
 
-samples_neglecting_lensing_only_auto = loadMCSamples('../../../neglecting-lensing-only-auto/fisher-mcmc/output/chains/NC-run4/mcmc_final_output',settings={'ignore_rows':0.})
+samples_neglecting_lensing_only_auto = loadMCSamples('../../../neglecting-lensing-only-auto/fisher-mcmc/output/chains/NC-run6/mcmc_final_output',settings={'ignore_rows':0.})
 
 g = plots.getSinglePlotter()
 

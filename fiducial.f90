@@ -110,7 +110,7 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 5000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_iterations = 10000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
   Integer*4,parameter    :: number_of_parameters = 10       ! NUMBER OF COSMOLOGICAL PARAMETERS: 10 FOR DEA MODEL ONLY INCLUDING e_pi; 11 FOR DEA MODEL INCLUDING 
   ! f_pi and g_pi; 12 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi; 11 FOR DEA MODEL ONLY INCLUDING e_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 
   ! 12 FOR DEA MODEL INCLUDING  f_pi and g_pi BUT JOINTLY ANALYSING NUMBER COUNTS AND CMB DATA; 13 FOR DEA MODEL INCLUDING e_pi, f_pi, and g_pi BUT JOINTLY ANALYSING 
@@ -174,8 +174,8 @@ Module fiducial
 
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
-  Logical,parameter      :: start_from_fiducial = .true.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
-  Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
+  Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
+  Logical,parameter      :: start_from_bestfit = .true.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
   Logical,parameter      :: adjusting_covariance_matrix = .false.!.false.!.true.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
   Logical,parameter      :: read_covariance_matrix_from_file = .true. !.true. ! READ COVARIANCE MATRIX FROM FILE IF SET IT TRUE

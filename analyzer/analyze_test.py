@@ -2,12 +2,6 @@ from getdist import loadMCSamples,plots,covmat
 import numpy as np
 import os,fnmatch
 
-filenames = fnmatch.filter(os.listdir("../output/chains/"),"mcmc_*.txt")
-
-for index in range(len(filenames)):
-    
-    os.rename("../output/chains/"+str(filenames[index]),"../output/chains/mcmc_final_output_"+str(index+1)+".txt")
-
 number_of_parameters = 10
 
 samples = loadMCSamples('../output/chains/mcmc_final_output',settings={'ignore_rows':.0})
