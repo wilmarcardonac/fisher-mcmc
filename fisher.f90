@@ -1973,7 +1973,7 @@ Program fisher
 
                     call system('cd output; python compute_covariance_matrix_Gaussian.py')
      
-                    call read_covariance_matrix_mcmc(Covgauss)
+                    call read_covariance_matrix_mcmc_adjusting(Covgauss)
 
                     close(UNIT_MCMC)
                    
@@ -2006,7 +2006,7 @@ Program fisher
 
                     End if
 
-                    call read_covariance_matrix_mcmc(Covguess)
+                    call read_covariance_matrix_mcmc_adjusting(Covguess)
 
                     close(UNIT_MCMC)
 

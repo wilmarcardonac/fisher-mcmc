@@ -3495,6 +3495,88 @@ subroutine read_covariance_matrix_mcmc(matrix1)
 
 end subroutine read_covariance_matrix_mcmc
 
+subroutine read_covariance_matrix_mcmc_adjusting(matrix1)
+    use fiducial
+    Implicit none
+    Real*8,dimension(number_of_parameters,number_of_parameters) :: matrix,matrix1
+    Integer*4 :: index1,INFO
+    Integer*4,parameter :: LWORK = max(1,3*number_of_parameters-1)
+    Real*8,dimension(max(1,LWORK)) :: WORK
+    Real*8,dimension(number_of_parameters) :: W
+    Character*1,parameter :: JOBZ = 'N'
+    Character*1,parameter :: UPLO = 'U'
+    Logical :: pos_def,exist 
+ 
+    inquire(file='./output/covariance_matrix.txt',exist=exist)
+
+    If (exist) then
+
+       open(UNIT_FILE3,file='./output/covariance_matrix.txt')
+
+       read(UNIT_FILE3,*)
+
+    Else
+
+       print *, 'NO COVARIANCE MATRIX FOUND IN OUTPUT FOLDER'
+
+       stop
+
+    End If
+
+    Do index1=1,number_of_parameters
+
+       read(UNIT_FILE3,*) matrix(index1,1:number_of_parameters)
+       
+    End Do
+
+    close(UNIT_FILE3)
+
+    call dsyev(JOBZ,UPLO,number_of_parameters,matrix,number_of_parameters,W,WORK,LWORK,INFO)
+
+    If (INFO .eq. 0) then
+ 
+        pos_def = .true.
+        
+        Do index1=1,number_of_parameters
+         
+            If (W(index1) .le. 0.d0) then
+
+                pos_def = .false.
+
+                exit
+
+            End If
+
+        End Do
+      
+        If (pos_def) then
+
+            open(UNIT_FILE3,file='./output/covariance_matrix.txt')
+
+            read(UNIT_FILE3,*)
+
+            Do index1=1,number_of_parameters
+
+                read(UNIT_FILE3,*) matrix1(index1,1:number_of_parameters)
+
+            End Do
+
+            close(UNIT_FILE3)
+
+        Else
+
+            print *,'COVARIANCE MATRIX IS NOT POSITIVE DEFINITE, KEEPING CURRENT COVARIANCE MATRIX'
+            
+        End If
+
+    Else
+
+        print *,'EIGENVALUES WERE NOT COMPUTED'
+
+    End If
+
+end subroutine read_covariance_matrix_mcmc_adjusting
+
 subroutine read_covariance_matrix_prior(matrix1)
     use fiducial
     Implicit none

@@ -110,7 +110,7 @@ Module fiducial
   ! MCMC PARAMETERS
   !################
 
-  Integer*4,parameter    :: number_iterations = 10000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
+  Integer*4,parameter    :: number_iterations = 200000 !11000000        ! TOTAL NUMBER OF ITERATIONS IN MCMC RUN
   Integer*4,parameter    :: number_of_parameters = 7       ! NUMBER OF COSMOLOGICAL PARAMETERS: 
   ! 10 FOR DEA MODEL ONLY INCLUDING e_pi; 
   ! 11 FOR DEA MODEL INCLUDING f_pi and g_pi; 
@@ -122,8 +122,8 @@ Module fiducial
   Integer*4,parameter    :: DEA_MODEL = 1 ! 1: DEA MODEL ONLY INCLUDING e_pi; 2: DEA MODEL INCLUDING f_pi and g_pi; 3: DEA MODEL INCLUDING e_pi, f_pi, g_pi 
   Integer*4,parameter    :: number_DEA_parameters = DEA_MODEL 
   Integer*4,parameter    :: jumping_factor_update = 100    ! STEPS TAKEN BEFORE UPDATING JUMPING FACTOR (IF NEEDED)
-  Integer*4,parameter    :: covariance_matrix_update = 0 !5000!10000!0 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
-  Integer*4,parameter    :: steps_taken_before_definite_run = 0 !5000!10000!0 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
+  Integer*4,parameter    :: covariance_matrix_update = 5000 !5000!10000!0 ! STEPS TAKEN BEFORE UPDATING COVARIANCE MATRIX (IF NEEDED)
+  Integer*4,parameter    :: steps_taken_before_definite_run = 50000 !5000!10000!0 ! STEPS TAKEN BEFORE FREEZING COVARIANCE MATRIX
   Integer*4,parameter    :: number_of_parallel_jobs = 9 ! NUMBER OF JOBS FOR DEFINITE MCMC RUN
   Integer*4,parameter    :: UNIT_RANGES_FILE = 90        ! UNIT NUMBER FOR RANGES FILE
   Integer*4,parameter    :: UNIT_PARAMNAMES_FILE = 91    ! UNIT NUMBER FOR PARAMMNAMES FILE
