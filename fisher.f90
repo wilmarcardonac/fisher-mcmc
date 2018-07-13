@@ -779,7 +779,15 @@ Program fisher
 
            Else if (i .eq. 8) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e0'    ! cs2_fld
+              If ((DEA_MODEL .eq. 2) .or. (DEA_MODEL .eq. 3)) then
+
+                 write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e1'    ! cs2_fld
+
+              Else
+
+                 write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    1.e-10    1.e0'    ! cs2_fld
+
+              End if
 
            Else if (i .eq. 9) then
 
@@ -1300,7 +1308,15 @@ Program fisher
 
               Else if (n .eq. 8) then
 
-                 plausibility(n) = (x_new(n) .lt. real(-1.d1)) .or. (x_new(n) .ge. real(0.d0))  ! log10 cs2_fld
+                 If ((DEA_MODEL .eq. 2) .or. (DEA_MODEL .eq. 3)) then
+
+                    plausibility(n) = (x_new(n) .lt. real(-1.d1)) .or. (x_new(n) .ge. real(1.d0))  ! log10 cs2_fld
+
+                 Else
+
+                    plausibility(n) = (x_new(n) .lt. real(-1.d1)) .or. (x_new(n) .ge. real(0.d0))  ! log10 cs2_fld
+
+                 End if
 
               Else if (n .eq. 9) then
 
