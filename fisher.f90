@@ -108,7 +108,7 @@ Program fisher
 
   Else
 
-     job_number = 15
+     job_number = 1
 
      number_rnd = job_number
 

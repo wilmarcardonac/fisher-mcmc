@@ -176,7 +176,7 @@ Module fiducial
 
   Logical,parameter      :: using_inverse_fisher_matrix = .false. !.true. !  USE INVERSE OF FISHER MATRIX AS A COVARIANCE MATRIX IF SET IT TRUE  
   Logical,parameter      :: do_mcmc_analysis = .true.    ! DO MCMC ANALYSIS IF SET IT TRUE
-  Logical,parameter      :: start_from_fiducial = .true.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
+  Logical,parameter      :: start_from_fiducial = .false.    ! START MCMC ANALYSIS FROM FIDUCIAL POINT IF SET IT TRUE
   Logical,parameter      :: start_from_bestfit = .false.    ! START MCMC ANALYSIS FROM BESTFIT IF SET IT TRUE
   Logical,parameter      :: testing_Gaussian_likelihood = .false.  ! TEST GAUSSIAN LIKELIHOOD IF SET IT TRUE
   Logical,parameter      :: adjusting_covariance_matrix = .true.!.false.!.true.  ! UPDATE JUMPING FACTOR AND COVARIANCE MATRIX IF SET IT TRUE
