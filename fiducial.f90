@@ -24,7 +24,7 @@ Module fiducial
   !Real*8,parameter :: wa_fld = 0.d0 
   Real*8,parameter :: e_pi = 0.0d0
   Real*8,parameter :: f_pi = 5.0d0 ! 0.d0 ; 5.d0
-  Real*8,parameter :: g_pi = 1.0d0 ! 0.d0 ; 1.d0 ! THIS IS ACTUALLY log10 g_pi
+  Real*8,parameter :: g_pi = 0.0d0 ! 0.d0 ; 1.d0 ! THIS IS ACTUALLY log10 g_pi
 
 
   Character(len=*),parameter :: param_name_omega_b = 'omega_b'
