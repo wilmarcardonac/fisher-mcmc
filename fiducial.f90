@@ -168,7 +168,7 @@ Module fiducial
   ! MODEL 3 NUMBER COUNTS ALONE
 !  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
 !       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ','f_{\pi}     ',&
-       'g_{\pi}     ']
+!       'g_{\pi}     ']
   ! MODEL 3 NUMBER COUNTS + CMB
 !  Character(len=12),dimension(number_of_parameters), parameter :: latexname = ['\omega_b    ','\omega_{cdm}','n_s         ',&
 !       'A_s         ','H_0         ','m_{\nu}     ','b_0         ','c_s^2       ','w_0         ','e_{\pi}     ','f_{\pi}     ',&
