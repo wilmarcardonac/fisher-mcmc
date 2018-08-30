@@ -51,7 +51,6 @@ Program fisher
   Logical                                :: not_good_app,non_plausible_parameters,good_acceptance_probability ! CONTROL PLAUSIBLE VALUES OF COSMOLOGICAL PARAMETERS
   Logical,dimension(number_of_parameters) :: plausibility  
 
-!  Character(len=10) :: string ! STORES STRINGS FOR INTEGERS
   Character(len=32) :: string,string2
  
  !##########################################################
@@ -280,7 +279,7 @@ Program fisher
         End If
         ! COVARIANCE MATRIX SET
 
-        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*8.d-2 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
+        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))!*8.d-2 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
 
         ! COVARIANCE MATRIX ADJUSTED 
         Covguess = jumping_factor*Covguess
@@ -803,11 +802,11 @@ Program fisher
 
            Else if ( (DEA_MODEL .eq. 2) .and. (i .eq. 10) ) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -5.    1.e1'      ! f_pi
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -1.e1    1.e1'      ! f_pi
 
            Else if ( (DEA_MODEL .eq. 2) .and. (i .eq. 11) ) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-15    1.e15' ! g_pi
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-5    1.e5' ! g_pi
 
            Else if ( (DEA_MODEL .eq. 2) .and. (i .eq. 12) ) then
 
@@ -815,11 +814,11 @@ Program fisher
 
            Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 11) ) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -5.    1.e1'      ! f_pi
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'    -1.e1    1.e1'      ! f_pi
 
            Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 12) ) then
 
-              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-15    1.e15' ! g_pi
+              write(UNIT_RANGES_FILE,*) ''//trim(paramnames(i))//'     1.e-5    1.e5' ! g_pi
 
            Else if ( (DEA_MODEL .eq. 3) .and. (i .eq. 13) ) then
 
@@ -1332,11 +1331,11 @@ Program fisher
 
               Else If ( (DEA_MODEL .eq. 2) .and. (n .eq. 10)) then
 
-                 plausibility(n) =  (x_new(n) .le. real(-5.d0)) .or. (x_new(n) .ge. real(1.d1)) ! f_pi
+                 plausibility(n) =  (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(1.d1)) ! f_pi
 
               Else If ( (DEA_MODEL .eq. 2) .and. (n .eq. 11)) then
 
-                 plausibility(n) =  (x_new(n) .le. real(-1.5d1)) .or. (x_new(n) .ge. real(1.5d1)) ! log10 g_pi
+                 plausibility(n) =  (x_new(n) .le. real(-5.d0)) .or. (x_new(n) .ge. real(5.d0)) ! log10 g_pi
 
               Else if ( (DEA_MODEL .eq. 2) .and. (n .eq. 12) ) then
 
@@ -1344,11 +1343,11 @@ Program fisher
 
               Else if ( (DEA_MODEL .eq. 3) .and. (n .eq. 11) ) then
 
-                 plausibility(n) =  (x_new(n) .le. real(-5.d0)) .or. (x_new(n) .ge. real(1.d1)) ! f_pi
+                 plausibility(n) =  (x_new(n) .le. real(-1.d1)) .or. (x_new(n) .ge. real(1.d1)) ! f_pi
 
               Else if ( (DEA_MODEL .eq. 3) .and. (n .eq. 12) ) then
 
-                 plausibility(n) =  (x_new(n) .le. real(-1.5d1)) .or. (x_new(n) .ge. real(1.5d1)) ! log10 g_pi
+                 plausibility(n) =  (x_new(n) .le. real(-5.d0)) .or. (x_new(n) .ge. real(5.d0)) ! log10 g_pi
 
               Else if ( (DEA_MODEL .eq. 3) .and. (n .eq. 13) ) then
 
