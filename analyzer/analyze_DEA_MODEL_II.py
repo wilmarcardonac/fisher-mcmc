@@ -48,6 +48,14 @@ filemeans.close()
 
 print 'MEANS AND BESTFIT FILES CREATED'
 
+covariance_matrix = samples.getCov(pars=[0,1,2,11,4,5,6,12,8,9,13])#nparam=number_of_parameters)
+
+covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
+
+covariance_matrix_2.saveToFile('../output/chains/covariance_matrix.txt')
+
+print 'COVARIANCE MATRIX CREATED'
+
 stats = samples.getMargeStats()
 
 stats.saveAsText('../output/chains/1Dstatistics.txt')
@@ -132,14 +140,6 @@ for ax in g.subplots[10,0:10]:
 g.export('../output/chains/triangle_figure.pdf')
 
 print 'TRIANGLE PLOT CREATED'
-
-covariance_matrix = samples.getCov(pars=[0,1,2,11,4,5,6,12,8,9,13])#nparam=number_of_parameters)
-
-covariance_matrix_2 = covmat.CovMat(matrix=covariance_matrix)
-
-covariance_matrix_2.saveToFile('../output/chains/covariance_matrix.txt')
-
-print 'COVARIANCE MATRIX CREATED'
 
 exit()
 
