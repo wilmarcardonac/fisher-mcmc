@@ -444,7 +444,15 @@ function fake_planck_likelihood(Cl)
 
   If (abs(chi2).ge.0.d0) then
 
-     fake_planck_likelihood = -chi2/2.d0   
+     If (chi2 .ge. 0.d0) then 
+
+        fake_planck_likelihood = -chi2/2.d0   
+
+     Else
+
+        fake_planck_likelihood = -1.d10     
+
+     End if
 
   Else
 
