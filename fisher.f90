@@ -302,7 +302,7 @@ Program fisher
         End If
         ! COVARIANCE MATRIX SET
 
-        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*1.d-1 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
+        jumping_factor = 2.38d0/sqrt(dble(number_of_parameters))*8.d-2 !*1.d-4 ! INCREASE/DECREASE ACCORDING TO WANTED INITIAL ACCEPTANCE PROBABILITY
 
         ! COVARIANCE MATRIX ADJUSTED 
         Covguess = jumping_factor*Covguess
