@@ -1539,7 +1539,7 @@ subroutine write_ini_file_for_cmb(parameter_name, parameter_value)
 
        If (parameter_name .ne. param_name_g_pi) then
 
-          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', g_pi
+          write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', 1.d1**g_pi
 
        Else
 
@@ -2062,7 +2062,7 @@ subroutine write_ini_file_for_fisher(parameter_name, parameter_value, lensing_fl
 
           If (parameter_name .ne. param_name_g_pi) then
 
-             write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', g_pi
+             write(UNIT_FILE1,'(a7, es16.10)') 'g_pi = ', 1.d1**g_pi
 
           Else
 
